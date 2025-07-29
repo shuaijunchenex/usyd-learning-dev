@@ -1,0 +1,13 @@
+[global]
+index-url = http://192.168.0.8:9000/repository/pypi-group/simple
+
+extra-index-url = 
+    https://mirrors.aliyun.com/pypi/simple
+    https://pypi.doubanio.com/simple
+
+trusted-host=
+	192.168.0.8:9000
+    mirrors.aliyun.com
+    pypi.doubanio.com
+
+[install]

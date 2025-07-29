@@ -1,0 +1,16 @@
+# define clients id
+clients:
+  - client.1
+  - client.2
+  - client.3
+  - client.4
+
+edges:
+  - edge.1
+  - edge.2
+  
+servers:
+  - "server.1"
+
+links:
+      

@@ -1,0 +1,8 @@
+[distutils]
+index-servers =
+    nexus
+ 
+[nexus]
+repository=http://192.168.0.8:9000/repository/pypi-host/
+username=
+password=
