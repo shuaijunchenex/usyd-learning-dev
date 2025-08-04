@@ -1,3 +1,0 @@
-#配置日志地址
-logging:
-  config: classpath:log/logback-${ski.env}.xml

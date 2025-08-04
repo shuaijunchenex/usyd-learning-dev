@@ -1,5 +1,0 @@
-#-----------------------------
-# Aggregation section args
-#-----------------------------
-aggregation:
-  method: fedavg
