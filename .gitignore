@@ -141,6 +141,7 @@ ENV/
 env.bak/
 venv.bak/
 .dataset
+/**/.log/
 
 # Spyder project settings
 .spyderproject

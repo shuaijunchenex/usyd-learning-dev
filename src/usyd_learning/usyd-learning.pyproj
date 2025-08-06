@@ -64,6 +64,7 @@
     <Compile Include="fl_algorithms\selection\__init__.py" />
     <Compile Include="fl_algorithms\__init__.py" />
     <Compile Include="ml_algorithms\lora\impl\lora_git.py" />
+    <Compile Include="ml_algorithms\lora\impl\rbla.py" />
     <Compile Include="ml_algorithms\lora\lora_args.py" />
     <Compile Include="ml_algorithms\lora\impl\lora_linear.py" />
     <Compile Include="ml_algorithms\lora\impl\lora_ms.py" />
@@ -121,6 +122,7 @@
     <Compile Include="ml_utils\dict_path.py" />
     <Compile Include="ml_utils\filename_helper.py" />
     <Compile Include="ml_utils\key_value_map.py" />
+    <Compile Include="ml_utils\model_parameter_counter.py" />
     <Compile Include="ml_utils\object_map.py" />
     <Compile Include="ml_utils\key_value_args.py" />
     <Compile Include="ml_utils\event_handler\event_args.py" />

@@ -9,7 +9,6 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "unit_test", "unit_test\unit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".soulution", ".soulution", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
-		..\LICENSE.TXT = ..\LICENSE.TXT
 		..\package build & deploy.bat = ..\package build & deploy.bat
 		..\pyproject.toml = ..\pyproject.toml
 		..\README.md = ..\README.md
