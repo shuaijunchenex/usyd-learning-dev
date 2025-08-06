@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import Any
 
 from .data_handler_args import DataHandlerArgs
 
@@ -33,7 +34,7 @@ class DataHandler(ABC):
         pass
 
     @abstractmethod
-    def create_data_pool(self):
+    def create_data_pool(self, pools = 10) -> Any:
         """
         Organizes dataset into a dictionary where keys are class labels (0-9),
         and values are lists of corresponding images.

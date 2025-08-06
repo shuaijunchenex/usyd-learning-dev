@@ -11,7 +11,7 @@ class NNModel(AbstractNNModel):
          super().__init__()
 
      #override
-     def create_model(self, args: NNModelArgs = None) -> AbstractNNModel:
+     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
          return super().create_model(args)
 
      #override

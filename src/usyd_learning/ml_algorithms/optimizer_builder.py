@@ -23,7 +23,7 @@ class OptimizerBuilder(Handlers):
             self.config = config_dict
 
         self.parameters = parameters
-        self._optimizer: optim.Optimizer = None
+        self._optimizer: optim.Optimizer
 
         # Register standard method
         self.register_handler("sgd", self.__build_sgd)

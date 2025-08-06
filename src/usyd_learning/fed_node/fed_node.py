@@ -1,12 +1,12 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from copy import copy
+from typing import Optional
 
 from .fed_node_vars import FedNodeVars
 from .fed_node_type import EFedNodeType
 from ..ml_simu_switcher import SimuNode, SimuSwitcher
 from ..ml_utils import EventHandler, console, String
-
 
 '''
 Node class interface declare(virtual class as interface)
@@ -14,26 +14,31 @@ Note:
    'data_loader_collate_fn', 'data_loader_transform' member for data loader
 '''
 
+
 class FedNode(ABC, EventHandler):
-    def __init__(self, node_id: str, node_group:str = ""):
+    def __init__(self, node_id: str, node_group: str = ""):
         EventHandler.__init__(self)
 
-        self.node_id : str = node_id                                # Unique Node ID
-        self.node_group : str = node_group                          # Belong to group
-        self.node_type : EFedNodeType = EFedNodeType.unknown        # Node Type        
-        self.simu_switcher: SimuSwitcher = None         # switcher
-        self.simu_node : SimuNode = None                # Simu node of switcher 
+        self._node_id: str = node_id  # Unique Node ID
+        self.node_group: str = node_group  # Belong to group
+        self.node_type: EFedNodeType = EFedNodeType.unknown  # Node Type
+        self.simu_switcher: Optional[SimuSwitcher] = None  # switcher
+        self.simu_node: Optional[SimuNode] = None  # Simu node of switcher
 
-        # Node var associted to node
-        self.node_var: FedNodeVars = None
+        # Node var associated to node
+        self.node_var: Optional[FedNodeVars] = None
         return
+
+    @property
+    def node_id(self):
+        return self._node_id
 
     @property
     def node_full_id(self):
         """
-        Node full id with group id, like: "client_1@group_1"
+        Node full id with group id, like "client_1@group_1"
         """
-        return f"{self.node_id}@{self.node_group}"
+        return f"{self._node_id}@{self.node_group}"
 
     def with_node_var(self, var: FedNodeVars):
         """
@@ -47,7 +52,7 @@ class FedNode(ABC, EventHandler):
         Create node's simu node for data exchange
         """
         self.simu_switcher = simu_switcher
-        self.simu_node = self.simu_switcher.create_node(self.node_id)
+        self.simu_node = self.simu_switcher.create_node(self._node_id)
         return
 
     def connect(self, node_id: str):
@@ -71,7 +76,7 @@ class FedNode(ABC, EventHandler):
         return self.strategy.run_local_training()
 
     def __str__(self):
-        return self.node_id;
+        return self._node_id
 
     ##################################################################
 
@@ -89,7 +94,6 @@ class FedNode(ABC, EventHandler):
         return 0
         # TODO: make different arg extractor class
 
-
     def observation(self):
         """Client node executes local observation operations."""
         return self.strategy.run_observation()
@@ -100,7 +104,7 @@ class FedNode(ABC, EventHandler):
     def update_global_weight(self, new_weight):
         # simulate receive global weight and set it to local model
         self.args.global_weight = copy.deepcopy(new_weight)
-        
+
     def update_local_wbab(self, new_wbab):
         self.args.local_wbab = copy.deepcopy(new_wbab)
 
@@ -120,4 +124,3 @@ class FedNode(ABC, EventHandler):
     def get_weights(self):
         """Retrieve the current model weights."""
         return self.weight_handler.get_weights(self.model)
-

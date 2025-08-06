@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import random
 import time
+from typing import Any
 
 """
 ' Fed Server Aggregator class interface declare
@@ -28,7 +29,7 @@ class AbstractFedServerAggregator(ABC):
         self._aggregation_method = ""
 
         # Aggregated weight
-        self._aggregated_weight: any = None  # can be wbab or torch dict or ....
+        self._aggregated_weight: Any = None  # can be wbab or torch dict or ....
 
         # seed range milliseconds 0~999
         self.with_random_seed(int(time.time() * 1000) % 1000)
@@ -56,7 +57,7 @@ class AbstractFedServerAggregator(ABC):
         random.seed(seed)
         return self
 
-    def with_clients_update(self, clients_update: any):
+    def with_clients_update(self, clients_update: Any):
         """
         When select clients according to some client data
 

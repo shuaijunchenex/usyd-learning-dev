@@ -1,13 +1,14 @@
 import sys, os
 
-def startup_init_path(startup_file_path, search_paths: list = ["..", "../.."]):
+
+def startup_init_path(startup_file_path, search_paths=None):
     """
     Initial execute startup path.
 
     Notice: Copy this file to program source code folder, then import it, and
             add follow code into startup file, like main.py
 
-    ``` pyhton
+    ``` python
 
     from __future__ import annotations
 
@@ -17,17 +18,19 @@ def startup_init_path(startup_file_path, search_paths: list = ["..", "../.."]):
     from startup_init import startup_init_path
     startup_init_path(os.path.dirname(os.path.abspath(__file__)))
     #-----------------------------------------------------------------
+    ```
 
     Args:
         startup_file_path: program run starup path
         search_paths: append search paths, default append '..' and '../..' folder
 
-    ```
     """
 
     # For Visual Studio startup path at <project folder>\test
     # like D:\Project.ML\neat_torch_ml\src-libs\usyd-learning\src\test
     # You must add search path as follows
+    if search_paths is None:
+        search_paths = ["..", "../.."]
     for path in search_paths:
         sys.path.append(path)
 

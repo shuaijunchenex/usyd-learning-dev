@@ -1,3 +1,4 @@
+from typing import Any
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,7 +16,7 @@ class NNModel_CifarConvnet(NNModel):
         
 
     #override
-    def create_model(self, args: NNModelArgs = None) -> AbstractNNModel:
+    def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
         
         # Defining layers with same shapes but without the same padding attribute
@@ -39,7 +40,7 @@ class NNModel_CifarConvnet(NNModel):
         return self         #Note: return self
 
     #override
-    def forward(self, x):
+    def forward(self, x) -> Any:
         # Forward pass through layers with calculated shapes and activations
         x = F.relu(self._conv1(x))
         x = self._bn1(x)

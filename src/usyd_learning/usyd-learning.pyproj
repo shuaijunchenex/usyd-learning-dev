@@ -97,11 +97,11 @@
     <Compile Include="ml_data_loader\loader\_dataset_loader_svhn.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_yahooanswers.py" />
     <Compile Include="ml_data_loader\__init__.py" />
+    <Compile Include="ml_data_loader\dataset_custom.py" />
     <Compile Include="ml_data_process\data_handler\data_handler_args.py" />
     <Compile Include="ml_data_process\data_distribution.py" />
     <Compile Include="ml_data_process\data_handler\data_handler.py" />
-    <Compile Include="ml_data_process\data_handler\data_handler_factory.py" />
-    <Compile Include="ml_data_process\data_handler\noneiid\_data_handler_noniid.py" />
+    <Compile Include="ml_data_process\data_handler\data_handler_noniid.py" />
     <Compile Include="ml_data_process\weight_handler\weight_handler.py" />
     <Compile Include="ml_data_process\__init__.py" />
     <Compile Include="ml_models\models\_nn_model_capstone_mlp.py" />
@@ -175,7 +175,6 @@
     <Folder Include="ml_data_loader\loader\" />
     <Folder Include="ml_data_loader\loader\__pycache__\" />
     <Folder Include="ml_data_process\data_handler\" />
-    <Folder Include="ml_data_process\data_handler\noneiid\" />
     <Folder Include="ml_data_process\weight_handler\" />
     <Folder Include="ml_models\" />
     <Folder Include="ml_models\models\" />

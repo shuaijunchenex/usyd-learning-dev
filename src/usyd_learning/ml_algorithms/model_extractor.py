@@ -1,4 +1,5 @@
 import json, os
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -22,17 +23,17 @@ class ModelExtractor(Handlers):
         self.register_handler(LoRALinear, self.__extract_handler_lora_linear)
         return
 
-    def register_handler(self, layer_type: type, handler_fn):
+    def register_handler(self, any_key: Any, handler_fn):
         """
         Register any type's handler function callback
         Model extract handler function format:
             def <func_name>(<model> = nn.Module, <only_trainable>: bool = False) -> dict
         """
 
-        if self.exists_handler(layer_type):
-            console.warn(f"Layer type({layer_type}) already exists, will replace previous handler.")
+        if self.exists_handler(any_key):
+            console.warn(f"Layer type({any_key}) already exists, will replace previous handler.")
 
-        super().register_handler(layer_type, handler_fn)
+        super().register_handler(any_key, handler_fn)
         return self
 
     def extract_layers(self, model: nn.Module, only_trainable = False) -> dict:

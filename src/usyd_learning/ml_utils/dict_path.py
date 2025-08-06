@@ -8,19 +8,16 @@ import json
 
 class DictPath(UserDict):
 	"""
-		DicPath is a normal dict but you can extract and inject the complex nested dict only using Path.
+	DicPath is a normal dict that you can extract and inject the complex nested dict only using Path.
 	"""
 
-	# FIX wrong behavior of standard library
-	# <a>.pop(<b>, None) returns key error, if <b> not in <a>.
-	# This fixes it.
-	def pop(self, key, *args):
-		return self.data.pop(key, *args)
-
-	def __init__(self, dictionary: dict = {}, is_deep_copy: bool = False):
+	def __init__(self, dictionary: dict = None, is_deep_copy: bool = False):
 		"""
-			Accept python dict or DictPath.
+		Accept python dict or DictPath.
 		"""
+		super().__init__(dictionary)
+		if dictionary is None:
+			dictionary = {}
 		if isinstance(dictionary, DictPath):
 			self.data = dictionary.data
 		elif isinstance(dictionary, dict):
@@ -33,33 +30,33 @@ class DictPath(UserDict):
 	@property
 	def dict(self) -> dict:
 		"""
-			Returns a reference to the dict.
+		Returns a reference to the dict.
 		"""
 		return self.data
 
 	@property
 	def deepcopy(self) -> DictPath:
 		"""
-			Create a complete copy of a DictPath
+		Create a complete copy of a DictPath
 		"""
-		return DictPath(self, is_deep_copy=True)
+		return DictPath(self.data, is_deep_copy=True)
 
 	def __repr__(self) -> str:
 		"""
-			Returns a pretty indented json string representation.
+		Returns a pretty indented json string representation.
 		"""
 		dump = json.dumps(self.data, indent=2, sort_keys=True)
 		return f"DictPath({dump})"
-		
+
 	def clean_path(self, path):
 		path = path[1:] if path.startswith('/') else path
 		return path.split('/')
 
-	def get(self, path: str, default_value = None) -> Union[DictPath, Any]:
+	def get(self, path: str, default_value=None) -> Union[DictPath, Any]:
 		"""
-			Get the value of the dictionary at the given path
-			dict.get("foo/bar/foo1/bar1") is like calling dict["foo"]["bar"]["foo1"]["bar1"].
-			Invalid paths return None without error.
+		Get the value of the dictionary at the given path
+		dict.get("foo/bar/foo1/bar1") is like calling dict["foo"]["bar"]["foo1"]["bar1"].
+		Invalid paths return None without error.
 		"""
 		path = self.clean_path(path)
 		if path == "":
@@ -68,7 +65,7 @@ class DictPath(UserDict):
 		for attr in path:
 			if current is None:
 				return default_value
-		
+
 			if isinstance(current, dict):
 				current = current.get(attr)
 			elif isinstance(current, list):
@@ -80,10 +77,10 @@ class DictPath(UserDict):
 
 	def set(self, path: str, value=None):
 		"""
-			Set the value of the dictionary at the given path
-			dict.set("foo/bar/foo1/bar1", 'bar') is like calling dict["foo"]["bar"]["foo1"]["bar1"] = "bar".
-			If a path does not exist, it will be created.
-			Empty path will do nothing.
+		Set the value of the dictionary at the given path
+		dict.set("foo/bar/foo1/bar1", 'bar') is like calling dict["foo"]["bar"]["foo1"]["bar1"] = "bar".
+		If a path does not exist, it will be created.
+		Empty path will do nothing.
 		"""
 		path = self.clean_path(path)
 		current = self.data
@@ -98,11 +95,17 @@ class DictPath(UserDict):
 		else:
 			current[last_path_attr] = value
 
+	# FIX wrong behavior of standard library
+	# <a>.pop(<b>, None) returns key error, if <b> not in <a>.
+	# This fixes it.
+	def pop(self, key, *args):
+		return self.data.pop(key, *args)
+
 	def __getitem__(self, path) -> Any:
 		""" Subscript for <DictPath>.get() """
 		# If DictPath["key1"], then path="key1"
 		# DictPath["key1", "key2"], then path=tuple("key1", "key2")
-		
+
 		path = "/".join(list(path)) if isinstance(path, tuple) else path
 		return self.get(path)
 
@@ -134,12 +137,11 @@ def set_dict_value(dictionary, path, value):
 
 	_active_dict = dictionary
 	for i, p in enumerate(paths):
-
 		if i == path_len - 1:
 			_active_dict[p] = value
 			continue
 
-		if _active_dict.get(p) == None:
+		if _active_dict.get(p) is None:
 			_active_dict[p] = {}
 		_active_dict = _active_dict.get(p)
 	return dictionary

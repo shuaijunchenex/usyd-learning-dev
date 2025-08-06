@@ -1,9 +1,8 @@
-
 """
 Data distribution for none iid
 """
 
-from ..ml_utils import console
+from typing import Any
 
 
 class DataDistribution:
@@ -59,6 +58,7 @@ class DataDistribution:
 
     # private use data list name
     __use_distribution_name: str = "mnist_lt"
+    __use_volume_list = __std_volume_mnist_lt
 
 
     @staticmethod
@@ -66,17 +66,11 @@ class DataDistribution:
         """
         Get used distribution
         """
-        if len(DataDistribution.__use_distribution_name) == 0:
-            return None
-
-        if(not DataDistribution.exists(DataDistribution.__use_distribution_name)):
-            return None
-
-        return DataDistribution.__data_dict[DataDistribution.__use_distribution_name]
+        return DataDistribution.__use_volume_list
 
 
     @staticmethod
-    def add(name: str, volum_list: any):
+    def add(name: str, volum_list: Any):
         """
         Add another distribution
         """
@@ -104,12 +98,13 @@ class DataDistribution:
 
 
     @staticmethod
-    def use(name = "mnist_lt"):
+    def use(name = "mnist_lt", data_volume_list = None) -> list:
         """
         Use distribution pattern for data allocation.
 
         Args:
             distribution (str): Type of distribution ('mnist_lt' for long-tail, or others for user-defined).
+            data_volume_list (array): data volume list if distribution pattern name not found
 
         Returns:
             list: A nested list where each sublist represents the data volume per class for a client.
@@ -118,10 +113,11 @@ class DataDistribution:
         n = name.strip()
         if DataDistribution.exists(n):
             DataDistribution.__use_distribution_name = n
-            return DataDistribution.__data_dict[n]
+            DataDistribution.__use_volume_list = DataDistribution.__data_dict[n]
         else:
-            console.warn(f"Distribution name '{n}' not found.")
+            DataDistribution.__use_volume_list = data_volume_list
 
+        return DataDistribution.get()
 
     @staticmethod
     def parse_config(config_dict: dict):

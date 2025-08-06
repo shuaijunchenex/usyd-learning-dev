@@ -1,13 +1,13 @@
 import torch
+from torch.utils.data import DataLoader
 
-from ..data_handler import DataHandler
-
-from ..data_handler_args import DataHandlerArgs
-from ...ml_data_loader.dataset_loader_abc import DatasetLoaderArgs
-from ...ml_data_loader.dataset_loader import DataLoaderFactory
+from .data_handler import DataHandler
+from .data_handler_args import DataHandlerArgs
+from ...ml_data_loader import DatasetLoaderFactory, CustomDataset
+from ...ml_data_process.data_distribution import DataDistribution
 
 class DataHandler_Noniid(DataHandler):
-    def __init__(self, dataloader):
+    def __init__(self, dataloader: DataLoader):
         """
         Args:
             dataloader (DataLoader): PyTorch DataLoader for dataset
@@ -36,7 +36,7 @@ class DataHandler_Noniid(DataHandler):
         self.y_train = torch.cat(labels_list, dim=0)
 
     #override
-    def create_data_pool(self):
+    def create_data_pool(self, pools = 10):
         """
         Organizes dataset into a dictionary where keys are class labels (0-9),
         and values are lists of corresponding images.
@@ -45,8 +45,8 @@ class DataHandler_Noniid(DataHandler):
             dict: {label: tensor(images)}
         """
 
-        self.data_pool = {i: [] for i in range(10)}
-        for i in range(10):
+        self.data_pool = {i: [] for i in range(pools)}
+        for i in range(pools):
             self.data_pool[i] = self.x_train[self.y_train.flatten() == i]
 
         return self.data_pool
@@ -73,7 +73,7 @@ class DataHandler_Noniid(DataHandler):
             raise ValueError("Data pool is not created. Call create_data_pool() first.")
 
         # Get the distribution pattern
-        distribution_pattern = self.distribution_generator(args.distribution, args.data_volum_list)
+        distribution_pattern = DataDistribution.use(args.distribution, args.data_volum_list)
 
         # Allocate data for each client
         allocated_data = []
@@ -133,9 +133,7 @@ class DataHandler_Noniid(DataHandler):
             )
             
             # Create DataLoader for this client
-            args = DatasetLoaderArgs()
-
-            train_loader = DataLoaderFactory.create_loader(
+            train_loader = DatasetLoaderFactory.create_loader(
                 train_dataset, 
                 batch_size = args.batch_size,  # Ensure batch_size doesn't exceed dataset size
                 shuffle = args.shuffle, 

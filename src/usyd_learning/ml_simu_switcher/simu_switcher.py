@@ -153,7 +153,7 @@ class SimuSwitcher:
                 continue
 
             # node data from queue
-            node_data: SimuNode = self._send_queue.get()
+            node_data: SimuNodeData = self._send_queue.get()
 
             # notify event
             eventArgs = SimuNodeDataEventArgs(node_data.data, node_data.from_node_id, node_data.to_node_id)

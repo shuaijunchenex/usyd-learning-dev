@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 
 ################
@@ -7,7 +8,7 @@ from __future__ import annotations
 
 
 class SimuNodeData:
-    def __init__(self, data: any, from_id: str, to_id: str):
+    def __init__(self, data: Any, from_id: str, to_id: str):
         """
         " from node id
         """
@@ -21,7 +22,7 @@ class SimuNodeData:
         """
         " data
         """
-        self.data: any = data
+        self.data: Any = data
 
         """
         " data type

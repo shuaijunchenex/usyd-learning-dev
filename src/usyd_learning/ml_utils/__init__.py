@@ -1,4 +1,4 @@
-## Module
+# Module
 
 from .config_loader import ConfigLoader
 from .filename_maker import FileNameMaker, FileNameMakerNames
@@ -20,7 +20,7 @@ from .startup_init import startup_init_path
 from .functions import dict_get, dict_exists
 from .figure_plotter import FigurePlotter
 
-__all__ = [ConfigLoader, FileNameMaker, FileNameMakerNames, Handlers, MultiHandlers, AppEntry, FileNameHelper, FileNameParts,
-           TrainingLogger, CsvDataRecorder, EventHandler, KeyValueArgs, ObjectMap, KeyValueMap, FigurePlotter,
-           EventArgs, TextLogger, String, console, DictPath,
-           startup_init_path, set_dict_value, get_dict_value, dict_get, dict_exists]
+__all__ = ["ConfigLoader", "FileNameMaker", "FileNameMakerNames", "Handlers", "MultiHandlers", "AppEntry", "FileNameHelper", "FileNameParts",
+           "TrainingLogger", "CsvDataRecorder", "EventHandler", "KeyValueArgs", "ObjectMap", "KeyValueMap", "FigurePlotter",
+           "EventArgs", "TextLogger", "String", "console", "DictPath",
+           "startup_init_path", "set_dict_value", "get_dict_value", "dict_get", "dict_exists"]

@@ -3,16 +3,16 @@ from __future__ import annotations
 from collections import namedtuple
 import os
 
-
 """
 Declare FileName part named tuple
 """
 FileNameParts = namedtuple("FileNameParts", ["fullname", "folder", "file", "name", "extension"])
 
-"""
-Get file's part: "fullname", "folder", "file", "name", "extension"
-"""
+
 class FileNameHelper:
+    """
+    Get file's part: "fullname", "folder", "file", "name", "extension"
+    """
 
     @staticmethod
     def split(file_path):
@@ -29,7 +29,6 @@ class FileNameHelper:
         """
         Combine paths use os.path.join method
         """
-
         return os.path.join(*paths).replace("\\", "/")
 
     @staticmethod

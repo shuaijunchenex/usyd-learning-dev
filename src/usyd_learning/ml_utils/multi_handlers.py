@@ -1,39 +1,30 @@
 from __future__ import annotations
-
-"""
-Multi handlers
-"""
+from typing import Any
 
 
 class MultiHandlers:
+    """
+    Multi handlers
+    """
     def __init__(self):
-        """
-        Handler(callback) dict
-        """
-
         self.__handler_dict = {}
         return
 
-
-    def exists_handler(self, any_key: any, handler=None) -> bool:
+    def exists_handler(self, any_key: Any, handler=None) -> bool:
         """
-        " event exists
+        " handler exists
         """
-
         if any_key not in self.__handler_dict:
             return False
 
         if handler is not None:
             return handler in self.__handler_dict[any_key]
-
         return True
 
-
-    def register_handler(self, any_key: any, handler):
+    def register_handler(self, any_key: Any, handler):
         """
         Register handler to a key
         """
-
         if not self.exists_handler(any_key):
             self.__handler_dict[any_key] = [handler]
             return self
@@ -44,12 +35,10 @@ class MultiHandlers:
         self.__handler_dict[any_key].append(handler)
         return self
 
-
-    def unregister_handler(self, any_key: any, handler = None):
+    def unregister_handler(self, any_key: Any, handler = None):
         """
         Unregister a key handler
         """
-
         if not self.exists_handler(any_key, handler):
             return self
 
@@ -61,12 +50,10 @@ class MultiHandlers:
                 del self.__handler_dict[any_key]
         return self
 
-
-    def invoke_handler(self, any_key: any, *args, **kwargs):
+    def invoke_handler(self, any_key: Any, *args, **kwargs):
         """
         Invoke handler
         """
-
         if not self.exists_handler(any_key):
             return
 
@@ -74,14 +61,11 @@ class MultiHandlers:
             if handler is not None:
                 handler(*args, **kwargs)
 
-
     def clear_handlers(self):
         """
         " Clear all handler
         """
-
         self.__handler_dict.clear()
-
 
     def __str__(self):
         return " ".join(self.__handler_dict)

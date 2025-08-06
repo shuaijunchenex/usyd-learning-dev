@@ -24,7 +24,7 @@ class FedNodeServer(FedNode):
 
     # override
     def _run_once(self):
-        console.info(f"{self.node_id}: Run...")
+        console.info(f"{self._node_id}: Run...")
         pass
 
     ##################################################

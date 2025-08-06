@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>81e42be1-ecd2-4750-8a48-8c089052e2ca</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>unittest_node.py</StartupFile>
+    <StartupFile>unittest_data_handler.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,7 @@
   <ItemGroup>
     <Compile Include="startup_init.py" />
     <Compile Include="unittest_data_distribution.py" />
+    <Compile Include="unittest_data_handler.py" />
     <Compile Include="unittest_data_loader.py" />
     <Compile Include="unittest_fedavg_aggregator.py" />
     <Compile Include="unittest_fed_client_seletor.py" />

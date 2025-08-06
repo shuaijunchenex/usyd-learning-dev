@@ -1,12 +1,36 @@
 from __future__ import annotations
 
-from .dataset_loader import DatasetLoader
+from torch.utils.data import DataLoader
+
+from .dataset_loader import AbstractDatasetLoader
 from .dataset_loader_args import DatasetLoaderArgs
 
 class DatasetLoaderFactory:
     """
     " Dataset loader factory
     """
+
+    @staticmethod
+    def create_loader(dataset, batch_size, shuffle=True, num_workers=4, collate_fn=None):
+        """
+        Create a DataLoader for the given dataset.
+
+        Args:
+            dataset: The dataset to load data from.
+            batch_size (int): Number of samples per batch.
+            shuffle (bool): Whether to shuffle the data.
+            num_workers (int): Number of worker threads.
+            collate_fn (callable, optional): Function to merge a list of samples into a batch.
+
+        Returns:
+            DataLoader: A PyTorch DataLoader.
+        """
+        return DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers,
+            collate_fn=collate_fn)
 
     @staticmethod
     def create_args(config_dict: dict, is_clone_dict: bool = False) -> DatasetLoaderArgs:
@@ -16,7 +40,7 @@ class DatasetLoaderFactory:
         return DatasetLoaderArgs(config_dict, is_clone_dict)
 
     @staticmethod
-    def create(data_loader_args: DatasetLoaderArgs) -> DatasetLoader:
+    def create(data_loader_args: DatasetLoaderArgs) -> AbstractDatasetLoader|None:
         """
         " Static method to create data loader
         """

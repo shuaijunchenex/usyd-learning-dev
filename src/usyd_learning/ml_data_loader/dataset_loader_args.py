@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Any
 
 from ..ml_utils import KeyValueArgs, dict_exists, dict_get
 from .dataset_loader_util import DatasetLoaderUtil
@@ -26,11 +27,11 @@ class DatasetLoaderArgs(KeyValueArgs):
     is_load_test_set: bool = False
 
     # Collate and tramsform
-    collate_fn = None
-    transform = None
+    collate_fn: Any = None
+    transform: Any = None
     text_collate_fn = DatasetLoaderUtil.text_collate_fn
 
-    def __init__(self, config_dict: dict = None, is_clone_dict = False):
+    def __init__(self, config_dict: dict, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 
         if config_dict is None:

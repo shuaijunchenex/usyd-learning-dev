@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC, abstractclassmethod
+from abc import ABC
 
 from .console import console
 from .filename_helper import FileNameHelper
@@ -12,26 +12,22 @@ class AppEntry(ABC, ObjectMap):
     """
     App entry class
     """
-    #-----------------------------------
     # Static class variables
-    #-----------------------------------    
-    __app_configs = ObjectMap()      # App config dictionary object map
-    __app_config_define: dict = {}   # App config define dict
-    #-----------------------------------
+    __app_objects = ObjectMap()  # App objects map
+    __app_config_define: dict = {}  # App config define dict
 
     def __init__(self):
-        super().__init__()
+        ObjectMap.__init__(self)
 
     @property
     def app_config(self):
-        return AppEntry.__app_configs;
+        return AppEntry.__app_objects
 
     @property
     def app_config_define(self):
-        return AppEntry.__app_config_define;
+        return AppEntry.__app_config_define
 
-    @abstractclassmethod
-    def run(self, training_rounds = 50):
+    def run(self, training_rounds=50):
         """
         Run app
         """
@@ -50,8 +46,7 @@ class AppEntry(ABC, ObjectMap):
         self.__parse_app_config_define(file_part.folder, AppEntry.__app_config_define)
         return
 
-
-    def __parse_app_config_define(self, folder: str, config_define: dict):
+    def __parse_app_config_define(self, folder: str, config_define: dict) -> None:
         yaml_map = {}
         yaml_path = config_define.get("yaml_section_path", "")
 
@@ -71,17 +66,17 @@ class AppEntry(ABC, ObjectMap):
                 name = file_part.name
 
             config_dict = ConfigLoader.load(fullname)
-            AppEntry.__app_configs.add_object(name, config_dict)
+            AppEntry.__app_objects.add_object(name, config_dict)
             yaml_map[name] = fullname
-        
+
         # Section: "yaml_combination"
         yaml_combine = config_define["yaml_combination"]
-        for cfg_name, combination in yaml_combine.items():            
+        for cfg_name, combination in yaml_combine.items():
             if cfg_name == "yaml_section_path" or cfg_name == "yaml_section_files":
                 continue
 
-            # Existance check -- not allow repeat
-            if AppEntry.__app_configs.exists_object(cfg_name):
+            # Existence check -- repeat not allowed
+            if AppEntry.__app_objects.exists_object(cfg_name):
                 raise ValueError(f"Combined yaml '{cfg_name}' already exists in app configs")
 
             combine_dict = {}
@@ -90,5 +85,5 @@ class AppEntry(ABC, ObjectMap):
                     config_dict = ConfigLoader.load(yaml_map[name])
                     combine_dict.update(config_dict)
 
-            AppEntry.__app_configs.add_object(cfg_name, combine_dict)
+            AppEntry.__app_objects.add_object(cfg_name, combine_dict)
         return

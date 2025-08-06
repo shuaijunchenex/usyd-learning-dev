@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Any
 
 from ..ml_utils.key_value_args import KeyValueArgs
 
@@ -23,16 +24,18 @@ class NNModelArgs(KeyValueArgs):
     lora_mode: str = "standard"
 
 
-    def __init__(self, config_dict: dict = None, is_clone_dict = False):
+    def __init__(self, config_dict: dict[str, Any]|None = None, is_clone_dict = False):
         """
         Model type enum
         """
 
-        super().__init__(config_dict, is_clone_dict)
         if config_dict is None:
-             self.set_args({})
-        elif "nn_model" in config_dict:
-            self.set_args(config_dict["nn_model"])
+            super().__init__({}, is_clone_dict)    
+            self.set_args({})
+        else:
+            super().__init__(config_dict, is_clone_dict)
+            if "nn_model" in config_dict:
+                self.set_args(config_dict["nn_model"])
 
         self.model_type = self.get("name", "")
         self.input_dim = self.get("input_dim", 0)

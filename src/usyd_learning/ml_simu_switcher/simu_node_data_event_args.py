@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 from ..ml_utils import EventArgs
 from .simu_node import SimuNodeData
@@ -8,7 +9,7 @@ from .simu_node import SimuNodeData
 ###
 
 class SimuNodeDataEventArgs(EventArgs, SimuNodeData):
-    def __init__(self, data: any, from_id: str, to_id: str):
+    def __init__(self, data: Any, from_id: str, to_id: str):
         EventArgs.__init__(self)
         SimuNodeData.__init__(self, data, from_id, to_id)
 

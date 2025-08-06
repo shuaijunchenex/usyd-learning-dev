@@ -21,7 +21,7 @@ class LoRAArgs(KeyValueArgs):
 
     alpha: float = 0
 
-    def __init__(self, config_dict: dict = None, is_clone_dict = False):
+    def __init__(self, config_dict: dict, is_clone_dict = False):
         """
         Linear layer with Low-Rank Adaptation (LoRA).
         """

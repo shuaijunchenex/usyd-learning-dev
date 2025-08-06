@@ -1,5 +1,6 @@
 from __future__ import annotations
 from queue import Queue
+from typing import Any
 
 from .simu_node_connect_event_args import SimuNodeConnectEventArgs
 from .simu_node_data import SimuNodeData
@@ -39,12 +40,12 @@ class SimuNode(EventHandler):
         """
         " receive data queue
         """
-        self._queue = Queue()
+        self._queue: Queue = Queue()
 
         """
         " node clients array
         """
-        self._clients = []
+        self._clients: list = []
 
     ############################################################
     # region Attributes
@@ -112,7 +113,7 @@ class SimuNode(EventHandler):
         return
 
 
-    def send_up(self, data: any):
+    def send_up(self, data: Any):
         """
         " Send data to connected up server
         """
@@ -121,7 +122,7 @@ class SimuNode(EventHandler):
         return
 
 
-    def send_down(self, node_id: str, data: any):
+    def send_down(self, node_id: str, data: Any):
         """
         " Send data to a client which connected to this node
         """
@@ -133,7 +134,7 @@ class SimuNode(EventHandler):
         return
 
 
-    def send_down_all(self, data: any):
+    def send_down_all(self, data: Any):
         """
         " Send data to all clients connected to this node
         """
@@ -143,7 +144,7 @@ class SimuNode(EventHandler):
         return
 
 
-    def send_to(self, to_node_id: str, data: any):
+    def send_to(self, to_node_id: str, data: Any):
         """
         " Send data to node id
         """

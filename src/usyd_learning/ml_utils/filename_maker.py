@@ -11,11 +11,10 @@ Declare FileNameMaker make method return named tuple
 """
 FileNameMakerNames = namedtuple("FileNameMakerNames", ["name", "path", "filename", "fullname"])
 
-"""
-Make a file by name, default at './.results/' with .csv extension
-"""
 class FileNameMaker:
-
+    """
+    Make a file by name, default at './.results/' with .csv extension
+    """
     name: str = ""
     path: str = "./.results/"
     prefix: str = ""
@@ -24,7 +23,6 @@ class FileNameMaker:
 
     __hash_str_const = "FileNameMaker HASH string"
     __hash_count = 0
-
 
     @staticmethod
     def with_path(file_path: str):
@@ -41,13 +39,11 @@ class FileNameMaker:
         FileNameMaker.prefix = file_prefix
         return FileNameMaker
 
-
     @staticmethod
     def make(name: str = ""):
         """
         Generate a unique filename based on the configuration.
         """
-        
         FileNameMaker.name = name
 
         filename = FileNameMaker.prefix

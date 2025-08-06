@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 import random
+from typing import Any
 
 from ...ml_utils import EventHandler
 
@@ -32,7 +33,7 @@ class AbstractFedClientSelector(ABC, EventHandler):
         random.seed(int(seed * 1000) % 1000)
         return self
 
-    def with_clients_data(self, clients_data: any):
+    def with_clients_data(self, clients_data: Any):
         """
         When select clients according to some client data
         """

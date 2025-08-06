@@ -13,7 +13,7 @@ class LossFunctionBuilder:
     """
 
     @staticmethod
-    def build(config: dict = None):
+    def build(config: dict):
 
         if config is None:
             config = {}

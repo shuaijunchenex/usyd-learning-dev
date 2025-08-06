@@ -1,8 +1,9 @@
 from __future__ import annotations
 from inspect import isfunction, ismethod
+from typing import Any
+
 
 class Handlers(object):
-
     def __init__(self):
         self.__handlers: dict = {}
         return
@@ -18,22 +19,20 @@ class Handlers(object):
     def handlers(self):
         return self.__handlers
 
-    def register_handler(self, any_key: any, handler_fn):
+    def register_handler(self, any_key: Any, handler_fn):
         """
         Register handler function callback, if handler function exists, replace the old one
         """
-
         if handler_fn is None:
             raise ValueError("Register handler is None.")
 
         if not (isfunction(handler_fn) or ismethod(handler_fn)):
-           raise ValueError("Register handler is not a function.")
+            raise ValueError("Register handler is not a function.")
 
         self.__handlers[any_key] = handler_fn
         return self
 
-
-    def unregister_handler(self, any_key: any):
+    def unregister_handler(self, any_key: Any):
         """
         Unregister handler
         """
@@ -42,20 +41,16 @@ class Handlers(object):
             del self.__handlers[any_key]
         return self
 
-
     def exists_handler(self, any_key):
         """
         Determine fn key is registered
         """
-
         return any_key in self.__handlers
 
-
-    def invoke_handler(self, any_key: any, *args, **kwargs):
+    def invoke_handler(self, any_key: Any, *args, **kwargs):
         """
         Execute fn call
         """
-
         if not self.exists_handler(any_key):
             return None
 
@@ -63,12 +58,10 @@ class Handlers(object):
         if fn is not None:
             return fn(*args, **kwargs)
 
-
-    def safe_add_kwarg(self, kwargs: dict, key: str, value: any, cast_type = None):
+    def safe_add_kwarg(self, kwargs: dict, key: str, value: Any, cast_type = None):
         """
-        Safly add an arg to kwargs
+        Safely add an arg to kwargs
         """
-
         if cast_type is not None:
             try:
                 value = cast_type(value)

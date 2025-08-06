@@ -13,6 +13,6 @@ from .models._nn_model_simple_mlp import NNModel_SimpleMLP
 from .models._nn_model_cifar_convnet import NNModel_CifarConvnet
 from .models._nn_model_simple_lora_mlp import NNModel_SimpleLoRAMLP
 
-__all__ = [NNModelFactory, AbstractNNModel, NNModel, NNModelArgs, ModelUtils,
-           NNModel_MnistNNBrenden, NNModel_CapstoneMLP, NNModel_SimpleMLP,
-           NNModel_CifarConvnet, NNModel_SimpleLoRAMLP]
+__all__ = ["NNModelFactory", "AbstractNNModel", "NNModel", "NNModelArgs",
+           "ModelUtils", "NNModel_MnistNNBrenden", "NNModel_CapstoneMLP",
+           "NNModel_SimpleMLP", "NNModel_CifarConvnet", "NNModel_SimpleLoRAMLP"]

@@ -10,4 +10,5 @@ from .simu_node_disconnect_event_args import SimuNodeDisconnectEventArgs
 from .simu_switcher import SimuSwitcher
 from .simu_switcher_default import SimuSwitcherDefault
 
-__all__ = [SimuSwitcherDefault, SimuSwitcher, SimuNode, SimuNodeConnectEventArgs, SimuNodeData, SimuNodeDataEventArgs, SimuNodeDisconnectEventArgs, EventHandler, EventArgs]
+__all__ = ["SimuSwitcherDefault", "SimuSwitcher", "SimuNode", "SimuNodeConnectEventArgs",
+           "SimuNodeData", "SimuNodeDataEventArgs", "SimuNodeDisconnectEventArgs", "EventHandler", "EventArgs"]

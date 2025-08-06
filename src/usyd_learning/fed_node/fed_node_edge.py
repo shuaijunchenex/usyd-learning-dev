@@ -11,8 +11,8 @@ import copy
 
 
 class FedNodeEdge(FedNode):
-    def __init__(self, node_id: str, config_dict: dict, node_group:str = ""):
-        super().__init__(node_id, config_dict, node_group)
+    def __init__(self, node_id: str, node_group:str = ""):
+        super().__init__(node_id, node_group)
 
         # Edge node type
         self.__node_type = EFedNodeType.edge
@@ -23,11 +23,4 @@ class FedNodeEdge(FedNode):
         self.server_node = None
         #----------------------------------------
 
-    #override
-    def prepare(self) -> None:
-        """
-        Parse yaml config and prepare variables
-        """
-        super().prepare()
-        return
 

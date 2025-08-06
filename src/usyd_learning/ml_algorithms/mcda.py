@@ -12,7 +12,7 @@ class MultiCriteriaDecisionAnalysis:
     def __init__(self) -> None:
         pass
 
-    def reverse_min_max_normalizer(x):
+    def reverse_min_max_normalizer(self, x):
         x_max = np.max(x)
         x_min = np.min(x)
         return (x_max - x) / (x_max  - x_min)
@@ -97,7 +97,7 @@ class MultiCriteriaDecisionAnalysis:
         return scores
             
 
-    def grey_relational_analysis(data, reference_series=None, normalize='max', rho=0.5, weights=None):
+    def grey_relational_analysis(self, data, reference_series=None, normalize='max', rho=0.5, weights=None):
         """
         Grey Relational Analysis (GRA) function with metric weights
 
@@ -176,7 +176,7 @@ class MultiCriteriaDecisionAnalysis:
 
         return relational_grade
 
-    def grey_relational_analysis_old(input, eps = 0.5, weight = None, normalization = 'default'): # eps is the ratio in range (1,0)
+    def grey_relational_analysis_old(self, input, eps = 0.5, weight = None, normalization = 'default'): # eps is the ratio in range (1,0)
         input = pd.DataFrame(input)
 
         if len(input) == 1:
@@ -191,7 +191,7 @@ class MultiCriteriaDecisionAnalysis:
             input = MinMaxScaler().fit_transform(input)
         elif normalization == 'reverse_minmax':
             '''fit for metric smaller the better'''
-            input = MultiCriteriaDecisionAnalysis.reverse_min_max_normalizer(input)
+            input = self.reverse_min_max_normalizer(input)
         elif normalization == 'none':
             pass
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import Any
 
 from ...ml_utils.key_value_args import KeyValueArgs
 
@@ -15,7 +16,7 @@ class AggregatorArgs(KeyValueArgs):
     type: str = ""
     is_wbab: bool = False # for RBLA use
 
-    def __init__(self, config_dict: dict[str, any], is_clone_dict = False):
+    def __init__(self, config_dict: dict[str, Any], is_clone_dict = False):
         """
         Args for aggregation methods
         """

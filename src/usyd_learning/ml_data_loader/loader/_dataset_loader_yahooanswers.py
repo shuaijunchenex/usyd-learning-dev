@@ -5,7 +5,6 @@ from torchtext.datasets import YahooAnswers
 
 from ..dataset_loader import DatasetLoader
 from ..dataset_loader_args import DatasetLoaderArgs
-from ..dataset_loader_util import DatasetLoaderUtil
 
 '''
 Dataset loader for YahooAnswers

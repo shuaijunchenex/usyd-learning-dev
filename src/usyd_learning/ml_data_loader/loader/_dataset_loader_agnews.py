@@ -25,8 +25,7 @@ class DatasetLoader_Agnews(DatasetLoader):
             batch_size=args.batch_size,
             shuffle=args.shuffle,
             num_workers=args.num_workers,
-            collate_fn=args.text_collate_fn,
-        )
+            collate_fn=args.text_collate_fn)
 
         args.is_load_train_set = True
         args.is_load_test_set = False

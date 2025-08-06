@@ -1,3 +1,4 @@
+from typing import Any
 import torch.nn as nn
 
 from .. import AbstractNNModel, NNModelArgs, NNModel
@@ -13,7 +14,7 @@ class NNModel_CapstoneMLP(NNModel):
         
 
     #override
-    def create_model(self, args: NNModelArgs = None) -> AbstractNNModel:
+    def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
         
         self._flatten = nn.Flatten()

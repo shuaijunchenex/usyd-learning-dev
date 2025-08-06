@@ -17,12 +17,12 @@ class ModelTrainerArgs(KeyValueArgs):
     """
     Torch NN Model
     """
-    model: nn.Module = None
+    model: nn.Module|None = None
 
     """
     Optimizer
     """
-    optimizer: optim.Optimizer = None
+    optimizer: optim.Optimizer|None = None
 
     """
     Loss function
@@ -32,8 +32,8 @@ class ModelTrainerArgs(KeyValueArgs):
     """
     Training data
     """
-    train_loader: DataLoader = None
-    test_loader: DataLoader = None
+    train_loader: DataLoader|None = None
+    test_loader: DataLoader|None = None
     
     """
     Run on device via 'cpu' or 'gpu'
@@ -48,7 +48,7 @@ class ModelTrainerArgs(KeyValueArgs):
     """
     best_val_acc = 0.0
 
-    def __init__(self, config_dict: dict = None, is_clone_dict = False):
+    def __init__(self, config_dict: dict, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 
         if config_dict is None:

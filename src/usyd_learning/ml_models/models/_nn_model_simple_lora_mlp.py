@@ -15,7 +15,7 @@ class NNModel_SimpleLoRAMLP(NNModel):
         
 
     #override
-    def create_model(self, args: NNModelArgs = None) -> AbstractNNModel:
+    def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
         
         self._fc1 = LoRALinear(args.input_dim, args.hidden_dim, rank = int(160 * args.rank_ratio), lora_mode=args.lora_mode)

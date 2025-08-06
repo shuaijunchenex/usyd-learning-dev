@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from tqdm import tqdm
+import yaml
 
 from ..ml_utils import console
 from ..ml_simu_switcher import SimuSwitcher
@@ -12,12 +13,12 @@ class FedRunner(ABC):
     def __init__(self):
         self._switcher = SimuSwitcher()          #Simulate net switcher
 
-        self._yaml: dict = None
+        self._yaml: dict = {}
         self.training_rounds = 50
 
         self.client_node_list = []
         self.edge_node_list = []
-        self.server_node: FedNodeServer = None
+        self.server_node: FedNodeServer|None = None
         return
 
     #------------------------------------------
@@ -34,7 +35,7 @@ class FedRunner(ABC):
         return self
 
     def with_yaml(self, runner_yaml: str):
-        self._yaml = runner_yaml
+        self._yaml = yaml.load(runner_yaml, Loader=yaml.FullLoader)
         return self
 
     #------------------------------------------

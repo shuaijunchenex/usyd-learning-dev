@@ -1,4 +1,5 @@
 from __future__ import annotations
+import sys
 
 
 class __global_const(object):
@@ -12,7 +13,8 @@ class __global_const(object):
            const.PI = 3.1415
     """
 
-    class ConstError(TypeError): pass
+    class ConstError(TypeError):
+        pass
 
     def __setattr__(self, key, value):
         if key in self.__dict__:
@@ -22,10 +24,10 @@ class __global_const(object):
         return
 
     def __getattr__(self, key):
-        if self.__dict__.has_key(key):
+        if key in self.__dict__:
             return self.key
         else:
             return None
 
-import sys
+
 sys.modules[__name__] = __global_const()

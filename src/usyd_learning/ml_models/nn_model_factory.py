@@ -9,11 +9,11 @@ NN Model factory static class
 class NNModelFactory:
     
      @staticmethod
-     def create_args(config_dict: dict = None, is_clone_dict = False) -> NNModelArgs:
+     def create_args(config_dict: dict|None = None, is_clone_dict = False) -> NNModelArgs:
          return NNModelArgs(config_dict, is_clone_dict)
 
      @staticmethod
-     def create(args: NNModelArgs) -> AbstractNNModel:
+     def create(args: NNModelArgs) -> AbstractNNModel|None:
          match args.model_type:
              case "mnist_nn_brenden":
                 from .models._nn_model_mnist_nn_brenden import NNModel_MnistNNBrenden

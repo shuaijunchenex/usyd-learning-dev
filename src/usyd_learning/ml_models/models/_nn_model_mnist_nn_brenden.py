@@ -1,3 +1,4 @@
+from typing import Any
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -13,7 +14,7 @@ class NNModel_MnistNNBrenden(NNModel):
         super().__init__()
 
     #override
-    def create_model(self, args: NNModelArgs = None) -> AbstractNNModel:
+    def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
         
         self._relu = nn.ReLU()
@@ -23,7 +24,7 @@ class NNModel_MnistNNBrenden(NNModel):
         return self         #Note: return self
 
     #override
-    def forward(self, x):
+    def forward(self, x)-> Any:
         x = F.relu(self._fc1(x))
         x = F.relu(self._fc2(x))
         x = F.softmax(self._fc3(x), dim=1)

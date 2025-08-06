@@ -7,7 +7,7 @@ class ModelTrainerFactory:
     Model trainer factory
     """
     @staticmethod
-    def create_args(config_dict: dict) -> ModelTrainer:
+    def create_args(config_dict: dict) -> ModelTrainerArgs:
         return ModelTrainerArgs(config_dict)
 
     @staticmethod

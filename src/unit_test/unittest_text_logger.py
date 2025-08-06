@@ -29,7 +29,6 @@ def main():
     print("Close logger")
     text_logger.close()
     print(f"logger is open: {text_logger.is_open}")
-
     return
 
 if __name__ == "__main__":

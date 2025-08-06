@@ -4,8 +4,8 @@ import copy
 import torch.nn.init as init
 import math
 
-from lora.lora_implementation.lora_linear import LoRALinear
-from model_extractor.advanced_model_extractor import AdvancedModelExtractor
+from .lora import LoRALinear
+from .model_extractor import ModelExtractor
 
 class MatrixApproximator:
 
@@ -171,7 +171,6 @@ class MatrixApproximator:
 if __name__ == "__main__":
     import sys
     sys.path.insert(0, '')
-    from model_extractor.advanced_model_extractor import AdvancedModelExtractor
 
     def test_matrix_approximator():
         torch.manual_seed(42)
@@ -213,7 +212,7 @@ if __name__ == "__main__":
         approximator = MatrixApproximator(model, rank=4, use_sqrt=True)
         lora_model = approximator.approximate_lora_model()
 
-        w_b_AB = AdvancedModelExtractor(lora_model)._extract_all_layers()
+        w_b_AB = ModelExtractor().extract_layers(lora_model)
 
         # Verify that all linear layers have been replaced
         linear_count = sum(1 for m in lora_model.modules() if isinstance(m, nn.Linear))

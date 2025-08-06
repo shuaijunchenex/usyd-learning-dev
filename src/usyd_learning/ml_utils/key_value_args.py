@@ -1,23 +1,25 @@
 from .dict_path import DictPath
+from typing import Any
 
 
 class KeyValueArgs:
     """
     String K-V dictionary args
     """
-
-    def __init__(self, from_dict: dict[str, any], is_clone_dict = False):
+    def __init__(self, from_dict: dict[str, Any], is_clone_dict=False):
         # private
+        self.__key_value_dict = None
         self.set_args(from_dict, is_clone_dict)
         return
 
+    # Getter
     @property
     def key_value_dict(self): return self.__key_value_dict
 
-    def set_args(self, from_dict: dict[str, any], is_clone_dict = False):
+    def set_args(self, from_dict: dict[str, Any], is_clone_dict=False):
         self.__key_value_dict = DictPath(from_dict, is_clone_dict)
 
-    def get(self, key_name: str, default_value: any = None):
+    def get(self, key_name: str, default_value: Any = None) -> Any:
         """
         Get value from similar key name, can use path like 'key/key1'
         """
@@ -28,7 +30,7 @@ class KeyValueArgs:
 
         return default_value
 
-    def set(self, key_name: str, value: any):
+    def set(self, key_name: str, value: Any):
         """
         Set value from key name
         """

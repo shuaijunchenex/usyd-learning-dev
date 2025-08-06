@@ -1,7 +1,7 @@
 ﻿from __future__ import annotations
-import traceback
-import sys
 
+import traceback
+from typing import Any, Optional
 from colorama import Fore, Back, Style, init
 
 from .string import String
@@ -36,8 +36,7 @@ class console:
 
     __debug_log_enabled: bool = False
     __debug_log_path = __const_default_log_path
-    __debug_log_ename = "debug_trace"
-
+    __debug_log_name = "debug_trace"
 
     @staticmethod
     def set_debug(on_off = True):
@@ -45,7 +44,6 @@ class console:
         Set status if output debug info
         """
         console.__is_debug = on_off
-
 
     @staticmethod
     def set_log_level(level_str = "warn"):
@@ -100,7 +98,6 @@ class console:
         return console
 
     #--------------------------------------------------------------
-
     @staticmethod
     def __begin_log():
         if console.__console_log_enabled and not console.__console_logger.is_open:
@@ -121,21 +118,21 @@ class console:
         return
     
     @staticmethod
-    def __write_console_log(text: any, end="\n"):
+    def __write_console_log(text: Any, end="\n"):
         console.__begin_log()
         if console.__console_log_enabled:
             console.__console_logger.write(f"{text}", end)
         return
 
     @staticmethod
-    def __write_exception_log(text: any, end="\n"):
+    def __write_exception_log(text: Any, end="\n"):
         console.__begin_log()
         if console.__exception_log_enabled:
             console.__exception_logger.write(f"{text}", end)
         return
 
     @staticmethod
-    def __write_debug_log(text: any, end="\n"):
+    def __write_debug_log(text: Any, end="\n"):
         console.__begin_log()
         if console.__debug_log_enabled:
             console.__debug_logger.write(f"{text}", end)
@@ -143,36 +140,35 @@ class console:
 
     #--------------------------------------------------------------
     @staticmethod
-    def out(text: any, end = "\n"):
+    def out(text: Any, end = "\n"):
         print(Fore.RESET + f"{text}" + Fore.RESET, end=end)
         if console.__log_level <= 1:
             console.__write_console_log(text)
         return console
     
     @staticmethod
-    def info(text: any, end = "\n"):
+    def info(text: Any, end = "\n"):
         print(Fore.CYAN + f"{text}" + Fore.RESET, end=end)
         if console.__log_level <= 2:
             console.__write_console_log(text)
         return console
     
     @staticmethod
-    def ok(text: any, end = "\n"):
+    def ok(text: Any, end = "\n"):
         print(Fore.GREEN + f"{console.__const_char_ok}{text}" + Fore.RESET, end=end)
         if console.__log_level <= 3:
             console.__write_console_log(text)
         return console
     
     @staticmethod
-    def warn(text: any, end = "\n"):
+    def warn(text: Any, end = "\n"):
         print(Fore.YELLOW + f"{text}" + Fore.RESET, end=end)
         if console.__log_level <= 4:
             console.__write_console_log(text)
         return console
-
     
     @staticmethod
-    def error(text: any, end = "\n"):
+    def error(text: Any, end = "\n"):
         print(Fore.RED + f"{text}" + Fore.RESET, end=end)
         if console.__log_level <= 5:
             console.__write_console_log(text)
@@ -194,7 +190,7 @@ class console:
         Print error and raise exception, log exception
         """
         if not isinstance(ex, Exception):
-            return console.error_exception(ex, end)
+            return console.error_exception(f"{ex}", end)
 
         try:
             console.error(f"Exception: {ex}", end)
@@ -210,10 +206,9 @@ class console:
 
             console.__write_exception_log("\n".join(arr))
             raise
-        return
 
     @staticmethod
-    def debug(text: any, end = "\n"):
+    def debug(text: Any, end="\n"):
         """
         Debug output text if debug status is True
         """
@@ -226,7 +221,7 @@ class console:
 
     #--------------------------------------------------------------
     @staticmethod
-    def wait_any_key(prompt_text = "Press any key to continue.") -> None:                
+    def wait_any_key(prompt_text="Press any key to continue.") -> None:
         """
         Wait any key pressed
         """
@@ -235,7 +230,7 @@ class console:
         keyboard.read_key()
 
     @staticmethod
-    def wait_key(key = "enter", prompt_text: str = None) -> None:                
+    def wait_key(key="enter", prompt_text: Optional[str] = None) -> None:
         """
         Wait key pressed
         """

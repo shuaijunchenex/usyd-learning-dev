@@ -23,7 +23,7 @@ class DataHandlerArgs(KeyValueArgs):
 
     num_workers: int = 0
 
-    def __init__(self, config_dict: dict = None, is_clone_dict = False):
+    def __init__(self, config_dict: dict, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 
         if config_dict is None:

@@ -12,8 +12,8 @@ class AbstractDatasetLoader(ABC):
 
     def __init__(self):
         self._dataset_type: str  # Dataset type
-        self.train_data_loader: DataLoader = None  # Training data loader
-        self.test_data_loader: DataLoader = None  # Test data loader
+        self.train_data_loader: DataLoader  # Training data loader
+        self.test_data_loader: DataLoader  # Test data loader
         return
 
     # --------------------------------------------------

@@ -38,12 +38,13 @@ def test_config_loader():
     console.info("Loaded YAML data:")
     console.info(yaml_data)
     console.out("------------- End -----------------\n")
-
     return
+
 
 def main():
     test_config_loader()
     return
+
 
 if __name__ == "__main__":
     main()

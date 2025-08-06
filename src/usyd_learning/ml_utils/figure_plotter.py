@@ -1,23 +1,37 @@
 from __future__ import annotations
-
 from .console import console
 
+
 class FigurePlotter:
+    window_size: int = 10
+    figure_width: int = 10
+    figure_height: int = 6
+
     @staticmethod
-    def plot_csv_files(files_dict: dict, x_column: str, y_column: str, window_size: int = 10):
+    def with_window_size(win_size: int):
+        FigurePlotter.window_size = win_size
+        return FigurePlotter
+
+    @staticmethod
+    def with_figure_size(figure_width: int, figure_height: int):
+        FigurePlotter.figure_width = figure_width
+        FigurePlotter.figure_height = figure_height
+        return FigurePlotter
+
+    @staticmethod
+    def plot_csv_files(files_dict: dict, x_column: str, y_column: str):
         """
         Plot raw and rolling average lines from multiple CSV files.
 
         Args:
-            files (dict): Dict mapping legend labels to CSV file paths.
+            files_dict (dict): Dict mapping legend labels to CSV file paths.
             x_column (str): Column to use for x-axis.
             y_column (str): Column to use for y-axis.
-            window_size (int): Window size for rolling average.
         """
         import matplotlib.pyplot as plt
         import pandas as pd
 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(FigurePlotter.figure_width, FigurePlotter.figure_height))
 
         for label, file_path in files_dict.items():
             try:
@@ -30,7 +44,7 @@ class FigurePlotter:
 
                 x = df[x_column]
                 y = df[y_column]
-                y_smooth = y.rolling(window=window_size, min_periods=1).mean()
+                y_smooth = y.rolling(window=FigurePlotter.window_size, min_periods=1).mean()
 
                 # Plot raw (dashed) and get color
                 raw_line, = plt.plot(x, y, linestyle='--', alpha=0)
@@ -45,7 +59,7 @@ class FigurePlotter:
 
         plt.xlabel(x_column)
         plt.ylabel(y_column)
-        plt.title(f"{y_column} vs {x_column} (Rolling window={window_size})")
+        plt.title(f"{y_column} vs {x_column} (Rolling window={FigurePlotter.window_size})")
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
