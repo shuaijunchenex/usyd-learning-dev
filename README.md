@@ -1,1 +1,2 @@
-# neat_torch_ml
+# USYD Learning framework
+
