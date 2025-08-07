@@ -61,12 +61,13 @@ def test_handlers():
     handlers.invoke_handler("f2", wbab_1=3, wbab_2=3, norm="c")
 
     console.out("------------- End -----------------\n")
-
     return
+
 
 def main():
     test_handlers()
     return
+
 
 if __name__ == "__main__":
     main()

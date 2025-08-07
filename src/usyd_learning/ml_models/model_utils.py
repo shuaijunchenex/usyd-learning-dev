@@ -12,7 +12,7 @@ Common NN Model Utils
 class ModelUtils:
 
     @staticmethod
-    def clear_model_grads(model : nn.Model):
+    def clear_model_grads(model : nn.Module):
         """
         Clears the gradients of all parameters in the given model by setting .grad to None.
         """

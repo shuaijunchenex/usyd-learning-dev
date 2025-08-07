@@ -8,7 +8,7 @@ class KeyValueArgs:
     """
     def __init__(self, from_dict: dict[str, Any], is_clone_dict=False):
         # private
-        self.__key_value_dict = None
+        self.__key_value_dict = {}
         self.set_args(from_dict, is_clone_dict)
         return
 

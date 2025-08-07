@@ -32,11 +32,17 @@ class AbstractNNModel(ABC, nn.Module):
         return self._model_args
 
     @abstractmethod
+    def create_args(self) -> NNModelArgs:
+        """
+        " Create model args
+        """
+        pass
+
+    @abstractmethod
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         """
         " Abstract: create model
         """
-
         if args is None:
             args = NNModelArgs()
 

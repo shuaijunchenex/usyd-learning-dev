@@ -11,8 +11,18 @@ from .models._nn_model_mnist_nn_brenden import NNModel_MnistNNBrenden
 from .models._nn_model_capstone_mlp import NNModel_CapstoneMLP
 from .models._nn_model_simple_mlp import NNModel_SimpleMLP
 from .models._nn_model_cifar_convnet import NNModel_CifarConvnet
-from .models._nn_model_simple_lora_mlp import NNModel_SimpleLoRAMLP
+from .lora._nn_model_simple_lora_mlp import NNModel_SimpleLoRAMLP
+from .lora._nn_model_simple_lora_cnn import NNModel_SimpleLoRACNN
 
-__all__ = ["NNModelFactory", "AbstractNNModel", "NNModel", "NNModelArgs",
-           "ModelUtils", "NNModel_MnistNNBrenden", "NNModel_CapstoneMLP",
-           "NNModel_SimpleMLP", "NNModel_CifarConvnet", "NNModel_SimpleLoRAMLP"]
+from .mobilenet._nn_model_thin_mobilenet import NNModel_ModifiedNet, SeparableConv2d
+
+from .transformer_encoder._nn_model_multi_head_self_attention import MultiHeadSelfAttention
+from .transformer_encoder._nn_model_transformer_encoder import TransformerEncoder
+
+from .vit._nn_model_simple_vit import SimpleViT
+from .vit._nn_model_vit import ViT
+
+__all__ = ["NNModelFactory", "AbstractNNModel", "NNModel", "NNModelArgs", "NNModel_SimpleLoRACNN",
+           "ModelUtils", "NNModel_MnistNNBrenden", "NNModel_CapstoneMLP", "NNModel_ModifiedNet", "SeparableConv2d",
+           "NNModel_SimpleMLP", "NNModel_CifarConvnet", "NNModel_SimpleLoRAMLP",
+           "TransformerEncoder", "MultiHeadSelfAttention", "SimpleViT", "ViT"]
