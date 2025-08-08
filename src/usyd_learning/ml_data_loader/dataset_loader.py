@@ -12,11 +12,11 @@ class DatasetLoader(ABC):
     """
 
     def __init__(self):
-        self._dataset_type: str  # Dataset type
-        self._data_loader: DataLoader|None = None  # Training data loader
-        self._dataset: Dataset|None = None
-        self._args: DatasetLoaderArgs
-        self._after_create_fn: Callable[[DatasetLoader]]|None = None
+        self._dataset_type: str = ""  # Dataset type
+        self._data_loader: DataLoader | None = None  # Training data loader
+        self._dataset: Dataset | None = None
+        self._args: DatasetLoaderArgs | None = None
+        self._after_create_fn: Callable[[DatasetLoader], None] | None = None
         return
 
     # --------------------------------------------------
@@ -36,12 +36,12 @@ class DatasetLoader(ABC):
     def args(self): return self._args
 
     # --------------------------------------------------
-    def create(self, args: DatasetLoaderArgs, fn:Callable[[DatasetLoader]] = None) -> DatasetLoader:
+    def create(self, args: DatasetLoaderArgs, fn: Callable[[DatasetLoader], None] = None) -> DatasetLoader:
         """
-        Creta Dataset Loader
+        Create Dataset Loader
         """
         self._args = args
-        self._create_inner(args)  # creatte dataset loader
+        self._create_inner(args)  # create dataset loader
         if fn is not None:
             self._after_create_fn = fn
             fn(self)
