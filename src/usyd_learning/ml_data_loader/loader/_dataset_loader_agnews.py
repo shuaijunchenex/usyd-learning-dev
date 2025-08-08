@@ -19,14 +19,12 @@ class DatasetLoader_Agnews(DatasetLoader):
 
     # override
     def _create_inner(self, args: DatasetLoaderArgs) -> None:
-        dataset = AG_NEWS(root=args.root, split=args.split)
-        self.train_data_loader = DataLoader(
-            dataset,
+        self._dataset = AG_NEWS(root=args.root, split=args.split)
+        self._data_loader = DataLoader(
+            self._dataset,
             batch_size=args.batch_size,
             shuffle=args.shuffle,
             num_workers=args.num_workers,
             collate_fn=args.text_collate_fn)
 
-        args.is_load_train_set = True
-        args.is_load_test_set = False
         return

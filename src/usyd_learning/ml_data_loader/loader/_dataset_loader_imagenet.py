@@ -26,9 +26,6 @@ class DatasetLoader_ImageNet(DatasetLoader):
                 transforms.ToTensor(),
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
-        dataset = datasets.ImageNet(root= args.root, split = args.split, transform = args.transform)
-        self.train_data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
-
-        args.is_load_train_set = True
-        args.is_load_test_set = False
+        self._dataset = datasets.ImageNet(root= args.root, split = args.split, transform = args.transform)
+        self._data_loader = DataLoader(self._dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
         return

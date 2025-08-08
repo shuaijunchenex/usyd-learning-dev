@@ -23,10 +23,6 @@ class DatasetLoader_Emnist(DatasetLoader):
                 transforms.ToTensor(),
                 transforms.Normalize((0.1307,), (0.3081,))])
 
-        dataset = datasets.EMNIST(root = args.root, split = args.split, train=True, transform = args.transform, download = args.is_download)
-
-        self.train_data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
-        
-        args.is_load_train_set = True
-        args.is_load_test_set = False
+        self._dateset = datasets.EMNIST(root = args.root, split = args.split, train=True, transform = args.transform, download = args.is_download)
+        self._data_loader = DataLoader(self._dateset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
         return

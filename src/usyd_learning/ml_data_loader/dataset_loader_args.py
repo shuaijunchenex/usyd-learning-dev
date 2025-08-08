@@ -11,20 +11,18 @@ class DatasetLoaderArgs(KeyValueArgs):
     """
     Dataset loader arguments
     """
-
+    
+    # Dataset vars
     dataset_type: str = ""  # Dataset type
     root: str = ""          # data set files folder
     split: str = ""
+    is_train: bool = True   # True for train, False for test
+    is_download: bool = True      # is download from internet
+
+    # Data loader vars
     batch_size: int = 64
     shuffle: bool = True
     num_workers: int = 4
-
-    # is download from internet
-    is_download: bool = True
-
-    # is load training set
-    is_load_train_set: bool = True
-    is_load_test_set: bool = False
 
     # Collate and tramsform
     collate_fn: Any = None
@@ -42,12 +40,10 @@ class DatasetLoaderArgs(KeyValueArgs):
         self.dataset_type = self.get("name", "mnist")
         self.root = self.get("root", ".dataset")
         self.split = self.get("split", "")
+        self.is_train = self.get("is_train", True)
+        self.is_download = self.get("is_download", True)
+
         self.batch_size = self.get("batch_size", 64)
         self.shuffle = self.get("shuffle", True)
         self.num_workers = self.get("num_workers", 4)
-        self.is_download = self.get("is_download", True)
-
-        self.is_load_train_set = self.get("is_load_train_set", True)
-        self.is_load_test_set = self.get("is_load_test_set", False)
-
         return

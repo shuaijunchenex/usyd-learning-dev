@@ -9,7 +9,21 @@ startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
 
 from usyd_learning.ml_utils import console, ConfigLoader
-from usyd_learning.ml_data_loader import DatasetLoaderFactory, DatasetLoaderArgs
+from usyd_learning.ml_data_loader import DatasetLoaderFactory, DatasetLoader
+
+def after_create_fn(loader: DatasetLoader):
+    console.info(f"\nAfter create fn object: {loader}")
+    return
+
+def test_dataset_loader(args, dataset_type):
+    args.dataset_type = dataset_type
+    args.root = "../../../.dataset"
+    args.is_train = True
+    args.is_download = True
+
+    dataset_loader = DatasetLoaderFactory.create(args, after_create_fn)
+    print(dataset_loader)
+    return
 
 
 def main():
@@ -20,16 +34,27 @@ def main():
     console.out("------------- Begin ---------------")
 
     yaml = ConfigLoader.load(yaml_file_name)
-    console.out(yaml)
+    # console.out(yaml)
 
     args = DatasetLoaderFactory.create_args(yaml)
-    args.root = "../../../.dataset"
-    args.is_download = False
+    
+    test_dataset_loader(args, "mnist")
+    test_dataset_loader(args, "fmnist")
 
-    print(args)
+    args.split = 'balanced'
+    test_dataset_loader(args, "emnist")
 
-    dataset_loader = DatasetLoaderFactory.create(args)
-    print(dataset_loader)
+    test_dataset_loader(args, "kmnist")
+    test_dataset_loader(args, "qmnist")
+
+    test_dataset_loader(args, "cifar10")
+    test_dataset_loader(args, "cifar100")
+
+    args.split = 'train'
+    test_dataset_loader(args, "stl10")
+
+    # args.split = 'train'
+    # test_dataset_loader(args, "imagenet")
 
     console.out("------------- End -----------------")
     return

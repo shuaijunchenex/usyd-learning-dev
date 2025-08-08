@@ -21,10 +21,6 @@ class DatasetLoader_Cifar100(DatasetLoader):
                 transforms.ToTensor(),                
                 transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))])      # Standard CIFAR100 normalization values
 
-        dataset = datasets.CIFAR100(root=args.root, train=True, transform=args.transform, download=args.is_download)
-        self.train_data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
-
-        args.is_load_train_set = True
-        args.is_load_test_set = False
-
+        self._dataset = datasets.CIFAR100(root=args.root, train=True, transform=args.transform, download=args.is_download)
+        self._data_loader = DataLoader(self._dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
         return

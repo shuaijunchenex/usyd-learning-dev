@@ -79,7 +79,6 @@
     <Compile Include="ml_algorithms\model_extractor.py" />
     <Compile Include="ml_algorithms\__init__.py" />
     <Compile Include="ml_data_loader\dataset_loader.py" />
-    <Compile Include="ml_data_loader\dataset_loader_abc.py" />
     <Compile Include="ml_data_loader\dataset_loader_args.py" />
     <Compile Include="ml_data_loader\dataset_loader_factory.py" />
     <Compile Include="ml_data_loader\dataset_loader_util.py" />
@@ -88,11 +87,11 @@
     <Compile Include="ml_data_loader\loader\_dataset_loader_cifar100.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_dbpedia.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_emnist.py" />
-    <Compile Include="ml_data_loader\loader\_dataset_loader_fminst.py" />
+    <Compile Include="ml_data_loader\loader\_dataset_loader_fmnist.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_imagenet.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_imdb.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_kmnist.py" />
-    <Compile Include="ml_data_loader\loader\_dataset_loader_minst.py" />
+    <Compile Include="ml_data_loader\loader\_dataset_loader_mnist.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_qmnist.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_stl10.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_svhn.py" />
@@ -181,7 +180,6 @@
     <Folder Include="ml_algorithms\model_adaptor\adaptors\" />
     <Folder Include="ml_data_loader\" />
     <Folder Include="ml_data_loader\loader\" />
-    <Folder Include="ml_data_loader\loader\__pycache__\" />
     <Folder Include="ml_data_process\data_handler\" />
     <Folder Include="ml_data_process\weight_handler\" />
     <Folder Include="ml_models\" />

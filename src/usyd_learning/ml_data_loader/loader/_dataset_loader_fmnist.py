@@ -10,7 +10,7 @@ import torchvision.datasets as datasets
 '''
 Dataset loader for minst
 '''
-class DatasetLoader_Fminst(DatasetLoader):
+class DatasetLoader_Fmnist(DatasetLoader):
     def __init__(self):
         super().__init__()
 
@@ -21,9 +21,6 @@ class DatasetLoader_Fminst(DatasetLoader):
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,), (0.5,))])
 
-        train_set = datasets.MNIST(root=args.root, train=True, transform=args.transform, download=args.is_download)
-        self.train_data_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
-
-        args.is_load_train_set = True
-        args.is_load_test_set = False
+        self._dataset = datasets.FashionMNIST(root=args.root, train=True, transform=args.transform, download=args.is_download)
+        self._data_loader = DataLoader(self._dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
         return
