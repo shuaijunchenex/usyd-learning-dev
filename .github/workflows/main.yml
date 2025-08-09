@@ -17,7 +17,7 @@ jobs:
 
       - name: Push main to dev repo
         env:
-          TOKEN: ${{ secrets.CS64-student-access }}
+          TOKEN: ${{CS64-student-access}}
         run: |
           git remote add dev https://${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
           git push dev main:main --force-with-lease
