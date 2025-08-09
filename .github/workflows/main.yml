@@ -18,15 +18,14 @@ jobs:
         run: |
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
-
-      - name: Try pushing to a new branch (write test)
+          
+      - name: Check PAT repo permissions
         env:
           TOKEN: ${{ secrets.CAPSTONE_PUSH_TOKEN }}
         run: |
-          git remote add dev https://shuaijunchenex:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git || true
-          git checkout -b can-push-test
-          git commit --allow-empty -m "perm test"
-          git push dev HEAD:can-push-test -v
+          curl -s -H "Authorization: token ${TOKEN}" \
+            https://api.github.com/repos/shuaijunchenex/usyd-learning-dev | jq '.permissions'
+
 
 
       # - name: Sanity check token can read target repo
