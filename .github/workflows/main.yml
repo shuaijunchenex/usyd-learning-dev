@@ -18,13 +18,29 @@ jobs:
         run: |
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
-          
-      - name: Check PAT repo permissions
+
+      - name: Try pushing to a new branch (write test)
         env:
           TOKEN: ${{ secrets.CAPSTONE_PUSH_TOKEN }}
         run: |
-          curl -s -H "Authorization: token ${TOKEN}" \
-            https://api.github.com/repos/shuaijunchenex/usyd-learning-dev | jq '.permissions'
+          set -e
+          # 尽量避免把 token 放到 URL
+          git remote remove dev 2>/dev/null || true
+          git remote add dev https://github.com/shuaijunchenex/usyd-learning-dev.git
+
+          # 🔧 减少 HTTP/2 和压缩造成的传输问题
+          git config --global http.version HTTP/1.1
+          git config --global core.compression 0
+          # 可选：老法宝，某些环境仍有效
+          git config --global http.postBuffer 524288000
+
+          git checkout -b can-push-test
+          git commit --allow-empty -m "perm test"
+
+          # 用 Authorization 头推送
+          git -c http.extraheader="Authorization: Bearer ${TOKEN}" \
+              push dev HEAD:can-push-test -v
+
 
 
 
