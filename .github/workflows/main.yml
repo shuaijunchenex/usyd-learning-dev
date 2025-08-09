@@ -19,10 +19,17 @@ jobs:
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
 
-      - name: Push main to dev repo
+      - name: Sanity check token can read target repo
         env:
           TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
         run: |
-          # 关键：用户名用 x-access-token
-          git remote add dev https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
-          git push dev main:main --force-with-lease
+          git ls-remote https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git HEAD
+
+
+      # - name: Push main to dev repo
+      #   env:
+      #     TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
+      #   run: |
+      #     # 关键：用户名用 x-access-token
+      #     git remote add dev https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
+      #     git push dev main:main --force-with-lease
