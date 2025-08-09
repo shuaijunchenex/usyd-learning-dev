@@ -1,4 +1,4 @@
-name: Mirror to dev repo
+name: Mirror to dev repo (exclude .github, force push to main)
 
 on:
   push:
@@ -9,38 +9,30 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (no default creds)
+      # 1) 检出完整历史（避免 index-pack 问题）
+      - name: Checkout (no default creds, full history)
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
+      # 2) 设置一次 Git 身份用于临时提交
       - name: Set up git identity
         run: |
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
 
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0      # 关键：避免 index-pack 问题
-
-      - name: Build a filtered sync branch (exclude .github)
+      # 3) 在临时分支里删除 .github 并提交（不影响 A 的远端）
+      - name: Build filtered branch (exclude .github)
         run: |
           set -e
-          # 用一个临时分支，不影响你的 A 仓库远端
           git checkout -b sync-excluding-dotgithub
-
-          # 删除 .github 并提交（只影响当前临时分支的树）
           rm -rf .github
           git add -A
-          git commit -m "Sync: exclude .github directory"
+          git commit -m "Sync: exclude .github directory" || echo "No changes to commit"
 
-      - name: Push filtered branch to dev repo
+      # 4) 强制推送到目标仓库 B 的 main
+      - name: Force push to target main
         env:
           TOKEN: ${{ secrets.CAPSTONE_PUSH_TOKEN }}
         run: |
@@ -48,37 +40,15 @@ jobs:
           git remote remove dev 2>/dev/null || true
           git remote add dev https://github.com/shuaijunchenex/usyd-learning-dev.git
 
-          # 稳定性设置
+          # 稳定性配置
           git config --global http.version HTTP/1.1
           git config --global core.compression 0
           git config --global credential.helper ""
           export GIT_ASKPASS=/bin/true
 
-          # Basic Auth 头
+          # 使用 Basic Auth 头（推荐，不把 token 暴露在 URL）
           AUTH=$(printf "%s" "x-access-token:${TOKEN}" | base64 | tr -d '\n')
 
-          # 你可以推到 B 的 main，或 B 的 dev（看你的策略）
-          # 例：推送到 B 的 dev 分支
+          # 强制推送到 B 的 main
           git -c http.extraheader="Authorization: Basic ${AUTH}" \
-              push -f dev HEAD:dev
-
-
-
-
-
-
-
-      # - name: Sanity check token can read target repo
-      #   env:
-      #     TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
-      #   run: |
-      #     git ls-remote https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git HEAD
-
-
-      # - name: Push main to dev repo
-      #   env:
-      #     TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
-      #   run: |
-      #     # 关键：用户名用 x-access-token
-      #     git remote add dev https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
-      #     git push dev main:main --force-with-lease
+              push dev HEAD:main --force
