@@ -1,4 +1,4 @@
-name: Mirror to student repo
+name: Mirror to dev repo
 
 on:
   push:
@@ -12,24 +12,17 @@ jobs:
       - name: Checkout (no default creds)
         uses: actions/checkout@v4
         with:
-          persist-credentials: false   # 关键：不要保留 GITHUB_TOKEN 凭据
+          persist-credentials: false
 
       - name: Set up git identity
         run: |
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
 
-      - name: Push main to student repo
+      - name: Push main to dev repo
         env:
-          TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}   # 你的 Secret 名
-          USER:  shuaijunchenex                          # 这个 PAT 的拥有者用户名
+          TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
         run: |
-          set -e
-          # 用 “用户名:Token@” 形式，PAT 作为密码
-          git remote add student https://${USER}:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
-
-          # 可选：先探测一次权限（不会泄露 token，GitHub 会掩码）
-          git ls-remote student > /dev/null
-
-          # 推送
-          git push student main:main --force-with-lease
+          # 关键：用户名用 x-access-token
+          git remote add dev https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git
+          git push dev main:main --force-with-lease
