@@ -23,7 +23,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
         run: |
-          git remote add dev https://${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git || true
+          git remote add dev https://shuaijunchenex:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git || true
           git checkout -b can-push-test
           git commit --allow-empty -m "perm test"
           git push dev HEAD:can-push-test -v
