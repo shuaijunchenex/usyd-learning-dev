@@ -24,22 +24,27 @@ jobs:
           TOKEN: ${{ secrets.CAPSTONE_PUSH_TOKEN }}
         run: |
           set -e
-          # 尽量避免把 token 放到 URL
           git remote remove dev 2>/dev/null || true
           git remote add dev https://github.com/shuaijunchenex/usyd-learning-dev.git
 
-          # 🔧 减少 HTTP/2 和压缩造成的传输问题
+          # 稳定性：HTTP/1.1 + 关闭压缩，规避 index-pack 异常
           git config --global http.version HTTP/1.1
           git config --global core.compression 0
-          # 可选：老法宝，某些环境仍有效
-          git config --global http.postBuffer 524288000
+          git config --global http.postBuffer 524288000 || true
+
+          # 禁用交互式凭据 & 任何已缓存的 helper
+          git config --global credential.helper ""
+          export GIT_ASKPASS=/bin/true
+
+          # 用 Basic Auth 头（用户名可用 x-access-token 或你的用户名）
+          AUTH=$(printf "%s" "x-access-token:${TOKEN}" | base64 | tr -d '\n')
 
           git checkout -b can-push-test
           git commit --allow-empty -m "perm test"
 
-          # 用 Authorization 头推送
-          git -c http.extraheader="Authorization: Bearer ${TOKEN}" \
+          git -c http.extraheader="Authorization: Basic ${AUTH}" \
               push dev HEAD:can-push-test -v
+
 
 
 
