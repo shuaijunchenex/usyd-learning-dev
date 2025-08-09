@@ -19,11 +19,20 @@ jobs:
           git config user.name "shuaijunchenex"
           git config user.email "46318558+shuaijunchenex@users.noreply.github.com"
 
-      - name: Sanity check token can read target repo
+      - name: Try pushing to a new branch (write test)
         env:
           TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
         run: |
-          git ls-remote https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git HEAD
+          git remote add dev https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git || true
+          git checkout -b can-push-test
+          git commit --allow-empty -m "perm test"
+          git push dev HEAD:can-push-test -v
+
+      # - name: Sanity check token can read target repo
+      #   env:
+      #     TOKEN: ${{ secrets.CAPSTONE_ACCESS_TOKEN }}
+      #   run: |
+      #     git ls-remote https://x-access-token:${TOKEN}@github.com/shuaijunchenex/usyd-learning-dev.git HEAD
 
 
       # - name: Push main to dev repo
