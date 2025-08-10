@@ -40,15 +40,12 @@ jobs:
           git remote remove dev 2>/dev/null || true
           git remote add dev https://github.com/shuaijunchenex/usyd-learning-dev.git
 
-          # 稳定性配置
           git config --global http.version HTTP/1.1
           git config --global core.compression 0
           git config --global credential.helper ""
           export GIT_ASKPASS=/bin/true
 
-          # 使用 Basic Auth 头（推荐，不把 token 暴露在 URL）
           AUTH=$(printf "%s" "x-access-token:${TOKEN}" | base64 | tr -d '\n')
 
-          # 强制推送到 B 的 main
           git -c http.extraheader="Authorization: Basic ${AUTH}" \
               push dev HEAD:main --force
