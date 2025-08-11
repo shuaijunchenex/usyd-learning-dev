@@ -41,7 +41,7 @@ class DatasetLoaderFactory:
         return DatasetLoaderArgs(config_dict, is_clone_dict)
 
     @staticmethod
-    def create(data_loader_args: DatasetLoaderArgs, fn:Callable[[DatasetLoader]]|None = None) -> DatasetLoader|None:
+    def create(data_loader_args: DatasetLoaderArgs, fn:Callable[[DatasetLoader]]|None = None) -> DatasetLoader:
         """
         " Static method to create data loader
         """
@@ -88,5 +88,5 @@ class DatasetLoaderFactory:
             case "yahooanswers":
                 from .loader._dataset_loader_yahooanswers import DatasetLoader_YahooAnswers
                 return DatasetLoader_YahooAnswers().create(data_loader_args, fn)
-            
-        return None
+
+        raise ValueError(f"Datasdet type '{data_loader_args.dataset_type}' not support.")

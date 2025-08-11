@@ -26,7 +26,6 @@ class DataHandler_Noniid(DataHandler):
         """
         Load data from DataLoader and store in x_train, y_train
         """
-
         images_list, labels_list = [], []
         for images, labels in self.dataloader:
             images_list.append(images)
@@ -44,7 +43,6 @@ class DataHandler_Noniid(DataHandler):
         Returns:
             dict: {label: tensor(images)}
         """
-
         self.data_pool = {i: [] for i in range(pools)}
         for i in range(pools):
             self.data_pool[i] = self.x_train[self.y_train.flatten() == i]
@@ -67,7 +65,6 @@ class DataHandler_Noniid(DataHandler):
         Returns:
             list: A list of DataLoader objects, each corresponding to one client's data.
         """
-
         # Ensure data_pool is initialized
         if self.data_pool is None:
             raise ValueError("Data pool is not created. Call create_data_pool() first.")

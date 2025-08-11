@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>81e42be1-ecd2-4750-8a48-8c089052e2ca</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>unittest_data_loader.py</StartupFile>
+    <StartupFile>unittest_model_extractor.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="startup_init.py" />
+    <Compile Include="unittest_matrix_approximator.py" />
     <Compile Include="unittest_data_distribution.py" />
     <Compile Include="unittest_data_handler.py" />
     <Compile Include="unittest_data_loader.py" />

@@ -4,7 +4,7 @@ import numpy as np
 import os
 import json
 
-from lora.lora_linear import LoRALinear
+from lora.impl.lora_linear import LoRALinear
 
 class LoRAModelWeightAdapter:
     """

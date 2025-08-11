@@ -8,7 +8,6 @@ from .lora import LoRALinear
 from .model_extractor import ModelExtractor
 
 class MatrixApproximator:
-
     def __init__(self, base_model, use_sqrt = True, rank = 8, device = "cpu"):
         self.base_model = base_model
         self.use_sqrt = use_sqrt
@@ -19,18 +18,16 @@ class MatrixApproximator:
         model_copy = copy.deepcopy(self.base_model)
         self._replace_module_with_init_lora(model_copy, a_init_method, b_init_method)
 
-        extractor = AdvancedModelExtractor(model_copy)
-        wbab = extractor._extract_all_layers()
-
+        extractor = ModelExtractor()
+        wbab = extractor.extract_layers(model_copy)
         return model_copy, wbab
 
     def approximate_lora_model(self):
         model_copy = copy.deepcopy(self.base_model)
         self._replace_module_with_approximation(model_copy)
 
-        extractor = AdvancedModelExtractor(model_copy)
-        wbab = extractor._extract_all_layers()
-
+        extractor = ModelExtractor()
+        wbab = extractor.extract_layers(model_copy)
         return model_copy, wbab
 
     def _init_tensor(self, tensor, method):
@@ -66,7 +63,7 @@ class MatrixApproximator:
                     self._init_tensor(lora_layer.lora_A, a_init_method)
                     self._init_tensor(lora_layer.lora_B, b_init_method)
                     if bias_flag:
-                        lora_layer.bias.copy_(child.bias.data)
+                        lora_layer.bias.copy_(child.bias.data)    # TODO: pylance?
 
                 setattr(module, name, lora_layer)
             else:
@@ -98,7 +95,7 @@ class MatrixApproximator:
                     lora_layer.lora_A.copy_(A)
                     lora_layer.lora_B.copy_(B)
                     if bias_flag:
-                        lora_layer.bias.copy_(child.bias.data)
+                        lora_layer.bias.copy_(child.bias.data)     # TODO: pylance?
 
                 setattr(module, name, lora_layer)
             else:
@@ -166,60 +163,4 @@ class MatrixApproximator:
         B = Vh_r                     # (r, n)
 
         return A, B
-
-# Test function
-if __name__ == "__main__":
-    import sys
-    sys.path.insert(0, '')
-
-    def test_matrix_approximator():
-        torch.manual_seed(42)
-
-        # Test: matrix-level approximation
-        m, n = 64, 128
-        rank = 16
-        W = torch.randn(m, n)
-
-        A_sqrt, B_sqrt = MatrixApproximator.sqrt_approximation(W, rank)
-        W_sqrt_approx = A_sqrt @ B_sqrt
-        sqrt_error = torch.norm(W - W_sqrt_approx) / torch.norm(W)
-
-        A_reg, B_reg = MatrixApproximator.regular_approximation(W, rank)
-        W_reg_approx = A_reg @ B_reg
-        reg_error = torch.norm(W - W_reg_approx) / torch.norm(W)
-
-        print("Original matrix shape:", W.shape)
-        print(f"Target rank: {rank}")
-        print(f"[sqrt_approximation] Relative Frobenius Error: {sqrt_error:.6f}")
-        print(f"[regular_approximation] Relative Frobenius Error: {reg_error:.6f}")
-        assert A_sqrt.shape == (m, rank)
-        assert B_sqrt.shape == (rank, n)
-        assert A_reg.shape == (m, rank)
-        assert B_reg.shape == (rank, n)
-        print("Matrix shape assertions passed.")
-
-        # Test: approximate a full model
-        class DummyModel(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.linear1 = nn.Linear(20, 10)
-                self.linear2 = nn.Linear(10, 5)
-
-            def forward(self, x):
-                return self.linear2(torch.relu(self.linear1(x)))
-
-        model = DummyModel()
-        approximator = MatrixApproximator(model, rank=4, use_sqrt=True)
-        lora_model = approximator.approximate_lora_model()
-
-        w_b_AB = ModelExtractor().extract_layers(lora_model)
-
-        # Verify that all linear layers have been replaced
-        linear_count = sum(1 for m in lora_model.modules() if isinstance(m, nn.Linear))
-        lora_count = sum(1 for m in lora_model.modules() if isinstance(m, LoRALinear))
-        print(f"Replaced {lora_count} Linear layers with LoRALinear (expected 2).")
-        assert linear_count == 0 and lora_count == 2
-        print("Model layer replacement verified.")
-
-    test_matrix_approximator()
 

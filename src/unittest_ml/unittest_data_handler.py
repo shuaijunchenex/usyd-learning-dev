@@ -4,7 +4,6 @@ from __future__ import annotations
 # Init startup path, change current path to test py file folder 
 #-----------------------------------------------------------------
 import os
-from urllib.request import DataHandler
 from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
@@ -26,19 +25,20 @@ def main():
 
     args = DatasetLoaderFactory.create_args(yaml)
     args.root = "../../../.dataset"
-    args.is_download = False
 
     print(args)
 
     dataset_loader = DatasetLoaderFactory.create(args)
     print(dataset_loader)
 
-    data_handler = DataHandler_Noniid(dataset_loader.train_data_loader)
+    data_handler = DataHandler_Noniid(dataset_loader.data_loader)
     handler_args = DataHandlerArgs()
     handler_args.batch_size = args.batch_size
     handler_args.num_workers = args.num_workers
-    data_handler.generate(handler_args)
+    loaders = data_handler.generate(handler_args)
 
+    for l in loaders:
+        console.info(f"{l}")
 
     console.out("------------- End -----------------")
     return

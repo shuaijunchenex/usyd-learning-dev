@@ -17,7 +17,6 @@ class ModelAdaptor_LoraWbab(BaseWeightAdapter):
 
     def load_from_file(self, filepath: str) -> 'ModelAdaptor_LoraWbab':
         import torch, json
-        import os
         if filepath.endswith('.json'):
             with open(filepath, 'r') as f:
                 self.source_weights = json.load(f)
@@ -77,7 +76,7 @@ class ModelAdaptor_LoraWbab(BaseWeightAdapter):
     @staticmethod
     def apply_weights_to_model(model, extracted_weights):
         import torch.nn as nn
-        from lora.lora_linear import LoRALinear
+        from lora.impl.lora_linear import LoRALinear
         model_layers = {
             name: module
             for name, module in model.named_modules()

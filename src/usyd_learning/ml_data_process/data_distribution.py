@@ -58,11 +58,20 @@ class DataDistribution:
 
     # private use data list name
     __use_distribution_name: str = "mnist_lt"
-    __use_volume_list = __std_volume_mnist_lt
-
+    __use_volume_list: list[list[int]] = __std_volume_mnist_lt
 
     @staticmethod
-    def get():
+    def distribution_name() -> str:
+        """
+        Get current dictribution name
+
+        Returns:
+            str: current distribution name
+        """
+        return DataDistribution.__use_distribution_name
+
+    @staticmethod
+    def get() -> list[list[int]]:
         """
         Get used distribution
         """
@@ -70,7 +79,7 @@ class DataDistribution:
 
 
     @staticmethod
-    def add(name: str, volum_list: Any):
+    def add(name: str, volum_list: list[list[int]]):
         """
         Add another distribution
         """
@@ -98,7 +107,7 @@ class DataDistribution:
 
 
     @staticmethod
-    def use(name = "mnist_lt", data_volume_list = None) -> list:
+    def use(name = "mnist_lt", data_volume_list: list[list[int]]|None = None) -> list[list[int]]:
         """
         Use distribution pattern for data allocation.
 
@@ -115,6 +124,8 @@ class DataDistribution:
             DataDistribution.__use_distribution_name = n
             DataDistribution.__use_volume_list = DataDistribution.__data_dict[n]
         else:
+            if data_volume_list is None:
+                raise ValueError("'data_volume_list' can not be None.")
             DataDistribution.__use_volume_list = data_volume_list
 
         return DataDistribution.get()
