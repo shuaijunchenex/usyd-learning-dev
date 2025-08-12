@@ -70,12 +70,10 @@
     <Compile Include="ml_algorithms\lora\impl\lora_ms.py" />
     <Compile Include="ml_algorithms\lora\lora_utils.py" />
     <Compile Include="ml_algorithms\lora\__init__.py" />
-    <Compile Include="ml_algorithms\matrix_approximator.py" />
+    <Compile Include="ml_algorithms\lora\matrix_approximator.py" />
     <Compile Include="ml_algorithms\model_adaptor\adaptors\lora_wbab_adaptor.py" />
     <Compile Include="ml_algorithms\model_adaptor\model_adaptor_abc.py" />
-    <Compile Include="ml_algorithms\model_adaptor\model_adaptor_factory.py" />
     <Compile Include="ml_algorithms\model_adaptor\model_adaptor_src.py" />
-    <Compile Include="ml_algorithms\model_adaptor\__init__.py" />
     <Compile Include="ml_algorithms\model_extractor.py" />
     <Compile Include="ml_algorithms\__init__.py" />
     <Compile Include="ml_data_loader\dataset_loader.py" />

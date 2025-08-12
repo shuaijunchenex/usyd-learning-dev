@@ -4,8 +4,8 @@ import copy
 import torch.nn.init as init
 import math
 
-from .lora import LoRALinear
-from .model_extractor import ModelExtractor
+from . import LoRALinear
+from ..model_extractor import ModelExtractor
 
 class MatrixApproximator:
     def __init__(self, base_model, use_sqrt = True, rank = 8, device = "cpu"):
@@ -164,3 +164,85 @@ class MatrixApproximator:
 
         return A, B
 
+# def simple_lora_model_generator(self, a_init_method = 'xavier', b_init_method = 'zeros'):
+    #         def init_tensor(tensor, method):
+    #             if method == "xavier":
+    #                 init.xavier_uniform_(tensor)
+    #             elif method == "kaiming":
+    #                 init.kaiming_uniform_(tensor, a=math.sqrt(5))
+    #             elif method == "normal":
+    #                 init.normal_(tensor, mean=0.0, std=0.02)
+    #             elif method == "zeros":
+    #                 init.zeros_(tensor)
+    #             elif method == "ones":
+    #                 init.ones_(tensor)
+    #             else:
+    #                 raise ValueError(f"Unsupported init method: {method}")
+
+    #         def replace_module(module):
+    #             for name, child in module.named_children():
+    #                 if isinstance(child, nn.Linear):
+    #                     W = child.weight.data.to(self.device)
+    #                     bias_flag = child.bias is not None
+
+    #                     lora_layer = LoRALinear(
+    #                         in_features=child.in_features,
+    #                         out_features=child.out_features,
+    #                         rank=self.rank,
+    #                         use_bias=bias_flag,
+    #                         pretrained_weight=W,
+    #                         device=self.device
+    #                     )
+
+    #                     with torch.no_grad():
+    #                         init_tensor(lora_layer.lora_A, a_init_method)
+    #                         init_tensor(lora_layer.lora_B, b_init_method)
+
+    #                         if bias_flag:
+    #                             lora_layer.bias.copy_(child.bias.data)
+
+    #                     setattr(module, name, lora_layer)
+    #                 else:
+    #                     replace_module(child)
+
+    #         model_copy = copy.deepcopy(self.base_model)
+    #         replace_module(model_copy)
+
+    #         return model_copy
+
+    # def approximate_lora_model(self):
+    #     def replace_module(module):
+    #         for name, child in module.named_children():
+    #             if isinstance(child, nn.Linear):
+    #                 W = child.weight.data.to(self.device)
+    #                 bias_flag = child.bias is not None
+
+    #                 # SVD decomposition
+    #                 A, B = (
+    #                     self.sqrt_approximation(W, self.rank)
+    #                     if self.use_sqrt else
+    #                     self.regular_approximation(W, self.rank)
+    #                 )
+
+    #                 lora_layer = LoRALinear(
+    #                     in_features=child.in_features,
+    #                     out_features=child.out_features,
+    #                     rank=self.rank,
+    #                     use_bias=bias_flag,
+    #                     pretrained_weight=W,
+    #                     device=self.device
+    #                 )
+
+    #                 with torch.no_grad():
+    #                     lora_layer.lora_A.copy_(A)
+    #                     lora_layer.lora_B.copy_(B)
+    #                     if bias_flag:
+    #                         lora_layer.bias.copy_(child.bias.data)
+
+    #                 setattr(module, name, lora_layer)
+    #             else:
+    #                 replace_module(child)
+
+    #     model_copy = copy.deepcopy(self.base_model)
+    #     replace_module(model_copy)
+    #     return model_copy

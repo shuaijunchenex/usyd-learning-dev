@@ -11,8 +11,7 @@ from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
 
-from usyd_learning.ml_algorithms import MatrixApproximator, LoRALinear
-from usyd_learning.ml_algorithms import ModelExtractor
+from usyd_learning.ml_algorithms import MatrixApproximator, LoRALinear, ModelExtractor
 
 # Test: approximate a full model
 class DummyModel(nn.Module):

@@ -1,8 +1,8 @@
 from typing import Any
 import torch.nn as nn
-from model_adaptor.model_adaptor_abc import BaseWeightAdapter
+from model_adaptor.model_adaptor_abc import WeightAdapter
 
-class ModelAdaptor_LoraWbab(BaseWeightAdapter):
+class ModelAdaptor_LoraWbab(WeightAdapter):
     def __init__(self, source_weights=None):
         super().__init__()
         self.source_weights = source_weights
