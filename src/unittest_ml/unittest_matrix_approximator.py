@@ -52,9 +52,9 @@ def test_matrix_approximator():
 
     model = DummyModel()
     approximator = MatrixApproximator(model, rank=4, use_sqrt=True)
-    lora_model = approximator.approximate_lora_model()
+    lora_model, w_b_AB = approximator.approximate_lora_model()
 
-    w_b_AB = ModelExtractor().extract_layers(lora_model)
+    #w_b_AB = ModelExtractor().extract_layers(lora_model)
 
     # Verify that all linear layers have been replaced
     linear_count = sum(1 for m in lora_model.modules() if isinstance(m, nn.Linear))

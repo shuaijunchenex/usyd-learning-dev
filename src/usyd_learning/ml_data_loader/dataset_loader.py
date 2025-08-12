@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, Optional
 
 from torch.utils.data import DataLoader, Dataset
 from .dataset_loader_args import DatasetLoaderArgs
@@ -12,8 +12,8 @@ class DatasetLoader(ABC):
     """
 
     def __init__(self):
-        self._dataset_type: str = ""  # Dataset type
-        self._data_loader: DataLoader # Training data loader
+        self._dataset_type: str = ""                # Dataset type
+        self._data_loader: Optional[DataLoader] = None    # Training data loader
         self._dataset: Dataset | None = None
         self._args: DatasetLoaderArgs | None = None
         self._after_create_fn: Callable[[DatasetLoader], None] | None = None
