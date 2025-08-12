@@ -11,13 +11,11 @@ class DictPath(UserDict):
 	DicPath is a normal dict that you can extract and inject the complex nested dict only using Path.
 	"""
 
-	def __init__(self, dictionary: dict = None, is_deep_copy: bool = False):
+	def __init__(self, dictionary: dict = {}, is_deep_copy: bool = False):
 		"""
 		Accept python dict or DictPath.
 		"""
 		super().__init__(dictionary)
-		if dictionary is None:
-			dictionary = {}
 		if isinstance(dictionary, DictPath):
 			self.data = dictionary.data
 		elif isinstance(dictionary, dict):
@@ -48,23 +46,25 @@ class DictPath(UserDict):
 		dump = json.dumps(self.data, indent=2, sort_keys=True)
 		return f"DictPath({dump})"
 
-	def clean_path(self, path):
+	def clean_path(self, path: str) -> list[str]:
 		path = path[1:] if path.startswith('/') else path
 		return path.split('/')
 
-	def get(self, path: str, default_value=None) -> Union[DictPath, Any]:
+	def get(self, key: str, default=None):
 		"""
 		Get the value of the dictionary at the given path
 		dict.get("foo/bar/foo1/bar1") is like calling dict["foo"]["bar"]["foo1"]["bar1"].
 		Invalid paths return None without error.
 		"""
-		path = self.clean_path(path)
-		if path == "":
+		if key == "":
 			return self
+		
 		current = self.data
-		for attr in path:
+		paths = self.clean_path(key)
+
+		for attr in paths:
 			if current is None:
-				return default_value
+				return default
 
 			if isinstance(current, dict):
 				current = current.get(attr)
@@ -75,17 +75,17 @@ class DictPath(UserDict):
 			return DictPath(current)
 		return current
 
-	def set(self, path: str, value=None):
+	def set(self, path: str, value: Any=None):
 		"""
 		Set the value of the dictionary at the given path
 		dict.set("foo/bar/foo1/bar1", 'bar') is like calling dict["foo"]["bar"]["foo1"]["bar1"] = "bar".
 		If a path does not exist, it will be created.
 		Empty path will do nothing.
 		"""
-		path = self.clean_path(path)
+		paths = self.clean_path(path)
 		current = self.data
-		last_path_attr = path.pop()
-		for attr in path:
+		last_path_attr = paths.pop()
+		for attr in paths:
 			if not isinstance(current, dict):
 				raise Exception("Can't set the key of a non-dict")
 			current.setdefault(attr, {})
@@ -94,6 +94,7 @@ class DictPath(UserDict):
 			current[last_path_attr] = value.data
 		else:
 			current[last_path_attr] = value
+		return
 
 	# FIX wrong behavior of standard library
 	# <a>.pop(<b>, None) returns key error, if <b> not in <a>.

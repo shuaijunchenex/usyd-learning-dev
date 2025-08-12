@@ -48,14 +48,12 @@
     <Compile Include="fed_trainer\model_evaluator.py" />
     <Compile Include="fed_trainer\trainer\_model_trainer_standard.py" />
     <Compile Include="fed_trainer\__init__.py" />
-    <Compile Include="fl_algorithms\aggregation\fed_server_aggregation_abc.py" />
-    <Compile Include="fl_algorithms\aggregation\fed_server_aggregation_args.py" />
-    <Compile Include="fl_algorithms\aggregation\fed_server_aggregation_facotry.py" />
+    <Compile Include="fl_algorithms\aggregation\fed_aggregator_abc.py" />
+    <Compile Include="fl_algorithms\aggregation\fed_aggregator_args.py" />
+    <Compile Include="fl_algorithms\aggregation\fed_aggregator_facotry.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_fedavg.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_flexlora.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_rbla.py" />
-    <Compile Include="fl_algorithms\aggregation\methods\__init__.py" />
-    <Compile Include="fl_algorithms\aggregation\__init__.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_factory.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_abc.py" />
     <Compile Include="fl_algorithms\selection\methods\_fed_client_selector_all.py" />

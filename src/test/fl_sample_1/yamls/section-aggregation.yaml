@@ -3,3 +3,5 @@
 #-----------------------------
 aggregation:
   method: fedavg
+  device: cpu
+  is_wbab: False

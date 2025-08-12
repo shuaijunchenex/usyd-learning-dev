@@ -26,10 +26,7 @@ class LoRAArgs(KeyValueArgs):
         Linear layer with Low-Rank Adaptation (LoRA).
         """
         super().__init__(config_dict, is_clone_dict)
-
-        if config_dict is None:
-            self.set_args({}) 
-        elif "lora" in config_dict:
+        if config_dict != None and "lora" in config_dict:
             self.set_args(config_dict["lora"])
 
         self.name = self.get("name", "lora_linear")

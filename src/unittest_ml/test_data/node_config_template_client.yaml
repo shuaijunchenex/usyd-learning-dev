@@ -68,7 +68,9 @@ loss_func:
 
 aggregation:
   method: fedavg
-   
+  device: cpu
+  is_wbab: False
+  
 # LoRA
 lora:
   device: cpu

@@ -3,13 +3,14 @@ import torch
 import torch.nn as nn
 from collections import OrderedDict
 
-
 # Init startup path, change current path to test py file folder 
 #-----------------------------------------------------------------
 import os
 from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
+
+from usyd_learning.fl_algorithms import FedAggregatorFactory, FedAggregatorArgs
 
 # Dummy model: Simple MLP
 class SimpleModel(nn.Module):
@@ -53,8 +54,14 @@ class TestFedAvgAggregator(unittest.TestCase):
         ]
 
         # Aggregate
-        aggregator = _Aggregator_FedAvg(client_data_list, device="cpu")
-        aggregated_weights = aggregator.aggregate()
+        # Args: 
+        #  Create from factory
+        #  aggregator_args = FedAggregatorFactory.create_args(yaml_dict)           
+        # OR
+        #  Create args object directly
+        aggregator_args = FedAggregatorArgs()           
+        aggregator = FedAggregatorFactory.create_aggregator(aggregator_args)
+        aggregated_weights = aggregator.aggregate(client_data_list)
 
         # Manually compute expected result
         total = 1 + 2 + 3
@@ -71,8 +78,7 @@ class TestFedAvgAggregator(unittest.TestCase):
             self.assertTrue(torch.allclose(aggregated_weights[key], expected[key], atol=1e-6),
                             f"Mismatch in key {key}")
 
-        print(aggregator.get_aggregated_weight())
-
+        print(aggregator.aggregated_weight)
         print(expected)
 
         print("[Test] FedAvg Aggregator passed.")

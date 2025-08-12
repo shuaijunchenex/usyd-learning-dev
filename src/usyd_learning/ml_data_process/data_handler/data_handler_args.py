@@ -19,15 +19,10 @@ class DataHandlerArgs(KeyValueArgs):
     num_workers: int = 4
 
     def __init__(self, config_dict: Optional[dict] = None, is_clone_dict = False):
-        if config_dict is None:
-            super().__init__({}, is_clone_dict)    
-        else:
-            super().__init__(config_dict, is_clone_dict)
+        super().__init__(config_dict, is_clone_dict)
 
-        if config_dict is None:
-            self.set_args({})
-        elif "data_handler" in config_dict:
-            self.set_args(config_dict["data_handler"])
+        if config_dict is not None and "data_handler" in config_dict:
+            self.set_args(config_dict["data_handler"], is_clone_dict)
 
         self.distribution = self.get("distribution", "mnist_lt")
         self.data_volum_list = self.get("data_volum_list", None)

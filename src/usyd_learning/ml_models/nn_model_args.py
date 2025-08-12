@@ -27,17 +27,13 @@ class NNModelArgs(KeyValueArgs):
     rank_ratio: int = 1
     lora_mode: str = "standard"
 
-    def __init__(self, config_dict: dict[str, Any] | None = None, is_clone_dict=False):
+    def __init__(self, config_dict: dict[str, Any]|None = None, is_clone_dict=False):
         """
         Model type enum
         """
-        if config_dict is None:
-            super().__init__({}, is_clone_dict)
-            self.set_args({})
-        else:
-            super().__init__(config_dict, is_clone_dict)
-            if "nn_model" in config_dict:
-                self.set_args(config_dict["nn_model"])
+        super().__init__(config_dict, is_clone_dict)
+        if config_dict is not None and "nn_model" in config_dict:
+            self.set_args(config_dict["nn_model"])
 
         self.model_type = self.get("name", "")
         self.input_dim = self.get("input_dim", 0)

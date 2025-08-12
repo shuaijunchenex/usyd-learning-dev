@@ -1,9 +1,8 @@
-import torch
-from collections import OrderedDict
-from fed_server_aggregation_abc import AbstractFedServerAggregator
-from fed_server_aggregation_method import EFedServerAggregationMethod
+from ..fed_aggregator_abc import AbstractFedAggregator
+from ..fed_aggregator_args import FedAggregatorArgs
+from ....ml_utils import console
 
-class Aggregator_FlexLoRA(AbstractFedServerAggregator):
+class FedAggregator_FlexLoRA(AbstractFedAggregator):
 
     #TODO: verify if this is the correct import path for the base class
 
@@ -11,18 +10,25 @@ class Aggregator_FlexLoRA(AbstractFedServerAggregator):
     Implements the FlexLoRA aggregation method.
     """
 
-    def __init__(self, client_list: list):
-        self.client_list = client_list
+    def __init__(self, args: FedAggregatorArgs|None = None):
+        super().__init__(args)
+        self._aggregation_method = "flexrola"
+        return
+    
+    def _before_aggregation(self) -> None:
+        console.debug(f"[FlexLoRA] Starting aggregation with {len(self._aggregation_data_list)} clients...")
 
-    def aggregate(self, model_weights: list) -> dict:
+    def _do_aggregation(self) -> None:
         """
         Aggregate model weights using FlexLoRA.
         """
-        aggregated_weights = {}
+        self._aggregated_weight = {}
         
-        for key in model_weights[0].keys():
-            aggregated_weights[key] = sum(
-                client['weight'] * model_weights[i][key] for i, client in enumerate(self.client_list)
-            ) / len(self.client_list)
-        
-        return aggregated_weights
+        for key in self._aggregation_data_list[0].keys():
+            self._aggregated_weight[key] = sum(
+                client['weight'] * self._aggregation_data_list[i][key] for i, client in enumerate(self._aggregation_data_list)
+            ) / len(self._aggregation_data_list)
+        return
+    
+    def _after_aggregation(self) -> None:
+        console.debug(f"[FlexLoRA] Aggregation completed.")    

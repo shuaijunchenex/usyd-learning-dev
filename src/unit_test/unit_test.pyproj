@@ -5,7 +5,7 @@
     <ProjectGuid>2773946e-24c7-4882-8141-d315c9be5764</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>unittest_training_logger.py</StartupFile>
+    <StartupFile>unittest_dict_path.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

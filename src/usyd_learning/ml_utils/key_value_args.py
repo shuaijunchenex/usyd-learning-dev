@@ -6,9 +6,12 @@ class KeyValueArgs:
     """
     String K-V dictionary args
     """
-    def __init__(self, from_dict: dict[str, Any], is_clone_dict=False):
+    def __init__(self, from_dict: dict[str, Any]|None=None, is_clone_dict=False):
         # private
-        self.__key_value_dict = {}
+        self.__key_value_dict: DictPath
+
+        if from_dict is None:
+            from_dict = {}
         self.set_args(from_dict, is_clone_dict)
         return
 
@@ -34,7 +37,10 @@ class KeyValueArgs:
         """
         Set value from key name
         """
-        self.__key_value_dict.set(key_name, value)
+        if self.__key_value_dict is dict:
+            self.__key_value_dict[key_name] = value
+        else:
+            self.__key_value_dict.set(key_name, value)
         return self
 
     def exists(self, key_name: str):

@@ -32,10 +32,8 @@ class DatasetLoaderArgs(KeyValueArgs):
     def __init__(self, config_dict: dict, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 
-        if config_dict is None:
-            self.set_args({}) 
-        elif dict_exists(config_dict, "data_loader|dataset_loader"):
-             self.set_args(dict_get(config_dict, "data_loader|dataset_loader"))
+        if config_dict is not None and dict_exists(config_dict, "data_loader|dataset_loader"):
+             self.set_args(dict_get(config_dict, "data_loader|dataset_loader"), is_clone_dict)
 
         self.dataset_type = self.get("name", "mnist")
         self.root = self.get("root", ".dataset")
