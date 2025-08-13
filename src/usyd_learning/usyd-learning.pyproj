@@ -54,12 +54,12 @@
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_fedavg.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_flexlora.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_rbla.py" />
+    <Compile Include="fl_algorithms\selection\fed_client_selector_args.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_factory.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_abc.py" />
     <Compile Include="fl_algorithms\selection\methods\_fed_client_selector_all.py" />
     <Compile Include="fl_algorithms\selection\methods\_fed_client_selector_high_loss.py" />
     <Compile Include="fl_algorithms\selection\methods\_fed_client_selector_random.py" />
-    <Compile Include="fl_algorithms\selection\__init__.py" />
     <Compile Include="fl_algorithms\__init__.py" />
     <Compile Include="ml_algorithms\lora\impl\lora_git.py" />
     <Compile Include="ml_algorithms\lora\impl\rbla.py" />

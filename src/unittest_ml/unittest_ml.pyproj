@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>81e42be1-ecd2-4750-8a48-8c089052e2ca</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>unittest_matrix_approximator.py</StartupFile>
+    <StartupFile>unittest_fed_client_seletor.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

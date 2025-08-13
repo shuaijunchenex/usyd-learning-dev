@@ -29,7 +29,7 @@ class DatasetLoaderArgs(KeyValueArgs):
     transform: Any = None
     text_collate_fn = DatasetLoaderUtil.text_collate_fn
 
-    def __init__(self, config_dict: dict, is_clone_dict = False):
+    def __init__(self, config_dict: dict|None = None, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 
         if config_dict is not None and dict_exists(config_dict, "data_loader|dataset_loader"):

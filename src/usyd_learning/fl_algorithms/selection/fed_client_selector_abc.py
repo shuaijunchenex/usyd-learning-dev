@@ -1,48 +1,58 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
+import datetime
 import random
 from typing import Any
 
-from ...ml_utils import EventHandler
+from .fed_client_selector_args import FedClientSelectorArgs
 
 
-class AbstractFedClientSelector(ABC, EventHandler):
-    def __init__(self, random_seed: int = 42):        
+class AbstractFedClientSelector(ABC):
+    def __init__(self, args: FedClientSelectorArgs|None = None):        
         """
-        Initialize Selector with client list and select method,
-        random seed is set with current time milliseconds(range in 0~999)
-
-        Arg:
-            client_list(list): client list to be selected
-            selection_method(EFedClientSelectType): select method
+        Initialize Selector with args
         """
-        EventHandler.__init__(self)
-        self.select_method = None      # Select method
-        self_select_number: int = 2
-        self_select_round: int = 1
+        if args is None:
+            self._args = FedClientSelectorArgs()
+        else:
+            self._args = args
 
-        self._clients_data = None       #Client data
-        self.with_random_seed(random_seed)
+        self._clients_data_dict: dict = {}          # Client data dictionary
+        if args is not None:
+            self.with_random_seed(args.random_seed)
         return
 
-    def with_random_seed(self, seed: int):
+    @property
+    def select_method(self): return self._args.select_method
+
+    @property
+    def select_number(self): return self._args.select_number
+
+    @property
+    def select_round(self): return self._args.select_round
+
+    def with_random_seed(self, seed: int = -1):
         """
-        Manual set random seed
+        Manual set random seed, -1 means random seed generate by time
         """
+        if seed <= 0:
+            dt = datetime.datetime.now()
+            seed = dt.microsecond % 1000        # range: 0~999
         random.seed(int(seed * 1000) % 1000)
         return self
 
-    def with_clients_data(self, clients_data: Any):
+    def with_clients_data(self, clients_data_dict: dict):
         """
         When select clients according to some client data
         """
-        self._clients_data = clients_data
+        self._clients_data_dict = clients_data_dict
         return self
 
     @abstractmethod
-    def select(self, client_list: list, selection_number: int = None):
+    def select(self, client_list: list, select_number: int = -1) -> list:
         """
-        Select clients from client list
+        Select clients from client list,
+        if selection_number <= 0, select number from args.select_number, else use selection_number
         """
-        pass
+        return []
