@@ -1,6 +1,6 @@
 from __future__ import annotations
-
 from .model_trainer import ModelTrainer, ModelTrainerArgs
+
 
 class ModelTrainerFactory:
     """
@@ -19,12 +19,10 @@ class ModelTrainerFactory:
         """
         Static method to create trainer
         """
-
         match args.trainer_type:
             case "standard":
                 from .trainer._model_trainer_standard import ModelTrainer_Standard
                 return ModelTrainer_Standard(args)
             case _:
-                raise Exception(f"Undeinfed trainer type {args.trainer_type}.")
+                raise Exception(f"Undefined trainer type {args.trainer_type}.")
 
-        return None
