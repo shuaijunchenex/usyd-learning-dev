@@ -1,4 +1,5 @@
-import torch
+from typing import Any
+import torch.nn as nn
 import math
 
 from tqdm import tqdm
@@ -15,21 +16,35 @@ class ModelTrainer_Standard(ModelTrainer):
     def __init__(self, trainer_args: ModelTrainerArgs):
         super().__init__(trainer_args)
 
+        if trainer_args.model is None:
+            raise ValueError("Training Model is None.")
+        
+        if trainer_args.optimizer is None:
+            raise ValueError("Training optimizer is None.")
+
         if str(next(trainer_args.model.parameters()).device) != trainer_args.device:
-            self.model = trainer_args.model.to(trainer_args.device)
+            self.model: nn.Module = trainer_args.model.to(trainer_args.device)
         else:
-            self.model = trainer_args.model
+            self.model: nn.Module = trainer_args.model
         return
 
-    def train_step(self):
+    # override
+    def train_step(self) -> float:
+        if self.trainer_args.optimizer is None: 
+            raise ValueError("Trainer optimizer is None.")
+        if self.trainer_args.model is None:                 
+            raise ValueError("Trainer model is None")
+        
         self.model.train()
         running_loss = 0.0
-        loop = tqdm(self.trainer_args.train_loader, desc="Training", leave=True, ncols=100, mininterval=0.1, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]")
+        loop = tqdm(self.trainer_args.train_loader, desc="Training", leave=True, ncols=100, mininterval=0.1, 
+                    bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]")
         total_batch = 0
 
         for inputs, labels in loop:
             total_batch += 1
-            inputs, labels = inputs.to(self.trainer_args.device), labels.to(self.trainer_args.device)
+            inputs = inputs.to(self.trainer_args.device)
+            labels = labels.to(self.trainer_args.device)
 
             self.trainer_args.optimizer.zero_grad()
             outputs = self.trainer_args.model(inputs)
@@ -42,7 +57,8 @@ class ModelTrainer_Standard(ModelTrainer):
 
         return running_loss / total_batch
 
-    def train(self, epochs, is_return_wbab = False):
+    # override
+    def train(self, epochs, is_return_wbab = False) -> Any:
         train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum":0}
 
         console.info(f"\nTraining Start ({epochs} epochs)")
@@ -68,7 +84,7 @@ class ModelTrainer_Standard(ModelTrainer):
         else:
             return self.model.state_dict(), train_stats, self.extract_wbab()
     
-    def observe(self, epochs=5):
+    def observe(self, epochs=5) -> Any:
         train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum":0}
 
         console.info(f"\nObservation start ({epochs} epochs)")
@@ -87,8 +103,7 @@ class ModelTrainer_Standard(ModelTrainer):
 
     def extract_wbab(self):
         """
-        Extracts the model parameters using the AdvancedModelExtractor.
-        """
-        
-        return ModelExtractor(self.model).get_layer_dict()
+        Extracts the model parameters using the ModelExtractor.
+        """        
+        return ModelExtractor().extract_layers(self.model)
     

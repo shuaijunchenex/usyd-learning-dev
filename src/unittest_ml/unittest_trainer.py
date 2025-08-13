@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from sklearn.metrics import log_loss
 import torch
 import torch.nn as nn
-from torchvision import datasets, transforms
-from tqdm import tqdm
+from torchvision import transforms
 
 # Init startup path, change current path to test py file folder 
 #-----------------------------------------------------------------
@@ -13,7 +11,7 @@ from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
 
-from usyd_learning.fed_trainer import ModelTrainerArgs, ModelTrainer, ModelTrainerFactory
+from usyd_learning.fed_trainer import ModelTrainerFactory
 from usyd_learning.ml_utils import ConfigLoader, console
 from usyd_learning.ml_algorithms import LoRALinear, LossFunctionBuilder, OptimizerBuilder
 from usyd_learning.ml_data_loader import DatasetLoaderFactory
@@ -34,7 +32,8 @@ class LoRAMLP(nn.Module):
 # 使用 ModelTrainer 训练 LoRAMLP 模型
 def train_with_trainer(yaml):
 
-    trainer_args = ModelTrainerArgs(yaml)
+    # trainer_args = ModelTrainerArgs(yaml)
+    trainer_args = ModelTrainerFactory.create_args(yaml)
 
     data_loader_args = DatasetLoaderFactory.create_args(yaml)
     data_loader_args.transform = transforms.Compose([
@@ -48,14 +47,14 @@ def train_with_trainer(yaml):
     data_loader = DatasetLoaderFactory.create(data_loader_args)
 
     # add some params to args
-    trainer_args.train_loader = data_loader.train_data_loader
-    trainer_args.test_loader = data_loader.test_data_loader
-    trainer_args.epochs = 5
-    trainer_args.rank = 60
+    trainer_args.train_loader = data_loader.data_loader
     trainer_args.device = "cpu"
 
+    epochs = 5
+    rank = 60
+
     # 初始化模型
-    model = LoRAMLP(input_dim=28*28, hidden_dim=256, output_dim=10, rank=trainer_args.rank).to(trainer_args.device)
+    model = LoRAMLP(input_dim=28*28, hidden_dim=256, output_dim=10, rank=rank).to(trainer_args.device)
 
     # 损失函数 & 优化器
     criterion = LossFunctionBuilder.build(yaml)
@@ -67,7 +66,7 @@ def train_with_trainer(yaml):
     trainer_args.loss_func = criterion
 
     trainer = ModelTrainerFactory.create(trainer_args)
-    state_dict, stats = trainer.train(trainer_args.epochs)
+    state_dict, stats = trainer.train(epochs)
 
     return state_dict, stats
     
@@ -79,7 +78,8 @@ def main():
     yaml = ConfigLoader.load(yaml_file_name)
 
     console.out("------------- Begin ---------------")
-    train_with_trainer(yaml)
+    result = train_with_trainer(yaml)
+    console.info(result)
     console.out("------------- End -----------------")
     return
 

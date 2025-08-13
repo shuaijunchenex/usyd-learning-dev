@@ -6,9 +6,13 @@ class ModelTrainerFactory:
     """
     Model trainer factory
     """
+    
     @staticmethod
-    def create_args(config_dict: dict) -> ModelTrainerArgs:
-        return ModelTrainerArgs(config_dict)
+    def create_args(config_dict: dict, is_clone_dict: bool = False) -> ModelTrainerArgs:
+        """
+        Static method to create trainer args
+        """
+        return ModelTrainerArgs(config_dict, is_clone_dict)
 
     @staticmethod
     def create(args: ModelTrainerArgs) -> ModelTrainer:

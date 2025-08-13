@@ -10,9 +10,7 @@ data_loader:
   shuffle: True
   num_workers: 4
   is_download: True             # Is download from internet
-  is_load_train_set: True
-  is_load_test_set: True
-
+  
 #define globle NN Model and paras
 nn_model:
   name: mnist_nn_brenden
