@@ -49,3 +49,21 @@ jobs:
 
           git -c http.extraheader="Authorization: Basic ${AUTH}" \
               push dev HEAD:main --force
+
+      - name: Force push to target repo #2
+        env:
+          TOKEN: ${{ secrets.CAPSTONE_PUSH_TOKEN }}  # 如果第二个仓库用另一个 Token，就换成对应 secret
+        run: |
+          set -e
+          git remote remove dev2 2>/dev/null || true
+          git remote add dev2 https://github.com/usyd-capstone-project/usyd-learning-dev-capstone.git
+
+          git config --global http.version HTTP/1.1
+          git config --global core.compression 0
+          git config --global credential.helper ""
+          export GIT_ASKPASS=/bin/true
+
+          AUTH=$(printf "%s" "x-access-token:${TOKEN}" | base64 | tr -d '\n')
+
+          git -c http.extraheader="Authorization: Basic ${AUTH}" \
+              push dev HEAD:main --force
