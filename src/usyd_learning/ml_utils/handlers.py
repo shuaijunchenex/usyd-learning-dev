@@ -23,11 +23,14 @@ class Handlers(object):
         """
         Register handler function callback, if handler function exists, replace the old one
         """
+        if any_key is None:
+            raise ValueError("Handler key is None.")
+
         if handler_fn is None:
             raise ValueError("Register handler is None.")
 
-        if not (isfunction(handler_fn) or ismethod(handler_fn)):
-            raise ValueError("Register handler is not a function.")
+        if not (isfunction(handler_fn) or ismethod(handler_fn) or callable(handler_fn)):
+            raise ValueError("Register handler is not callable.")
 
         self.__handlers[any_key] = handler_fn
         return self
@@ -36,7 +39,9 @@ class Handlers(object):
         """
         Unregister handler
         """
-
+        if any_key is None:
+            raise ValueError("Handler key is None.")
+        
         if any_key in self.__handlers:
             del self.__handlers[any_key]
         return self
@@ -45,12 +50,18 @@ class Handlers(object):
         """
         Determine fn key is registered
         """
+        if any_key is None:
+            raise ValueError("Handler key is None.")
+        
         return any_key in self.__handlers
 
     def invoke_handler(self, any_key: Any, *args, **kwargs):
         """
         Execute fn call
         """
+        if any_key is None:
+            raise ValueError("Handler key is None.")
+        
         if not self.exists_handler(any_key):
             return None
 

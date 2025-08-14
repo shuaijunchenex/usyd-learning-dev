@@ -8,7 +8,6 @@ from .simu_node_disconnect_event_args import SimuNodeDisconnectEventArgs
 
 
 class SimuSwitcher:
-
     def __init__(self):
         self._thread = Thread(target=self._run_loop)  # Switcher thread
         self._is_running: bool = False          # indicate thread is running
@@ -26,9 +25,8 @@ class SimuSwitcher:
 
     def create_node(self, node_id: str) -> SimuNode:
         """
-        " Create a Node
+        Create a Node
         """
-
         if node_id is None or len(node_id) == 0:
             raise Exception("Node ID is empty")
 
@@ -44,9 +42,8 @@ class SimuSwitcher:
 
     def link(self, from_node_id, to_node_id):
         """
-        " Make link bwtween two node, via connection
+        Make link bwtween two node, via connection
         """
-
         if self.link_exists(from_node_id, to_node_id):
             return
 
@@ -54,13 +51,13 @@ class SimuSwitcher:
         to_node.accept(from_node_id)
 
         self._link_array.append(self.__link_id(from_node_id, to_node_id))
+        return
 
 
     def unlink(self, from_node_id, to_node_id):
         """
-        " Unlink bwtween two node, via disconnect
+        Unlink bwtween two node, via disconnect
         """
-
         if not self.link_exists(from_node_id, to_node_id):
             return
 
@@ -73,9 +70,8 @@ class SimuSwitcher:
 
     def link_exists(self, node_id_1, node_id_2):
         """
-        " check connection link exists
+        check connection link exists
         """
-
         id1 = self.__link_id(node_id_1, node_id_2)
         id2 = self.__link_id(node_id_2, node_id_1)
         return id1 in self._link_array or id2 in self._link_array
@@ -83,9 +79,8 @@ class SimuSwitcher:
 
     def send_node_data(self, data: SimuNodeData):
         """
-        " Send node data
+        Send node data
         """
-
         self._send_queue.put(data)
         self._wait_event.set()
         return
@@ -93,17 +88,15 @@ class SimuSwitcher:
 
     def node_exists(self, node_id: str) -> bool:
         """
-        " Check if node has created
+        Check if node has created
         """
-
         return node_id in self._node_dict
 
 
     def __link_id(self, from_node_id, to_node_id):
         """
-        " Private method to generate link id
+        Private method to generate link id
         """
-
         return f"{from_node_id}<->{to_node_id}"
 
     ##################################################
@@ -111,9 +104,8 @@ class SimuSwitcher:
 
     def run(self):
         """
-        " Run switcher(thread)
+        Run switcher(thread)
         """
-
         if self._is_running:
             return
 
@@ -127,9 +119,8 @@ class SimuSwitcher:
 
     def stop(self):
         """
-        " Stop switcher(thread)
+        Stop switcher(thread)
         """
-
         if not self._is_running:
             return
 
@@ -145,7 +136,6 @@ class SimuSwitcher:
         """
         " Thread loop
         """
-
         while not self._stop_event.is_set():
             if self._send_queue.qsize() <= 0:
                 self._wait_event.clear()
@@ -159,5 +149,4 @@ class SimuSwitcher:
             eventArgs = SimuNodeDataEventArgs(node_data.data, node_data.from_node_id, node_data.to_node_id)
             node: SimuNode = self._node_dict[node_data.to_node_id]      #which node
             node.raise_event("on_receive", eventArgs)
-
         return

@@ -1,21 +1,17 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from copy import copy
 from typing import Optional
 
 from .fed_node_vars import FedNodeVars
 from .fed_node_type import EFedNodeType
 from ..ml_simu_switcher import SimuNode, SimuSwitcher
-from ..ml_utils import EventHandler, console, String
-
-'''
-Node class interface declare(virtual class as interface)
-Note:
-   'data_loader_collate_fn', 'data_loader_transform' member for data loader
-'''
+from ..ml_utils import EventHandler
 
 
 class FedNode(ABC, EventHandler):
+    '''
+    Node class interface declare(virtual class as interface)
+    '''
     def __init__(self, node_id: str, node_group: str = ""):
         EventHandler.__init__(self)
 
@@ -30,8 +26,7 @@ class FedNode(ABC, EventHandler):
         return
 
     @property
-    def node_id(self):
-        return self._node_id
+    def node_id(self): return self._node_id
 
     @property
     def node_full_id(self):
@@ -77,50 +72,3 @@ class FedNode(ABC, EventHandler):
 
     def __str__(self):
         return self._node_id
-
-    ##################################################################
-
-    def _create_extractor(self):
-        """
-        " create extractor
-        """
-        if not hasattr(self.args, 'local_lora_model'):
-            return None
-        if self.args.local_lora_model is None:
-            return None
-        return AdvancedModelExtractor(self.args.local_lora_model)
-
-    def extract_args(self):
-        return 0
-        # TODO: make different arg extractor class
-
-    def observation(self):
-        """Client node executes local observation operations."""
-        return self.strategy.run_observation()
-
-    def update_weights(self, new_weight):
-        self.args.client_weight = copy.deepcopy(new_weight)
-
-    def update_global_weight(self, new_weight):
-        # simulate receive global weight and set it to local model
-        self.args.global_weight = copy.deepcopy(new_weight)
-
-    def update_local_wbab(self, new_wbab):
-        self.args.local_wbab = copy.deepcopy(new_wbab)
-
-    def update_global_wbab(self, new_wbab):
-        self.args.global_wbab = copy.deepcopy(new_wbab)
-
-    def apply_wbab(self, new_wbab):
-        LoRAModelWeightAdapter.apply_weights_to_model(self.args.local_lora_model, new_wbab)
-
-    def custimize_local_model(self, custimized_local_model):
-        self.custimized_local_model = custimized_local_model
-
-    def set_weights(self, weights):
-        """Set model weights using the strategy provided."""
-        self.weight_handler.apply_weights(self.model, weights)
-
-    def get_weights(self):
-        """Retrieve the current model weights."""
-        return self.weight_handler.get_weights(self.model)

@@ -24,8 +24,6 @@ def test_fn_2(wbab_1, wbab_2, norm='l2'):
     print(f"arg3: {norm}")
     return
 
-
-
 def test_handlers():
     console.out(f"Test Handlers")
     console.out("------------- Begin ---------------")

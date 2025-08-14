@@ -2,30 +2,29 @@ from __future__ import annotations
 from typing import Any
 
 
-################
-# Node data
-################
-
-
 class SimuNodeData:
+    """
+    Node data
+    """
+    
     def __init__(self, data: Any, from_id: str, to_id: str):
         """
-        " from node id
+        from node id
         """
         self.from_node_id: str = from_id
 
         """
-        " to node id
+        to node id
         """
         self.to_node_id: str = to_id
 
         """
-        " data
+        data
         """
         self.data: Any = data
 
         """
-        " data type
+        data type
         """
         self._data_type = type(self.data)
 

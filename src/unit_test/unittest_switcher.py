@@ -9,8 +9,8 @@ from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
 
-from usyd_learning.ml_simu_switcher.simu_switcher import SimuSwitcher, SimuNodeDataEventArgs
-from usyd_learning.ml_simu_switcher.simu_switcher_default import SimuSwitcherDefault
+from usyd_learning.ml_simu_switcher import SimuSwitcher, SimuNodeDataEventArgs
+from usyd_learning.ml_simu_switcher import SimuSwitcherDefault
 
 #################################################
 
@@ -55,7 +55,6 @@ def on_receive_data(args: SimuNodeDataEventArgs):
 #定义switcher
 
 switcher = SimuSwitcher()
-
 # or
 # switcher = SimuSwitcherDefault.switcher
 
