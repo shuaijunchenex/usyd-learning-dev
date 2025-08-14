@@ -25,5 +25,4 @@ class FedAggregatorArgs(KeyValueArgs):
 
         self.method: str = self.get("method", "fedavg")
         self.device: str = self.get("device", "cpu")
-        self.is_wbab: bool  = self.get("is_wbab", False)    # for RBLA use
         return

@@ -21,12 +21,15 @@ class FedAggregatorFactory:
         match args.method:
             case "fedavg":
                 from .methods._fed_aggregator_fedavg import FedAggregator_FedAvg
+                print("Using FedAvg aggregator")
                 return FedAggregator_FedAvg(args)
             case "rbla":
                 from .methods._fed_aggregator_rbla import FedAggregator_RBLA
+                print("Using RBLA aggregator")
                 return FedAggregator_RBLA(args)
             case "flexlora":
                 from .methods._fed_aggregator_flexlora import FedAggregator_FlexLoRA
+                print("Using FlexLoRA aggregator")
                 return FedAggregator_FlexLoRA(args)
             case _:
                 raise ValueError(f"Unsupported aggregation method: {args.method}")

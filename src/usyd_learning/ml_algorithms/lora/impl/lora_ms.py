@@ -261,7 +261,7 @@ class MSMergedLinear(nn.Linear, MSLoRALayer):
             return result
             
 
-class MSConv2d(nn.Conv2d, MSLoRALayer):
+class MSLoRAConv2d(nn.Conv2d, MSLoRALayer):
     # LoRA implemented in a dense layer
     def __init__(
         self, 
