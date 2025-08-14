@@ -4,42 +4,43 @@ from typing import Any
 import torch.nn as nn
 
 from .fed_node_event_args import FedNodeEventArgs
-
 from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap, KeyValueArgs
 from ..ml_models import NNModelFactory
-from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory
+from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoader
 from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
-from ..fl_algorithms import FedClientSelectorFactory
+from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector
 from ..ml_data_process import DataDistribution
-
-'''
-' Fed node variables
-'''
 
 
 class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
-    # NOTICE: Static share model
-    share_model: nn.Module = None
+    """
+    Fed node variables
+    """
 
-    def __init__(self, config_dict: dict = None, is_clone_dict:bool = False):
+    # NOTICE: Static share model
+    share_model: nn.Module|None = None
+
+    def __init__(self, config_dict: dict|None = None, is_clone_dict:bool = False):
         EventHandler.__init__(self)
         ObjectMap.__init__(self)
         KeyValueArgs.__init__(self, config_dict, is_clone_dict)
 
-        """
-        Config dict
-        """
-        self.config_dict = self.key_value_dict
-
         # Computation device (default: cpu)
         self.device = "cpu"
-        if "general" in config_dict:
+        if config_dict is not None and "general" in config_dict:
             self.device = config_dict["general"].get("device", "cpu")
 
         # Variables owner node list. One for normal, more means var owned by more than one node
         self.__owner_nodes: list = []
         self.__init_vars()
+
+        # Declare event
+        self.declare_events("TODO")
+
         return
+
+    @property
+    def config_dict(self) -> dict: return self.key_value_dict.dict
 
     @property
     def owner_nodes(self):
@@ -93,7 +94,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     #---------------------------------------------------------------
     # training_logger property
     @property
-    def training_logger(self):
+    def training_logger(self) -> TrainingLogger:
         return self.get_object("training_logger")
 
     @training_logger.setter
@@ -102,7 +103,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
     # data loader property
     @property
-    def data_loader(self):
+    def data_loader(self) -> DatasetLoader:
         return self.get_object("data_loader")
 
     @data_loader.setter
@@ -110,8 +111,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.set_object("data_loader", value)
 
     @property
-    def model(self):
-        return self.get_object("model")
+    def model(self) -> nn.Module :
+        return self.get_object("model", cast_type=nn.Module)
 
     @model.setter
     def model(self, value):
@@ -134,7 +135,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.set_object("aggregation", value)
 
     @property
-    def client_selection(self):
+    def client_selection(self) -> FedClientSelector:
         return self.get_object("client_selection")
 
     @client_selection.setter
@@ -142,7 +143,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.set_object("client_selection", value)
 
     @property
-    def data_distribution(self):
+    def data_distribution(self) -> DataDistribution:
         return self.get_object("data_distribution")
 
     @data_distribution.setter
@@ -174,14 +175,6 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.set_object("training", value)
 
     @property
-    def training_logger(self):
-        return self.get_object("training_logger")
-
-    @training_logger.setter
-    def training_logger(self, value):
-        self.set_object("training_logger", value)
-
-    @property
     def strategy(self):
         return self.get_object("strategy")
 
@@ -208,7 +201,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             data_loader_args.transform = self.data_loader_transform
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
         else:
-            console.error("ERROR: Missing data loader config in yaml.")
+            console.warn("WARN: Missing data loader config in yaml.")
 
         # Raise event
         args = FedNodeEventArgs("data_loader", self.config_dict).with_sender(self).with_data(self.data_loader)
@@ -220,8 +213,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             DataDistribution.parse_config(self.config_dict["data_distribution"])
         self.data_distribution = DataDistribution.get()
 
-        args = FedNodeEventArgs("data_distribution", self.config_dict).with_sender(self).with_data(
-            self.data_distribution)
+        args = FedNodeEventArgs("data_distribution", self.config_dict).with_sender(self).with_data(self.data_distribution)
         self.raise_event("on_prepare_data_distribution", args)
         return
 
@@ -278,7 +270,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
     def prepare_client_selection(self):
         if "client_selection" in self.config_dict:
-            self.client_selection = FedClientSelectorFactory.create(self.config_dict)
+            self.client_selection = FedClientSelectorFactory.create(self.config_dict["client_selection"])
 
         args = FedNodeEventArgs("client_selection", self.config_dict).with_sender(self).with_data(self.client_selection)
         self.raise_event("on_prepare_client_selection", args)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC
+from typing import Any
 
 from .console import console
 from .filename_helper import FileNameHelper
@@ -12,15 +13,25 @@ class AppEntry(ABC, ObjectMap):
     """
     App entry class
     """
+    
     # Static class variables
     __app_objects = ObjectMap()  # App objects map
     __app_config_define: dict = {}  # App config define dict
 
+    @staticmethod
+    def set_app_object(key: Any, object: Any):
+        AppEntry.__app_objects.set_object(key, object)
+
+    @staticmethod
+    def get_app_object(key: Any):
+        return AppEntry.__app_objects.get_object(key)
+
+    # ----------------------------------------------
     def __init__(self):
         ObjectMap.__init__(self)
 
     @property
-    def app_config(self):
+    def app_objects(self):
         return AppEntry.__app_objects
 
     @property
@@ -66,7 +77,7 @@ class AppEntry(ABC, ObjectMap):
                 name = file_part.name
 
             config_dict = ConfigLoader.load(fullname)
-            AppEntry.__app_objects.add_object(name, config_dict)
+            AppEntry.set_app_object(name, config_dict)
             yaml_map[name] = fullname
 
         # Section: "yaml_combination"
@@ -85,5 +96,5 @@ class AppEntry(ABC, ObjectMap):
                     config_dict = ConfigLoader.load(yaml_map[name])
                     combine_dict.update(config_dict)
 
-            AppEntry.__app_objects.add_object(cfg_name, combine_dict)
+            AppEntry.set_app_object(cfg_name, combine_dict)
         return

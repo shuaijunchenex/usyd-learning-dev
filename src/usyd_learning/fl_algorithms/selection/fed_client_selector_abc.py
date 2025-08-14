@@ -8,7 +8,7 @@ from typing import Any
 from .fed_client_selector_args import FedClientSelectorArgs
 
 
-class AbstractFedClientSelector(ABC):
+class FedClientSelector(ABC):
     def __init__(self, args: FedClientSelectorArgs|None = None):        
         """
         Initialize Selector with args

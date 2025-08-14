@@ -2,10 +2,10 @@ from __future__ import annotations
 import random
 
 from ..fed_client_selector_args import FedClientSelectorArgs
-from ..fed_client_selector_abc import AbstractFedClientSelector
+from ..fed_client_selector_abc import FedClientSelector
 
 
-class FedClientSelector_Random(AbstractFedClientSelector):
+class FedClientSelector_Random(FedClientSelector):
     """
     Random clients select class
     """

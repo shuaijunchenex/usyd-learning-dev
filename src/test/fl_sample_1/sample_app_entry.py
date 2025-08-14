@@ -22,13 +22,13 @@ class SampleAppEntry(AppEntry):
 
         # Yamls - if yamls are None, get yaml from app config file automatically
         if self.runner_yaml is None:
-            self.runner_yaml = self.app_config.get_object("runner")
+            self.runner_yaml = self.get_app_object("runner")
         if self.client_yaml is None:
-            self.client_yaml = self.app_config.get_object("client_yaml")
+            self.client_yaml = self.get_app_object("client_yaml")
         if self.edge_yaml is None:
-            self.edge_yaml = self.app_config.get_object("edge_yaml")
+            self.edge_yaml = self.get_app_object("edge_yaml")
         if self.server_yaml is None:
-            self.server_yaml = self.app_config.get_object("server_yaml")
+            self.server_yaml = self.get_app_object("server_yaml")
 
         # Training rounds
         self.fed_runner.training_rounds = training_rounds
@@ -105,14 +105,6 @@ class SampleAppEntry(AppEntry):
 
     def on_prepare_loss_func(self, args: FedNodeEventArgs):
         console.warn(f"TODO: on_prepare_loss_func event")
-        return
-
-    def on_prepare_strategy(self, args: FedNodeEventArgs):
-        console.warn(f"TODO: on_prepare_strategy event")
-        return
-
-    def on_prepare_extractor(self, args: FedNodeEventArgs):
-        console.warn(f"TODO: on_prepare_extractor event")
         return
 
     def on_prepare_data_distribution(self, args: FedNodeEventArgs):

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from ..fed_client_selector_args import FedClientSelectorArgs
-from ..fed_client_selector_abc import AbstractFedClientSelector
+from ..fed_client_selector_abc import FedClientSelector
 
 
-class FedClientSelector_HighLoss(AbstractFedClientSelector):
+class FedClientSelector_HighLoss(FedClientSelector):
     """
     High loss client selection class
     """

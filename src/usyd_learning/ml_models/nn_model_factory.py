@@ -7,11 +7,11 @@ class NNModelFactory:
     NN Model factory static class
     """
     @staticmethod
-    def create_args(config_dict: dict | None = None, is_clone_dict=False) -> NNModelArgs:
+    def create_args(config_dict: dict|None = None, is_clone_dict=False) -> NNModelArgs:
         return NNModelArgs(config_dict, is_clone_dict)
 
     @staticmethod
-    def create(args: NNModelArgs) -> AbstractNNModel | None:
+    def create(args: NNModelArgs) -> AbstractNNModel:
         match args.model_type:
             case "mnist_nn_brenden":
                 from .models._nn_model_mnist_nn_brenden import NNModel_MnistNNBrenden
@@ -32,4 +32,4 @@ class NNModelFactory:
                 from .lora._nn_model_simple_lora_cnn import NNModel_SimpleLoRACNN
                 return NNModel_SimpleLoRACNN().create_model(args)
 
-        return None
+        raise ValueError(f"Unknown mode type '{args.model_type}'")

@@ -20,7 +20,7 @@ def main():
     g_app.load_app_config("./fl_sample_1/sample_app_config.yaml")
 
     # Get training rounds
-    general_yaml = g_app.app_config.get_object("general")
+    general_yaml = g_app.get_app_object("general")
     training_rounds = general_yaml["general"]["training_rounds"]
 
     # Run app

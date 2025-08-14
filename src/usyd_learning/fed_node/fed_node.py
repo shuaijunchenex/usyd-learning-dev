@@ -54,7 +54,8 @@ class FedNode(ABC, EventHandler):
         """
         Make connection of this node to specified simu node(node id)
         """
-        self.simu_node.connect(node_id)
+        if self.simu_node is not None:
+            self.simu_node.connect(node_id)
         return
 
     @abstractmethod
@@ -71,4 +72,4 @@ class FedNode(ABC, EventHandler):
         return self.strategy.run_local_training()
 
     def __str__(self):
-        return self._node_id
+        return self.node_full_id

@@ -3,8 +3,12 @@ from typing import Any
 
 
 class ObjectMap(object):
+    """
+    Object dictionary
+    """
+
     def __init__(self):
-        self.__object_map: dict = {}
+        self.__object_map: dict = {}    # private
         return
 
     @property
@@ -14,20 +18,13 @@ class ObjectMap(object):
         """
         return len(self.__object_map)
 
-    def add_object(self, any_key: Any, object_instance):
-        """
-        Register an object instance, if object exists, replace the old one
-        """
-        if object_instance is None:
-            raise ValueError("Add object instance is not None.")
-
-        self.__object_map[any_key] = object_instance
-        return self
-
     def remove_object(self, any_key: Any):
         """
         Remove object by key
         """
+        if any_key is None:
+            return
+        
         if any_key in self.__object_map:
             del self.__object_map[any_key]
         return self
@@ -36,22 +33,27 @@ class ObjectMap(object):
         """
         Determine fn key is registered
         """
+        if any_key is None:
+            raise ValueError("Object key is None.")
         return any_key in self.__object_map
 
     def set_object(self, any_key: Any, object_instance: Any):
         """
         Set or replace object instance
         """
+        if any_key is None:
+            raise ValueError("Object key is None.")
         self.__object_map[any_key] = object_instance
+        return
 
-    def get_object(self, any_key: Any, cast_type=None):
+    def get_object(self, any_key: Any, default_value=None, cast_type=None) -> Any:
         """
         get object by key
         """
         if any_key is None:
             raise ValueError(f"Object key is None")
         if not self.exists_object(any_key):
-            raise ValueError(f"Object not found by key '{any_key}'")
+            return default_value
 
         if cast_type is not None:
             try:

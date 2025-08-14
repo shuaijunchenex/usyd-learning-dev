@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from ..fed_client_selector_abc import AbstractFedClientSelector, FedClientSelectorArgs
+from ..fed_client_selector_abc import FedClientSelector, FedClientSelectorArgs
 
 """
 Select all clients
 """
 
-class FedClientSelector_All(AbstractFedClientSelector):
+class FedClientSelector_All(FedClientSelector):
     def __init__(self, args: FedClientSelectorArgs|None = None):
         super().__init__(args)
         self._args.select_method = "all"      # Select method     

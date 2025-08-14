@@ -34,8 +34,8 @@ class FedRunner(ABC):
         self._switcher = switcher
         return self
 
-    def with_yaml(self, runner_yaml: str):
-        self._yaml = yaml.load(runner_yaml, Loader=yaml.FullLoader)
+    def with_yaml(self, runner_yaml):
+        self._yaml = runner_yaml
         return self
 
     #------------------------------------------

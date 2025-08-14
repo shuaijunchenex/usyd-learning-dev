@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .fed_client_selector_args import FedClientSelectorArgs
-from .fed_client_selector_abc import AbstractFedClientSelector
+from .fed_client_selector_abc import FedClientSelector
 
 
 class FedClientSelectorFactory:
@@ -17,7 +17,7 @@ class FedClientSelectorFactory:
         return FedClientSelectorArgs(config_dict, is_clone_dict)
     
     @staticmethod
-    def create(args: FedClientSelectorArgs) -> AbstractFedClientSelector:        
+    def create(args: FedClientSelectorArgs) -> FedClientSelector:        
         """
         Static method to create client selector
         """
