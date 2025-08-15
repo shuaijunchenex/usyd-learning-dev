@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="startup_init.py" />
+    <Compile Include="unittest_aggregator_rbla.py" />
     <Compile Include="unittest_matrix_approximator.py" />
     <Compile Include="unittest_data_distribution.py" />
     <Compile Include="unittest_data_handler.py" />

@@ -12,6 +12,7 @@ class FedNode(ABC, EventHandler):
     '''
     Node class interface declare(virtual class as interface)
     '''
+    
     def __init__(self, node_id: str, node_group: str = ""):
         EventHandler.__init__(self)
 
