@@ -69,13 +69,6 @@ class ModelTrainer_Standard(ModelTrainer):
 
         train_stats["avg_loss"] = train_stats["train_loss_sum"] / epochs
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
-        # console.info(f"\n[Summary] Total Loss: {train_stats['train_loss_sum']:.4f} | Avg Loss: {train_stats["avg_loss"]:.4f}")
-
-        # # Optional: comment out or reduce the debug prints for model params
-        # console.info("\n[Debug] Model param means:")
-        # for name, param in self.model.named_parameters():
-        #     if param.requires_grad:
-        #         console.info(f"  {name}: {param.data.mean():.6f}")
 
         if is_return_wbab == False:
             return self.model.state_dict(), train_stats

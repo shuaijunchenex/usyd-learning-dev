@@ -1,9 +1,8 @@
 import copy
 
-from train_strategy.client_strategy.base_client_strategy import ClientStrategy
-from trainer.standard_model_trainer import StandardModelTrainer
-from tools.optimizer_builder import OptimizerBuilder
-from tools.model_utils import ModelUtils
+from ..client_strategy import ClientStrategy
+from ...ml_utils.model_utils import ModelUtils
+from ...model_trainer import model_trainer_factory
 
 class FedAvgClientTrainingStrategy(ClientStrategy):
     def __init__(self, client):
@@ -37,13 +36,10 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
         trainable_params = [p for p in observe_model.parameters() if p.requires_grad]
 
-        optimizer = OptimizerBuilder(trainable_params, self.client.args.optimizer).optimizer
+        optimizer = self._build_optimizer(trainable_params, self.config) #TODO: check
 
         # Initialize the model trainer
-        self.trainer = StandardModelTrainer(observe_model,
-                                    optimizer,
-                                    self.client.args.loss_func,
-                                    self.client.args.train_data)
+        self.trainer = model_trainer_factory.create(self.config) #TODO
         
         # Call the trainer for local training
         updated_weights, train_record = self.trainer.train(int(self.client.args.local_epochs))
@@ -72,13 +68,10 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
         trainable_params = [p for p in train_model.parameters() if p.requires_grad]
 
-        optimizer = OptimizerBuilder(trainable_params, self.client.args.optimizer).optimizer
+        optimizer = self._build_optimizer(trainable_params, self.config) #TODO: change config to optimizer
 
         # Initialize the model trainer
-        self.trainer = StandardModelTrainer(train_model,#self.client.args.local_model,
-                                    optimizer, #torch.optim.SGD(trainable_params, lr=0.01),
-                                    self.client.args.loss_func,
-                                    self.client.args.train_data)
+        self.trainer = model_trainer_factory.create(self.config)
         
         # Call the trainer for local training
         updated_weights, train_record = self.trainer.train(self.client.args.local_epochs)
@@ -89,36 +82,3 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         self.client.args.local_model.load_state_dict(updated_weights)
 
         return copy.deepcopy(updated_weights), train_record
-
-    # # for debug optimizer only
-    # def local_training(self):
-    #     # Correct
-    #     # Set global weight
-    #     self.client.args.local_model.load_state_dict(self.client.args.global_weight)
-
-    #     train_model = copy.deepcopy(self.client.args.local_model)
-
-    #     # clear gradients
-    #     ModelUtils.clear_model_grads(train_model)
-
-    #     import torch.nn as nn
-    #     import torch.optim as optim
-
-    #     # 3. SGD 优化器
-    #     optimizer = optim.SGD(train_model.parameters(), lr=0.05, momentum=0)
-
-    #     # Initialize the model trainer
-    #     self.trainer = ModelTrainer(train_model,#self.client.args.local_model,
-    #                                 optimizer, #torch.optim.SGD(trainable_params, lr=0.01),
-    #                                 self.client.args.loss_func,
-    #                                 self.client.args.train_data)
-        
-    #     # Call the trainer for local training
-    #     updated_weights, train_record = self.trainer.train(self.client.args.local_epochs)
-
-    #     # Update model weights
-    #     self.client.update_weights(updated_weights)
-
-    #     self.client.args.local_model.load_state_dict(updated_weights)
-
-    #     return copy.deepcopy(updated_weights), train_record

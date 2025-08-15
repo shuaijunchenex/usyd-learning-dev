@@ -32,7 +32,7 @@ class ModelTrainer(ABC):
         """
         pass
 
-    def extract_WbAB(self):
+    def extract_wbab(self):
         """
         Extracts structured model components (e.g., LoRA components).
         """
