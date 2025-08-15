@@ -27,7 +27,7 @@ class ModelExtractor(Handlers):
         """
         Register any type's handler function callback
         Model extract handler function format:
-            def <func_name>(<model> = nn.Module, <only_trainable>: bool = False) -> dict
+            def <func_name>(<model>: nn.Module, <only_trainable>: bool = False) -> dict
         """
 
         if self.exists_handler(any_key):
@@ -81,7 +81,6 @@ class ModelExtractor(Handlers):
         """
         Export model layer data to file
         """
-
         if file_path.endswith("json"):
             self.__export_to_json(file_path)
         else:
@@ -91,7 +90,6 @@ class ModelExtractor(Handlers):
 
     #private
     def __export_to_json(self, filepath: str):
-
         serializable = {
             layer: {
                 name: tensor.tolist() if isinstance(tensor, torch.Tensor) else tensor
@@ -108,7 +106,6 @@ class ModelExtractor(Handlers):
 
     #private
     def __export_to_npz_or_yaml(self, filepath: str):
-
         flat_data = {}
 
         for layer, params in self.last_extracted_data.items():
@@ -118,7 +115,7 @@ class ModelExtractor(Handlers):
                     flat_data[key] = tensor.numpy()
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        if filepath.endswith(".pz"):
+        if filepath.endswith(".npz"):
             np_save_path = filepath if filepath.endswith(".npz") else filepath + ".npz"
             torch.save(flat_data, np_save_path)
         else:

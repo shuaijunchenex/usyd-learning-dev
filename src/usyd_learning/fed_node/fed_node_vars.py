@@ -35,8 +35,9 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.__init_vars()
 
         # Declare event
-        self.declare_events("TODO")
-
+        self.declare_events("on_prepare_data_loader", "on_prepare_data_distribution", "on_prepare_data_handler", "on_prepare_model",
+                            "on_prepare_optimizer", "on_prepare_loss_func", "on_prepare_client_selection", "on_prepare_training",
+                            "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger")
         return
 
     @property

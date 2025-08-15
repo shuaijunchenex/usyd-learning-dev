@@ -29,6 +29,7 @@
     <Compile Include="fed_node\fed_node.py" />
     <Compile Include="fed_node\fed_node_type.py" />
     <Compile Include="fed_node\__init__.py" />
+    <Compile Include="fed_runner\client_manger.py" />
     <Compile Include="fed_runner\fed_runner.py" />
     <Compile Include="fed_runner\__init__.py" />
     <Compile Include="fed_strategy\client_strategy\base_client_strategy.py" />
