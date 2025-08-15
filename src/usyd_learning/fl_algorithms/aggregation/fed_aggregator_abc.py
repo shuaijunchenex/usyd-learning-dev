@@ -30,7 +30,7 @@ class AbstractFedAggregator(ABC):
             self.args = args
 
         # data list
-        self._aggregation_data_list: list = []
+        self._aggregation_data_dict: dict = {}
 
         # Select method
         self._aggregation_method = ""
@@ -71,14 +71,14 @@ class AbstractFedAggregator(ABC):
         self._clients_update = clients_update
         return self
 
-    def aggregate(self, client_data_list):
+    def aggregate(self, client_data_dict):
         """
         Select clients from client list
 
         Arg:
             select_numbers(int): number of clients to be selected
         """
-        self._aggregation_data_list: list = (client_data_list)  # [[model_weight: dict / wbab, vol],[model_weight: dict / wbab, vol]]
+        self._aggregation_data_dict: list = (client_data_dict)  # [[model_weight: dict / wbab, vol],[model_weight: dict / wbab, vol]]
         self._before_aggregation()
         self._do_aggregation()
         self._after_aggregation()
