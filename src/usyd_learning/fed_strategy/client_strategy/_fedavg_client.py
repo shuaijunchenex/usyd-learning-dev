@@ -1,84 +1,184 @@
 import copy
+import torch
+from typing import Any, Tuple
 
 from ..client_strategy import ClientStrategy
 from ...ml_utils.model_utils import ModelUtils
 from ...model_trainer import model_trainer_factory
+from ...model_trainer.model_trainer_args import ModelTrainerArgs
+from ...model_trainer.model_trainer_factory import ModelTrainerFactory
+from ...ml_algorithms.optimizer_builder import OptimizerBuilder
+from ...ml_data_loader import DatasetLoaderFactory
+from ...ml_algorithms.loss_function_builder import LossFunctionBuilder
+from ...ml_utils import console
+from ...fed_node import FedNodeVars
+
+import copy
+from typing import Any, Tuple
+import torch
+import torch.nn as nn
 
 class FedAvgClientTrainingStrategy(ClientStrategy):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, client, config):
+        """
+        client: a FedNodeClient (or FedNode) that owns a FedNodeVars in `client.node_var`
+        config: high-level strategy/trainer config; falls back to `client.node_var.config_dict` when needed
+        """
+        super().__init__(client, config)
 
-    def run_observation(self):
+    # ------------------- Helpers -------------------
+    @staticmethod
+    def _get_torch_dataloader(nv) -> torch.utils.data.DataLoader:
+        """
+        Resolve the underlying torch DataLoader from FedNodeVars.data_loader.
+        FedNodeVars.data_loader is a DatasetLoader wrapper; the actual PyTorch DataLoader is usually `.data_loader`.
+        """
+        dl = nv.data_loader
+        if dl is None:
+            raise RuntimeError("DataLoader is not prepared. Call FedNodeVars.prepare() first.")
+        return getattr(dl, "data_loader", dl)
 
+    @staticmethod
+    def _dataset_size(nv) -> int:
+        """
+        Get dataset size safely from FedNodeVars.data_loader.
+        """
+        tdl = FedAvgClientTrainingStrategy._get_torch_dataloader(nv)
+        ds = getattr(tdl, "dataset", None)
+        return len(ds) if ds is not None else 0
+
+    # ------------------- Public: Observation wrapper -------------------
+    def run_observation(self) -> dict:
         print(f"\n Observation Client [{self.client.node_id}] ...\n")
-
         updated_weights, train_record = self.observation()
+        return {
+            "node_id": self.client.node_id,
+            "train_record": train_record,
+            "data_sample_num": self._dataset_size(self.client.node_var),
+        }
 
-        data_pack = {"node_id": self.client.node_id, "train_record": train_record, "data_sample_num": len(self.client.args.train_data.dataset)}
+    # ------------------- Observation (no state write-back) -------------------
+    def observation(self) -> Tuple[dict, Any]:
+        """
+        Lightweight local training using the current node_var model weights.
+        Return updated weights and training log, but DO NOT write back to node state.
+        """
+        nv: FedNodeVars = self.client.node_var
+        if nv is None:
+            raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
-        return data_pack
+        # 1) Copy model and load current weights (acts like 'global' init for this client)
+        observe_model: nn.Module = copy.deepcopy(nv.model)
+        if nv.model_weight is not None:
+            observe_model.load_state_dict(nv.model_weight, strict=True)
 
-    def observation(self):
-        '''
-        For light-weight client observation training, we use the local LoRA model.
-        '''
+        # 2) Resolve config/device and build optimizer/loss/trainer via base helpers
+        # Prefer explicit `self.config`; fall back to nv.config_dict
+        full_cfg = self.config or nv.config_dict or {}
+        device = nv.device if hasattr(nv, "device") and nv.device else "cpu"
 
-        # clear gradients
-        # ModelUtils.clear_model_grads(self.client.args.local_model)
+        ModelUtils.clear_cuda_cache("cuda")
+        console.log(f"Cuda cache cleared: {"cuda"}")
+        ModelUtils.clear_model_grads(observe_model)
+        console.log(f"Model grads cleared: {observe_model}")
 
-        observe_model = copy.deepcopy(self.client.args.local_model)
+        optimizer = self._build_optimizer(self, observe_model, full_cfg)
+        ModelUtils.reset_optimizer_state(optimizer)
+        console.log(f"Optimizer state reset: {optimizer}")
 
-        # Retrieve the current model weights
-        current_weight = self.client.args.global_weight
+        loss_cfg = full_cfg.get("loss", full_cfg)
+        loss_func = LossFunctionBuilder.build(loss_cfg)
 
-        # Set global weight
-        observe_model.load_state_dict(current_weight)
+        trainer_type = full_cfg.get("trainer", {}).get("trainer_type", "standard")
+        save_path = full_cfg.get("trainer", {}).get("save_path", None)
 
-        trainable_params = [p for p in observe_model.parameters() if p.requires_grad]
+        train_loader = self._get_torch_dataloader(nv)
 
-        optimizer = self._build_optimizer(trainable_params, self.config) #TODO: check
+        self.trainer = self._build_trainer(
+            model=observe_model,
+            optimizer=optimizer,
+            loss_func=loss_func,
+            train_loader=train_loader,
+            device=device,
+            trainer_type=trainer_type,
+            save_path=save_path,
+        )
 
-        # Initialize the model trainer
-        self.trainer = model_trainer_factory.create(self.config) #TODO
-        
-        # Call the trainer for local training
-        updated_weights, train_record = self.trainer.train(int(self.client.args.local_epochs))
+        # 3) Train for local epochs (use observe() if your concrete trainer provides it)
+        local_epochs = int(full_cfg.get("training", {}).get("local_epochs", 1))
+        updated_weights, train_record = self.trainer.train(local_epochs)
 
         return copy.deepcopy(updated_weights), train_record
 
-    def run_local_training(self):
-
+    # ------------------- Public: Local training wrapper -------------------
+    def run_local_training(self) -> dict:
         print(f"\n Training Client [{self.client.node_id}] ...\n")
-
         updated_weights, train_record = self.local_training()
+        return {
+            "node_id": self.client.node_id,
+            "updated_weights": updated_weights,
+            "train_record": train_record,
+            "data_sample_num": self._dataset_size(self.client.node_var),
+        }
 
-        data_pack = {"node_id": self.client.node_id, "updated_weights": updated_weights, "train_record": train_record, "data_sample_num": len(self.client.args.train_data.dataset)}
+    # ------------------- Full local training (write-back to node_var) -------------------
+    def local_training(self) -> Tuple[dict, Any]:
+        """
+        Full local training: initialize from nv.model_weight, train, then write updated weights
+        back to nv.model_weight and nv.model.
+        """
+        nv: FedNodeVars = self.client.node_var
+        if nv is None:
+            raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
-        return data_pack
+        # 1) Sync cached model with current node_var.model_weight (acts like global init)
+        if nv.model_weight is not None:
+            nv.model.load_state_dict(nv.model_weight, strict=True)
 
-    def local_training(self):
-        # Correct
-        # Set global weight
-        self.client.args.local_model.load_state_dict(self.client.args.global_weight)
+        # 2) Train on a copied model to keep nv.model intact during the run
+        train_model: nn.Module = copy.deepcopy(nv.model)
 
-        train_model = copy.deepcopy(self.client.args.local_model)
+        # 3) Build optimizer, loss, and trainer
+        full_cfg = self.config or nv.config_dict or {}
+        device = nv.device if hasattr(nv, "device") and nv.device else "cpu"
 
-        # clear gradients
+        ModelUtils.clear_cuda_cache("cuda")
+        console.log(f"Cuda cache cleared: {"cuda"}")
         ModelUtils.clear_model_grads(train_model)
+        console.log(f"Model grads cleared: {train_model}")
 
-        trainable_params = [p for p in train_model.parameters() if p.requires_grad]
+        optimizer = self._build_optimizer(self, train_model, full_cfg)
+        ModelUtils.reset_optimizer_state(optimizer)
+        console.log(f"Optimizer state reset: {optimizer}")
 
-        optimizer = self._build_optimizer(trainable_params, self.config) #TODO: change config to optimizer
+        loss_cfg = full_cfg.get("loss", full_cfg)
+        loss_func = LossFunctionBuilder.build(loss_cfg)
 
-        # Initialize the model trainer
-        self.trainer = model_trainer_factory.create(self.config)
-        
-        # Call the trainer for local training
-        updated_weights, train_record = self.trainer.train(self.client.args.local_epochs)
+        trainer_type = full_cfg.get("trainer", {}).get("trainer_type", "standard")
+        save_path = full_cfg.get("trainer", {}).get("save_path", None)
 
-        # Update model weights
-        self.client.update_weights(updated_weights)
+        train_loader = self._get_torch_dataloader(nv)
 
-        self.client.args.local_model.load_state_dict(updated_weights)
+        self.trainer = self._build_trainer(
+            model=train_model,
+            optimizer=optimizer,
+            loss_func=loss_func,
+            train_loader=train_loader,
+            device=device,
+            trainer_type=trainer_type,
+            save_path=save_path,
+        )
+
+        # 4) Train for local epochs
+        local_epochs = int(full_cfg.get("training", {}).get("local_epochs", 1))
+        updated_weights, train_record = self.trainer.train(local_epochs)
+
+        # 5) Write-back: update node_var weights and sync into its model
+        nv.model_weight = copy.deepcopy(updated_weights)
+        nv.model.load_state_dict(nv.model_weight, strict=True)
+
+        # Optional: if your FedNodeClient exposes update_weights(), keep this too
+        if hasattr(self.client, "update_weights"):
+            self.client.update_weights(nv.model_weight)
 
         return copy.deepcopy(updated_weights), train_record

@@ -21,29 +21,10 @@ class ClientStrategy(ABC):
 
     # -------- high-level wrappers --------
     def run_observation(self) -> dict:
-
         pass
-        # """Run lightweight observation (no global update)."""
-        # print(f"\n Observation Client [{self.client.node_id}] ...\n")
-        # updated_weights, train_record = self.observation()
-        # return {
-        #     "node_id": self.client.node_id,
-        #     "train_record": train_record,
-        #     "data_sample_num": len(self.client.args.train_data.dataset),
-        # }
 
     def run_local_training(self) -> dict:
-
         pass
-        # """Run local training and return updated weights + stats."""
-        # print(f"\n Training Client [{self.client.node_id}] ...\n")
-        # updated_weights, train_record = self.local_training()
-        # return {
-        #     "node_id": self.client.node_id,
-        #     "updated_weights": updated_weights,
-        #     "train_record": train_record,
-        #     "data_sample_num": len(self.client.args.train_data.dataset),
-        # }
 
     @abstractmethod
     def observation(self) -> Tuple[dict, Any]:
