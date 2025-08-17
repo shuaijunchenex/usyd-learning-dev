@@ -28,22 +28,22 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
     # ------------------- Helpers -------------------
     @staticmethod
-    def _get_torch_dataloader(nv) -> torch.utils.data.DataLoader:
+    def _get_torch_dataloader(node_vars) -> torch.utils.data.DataLoader:
         """
         Resolve the underlying torch DataLoader from FedNodeVars.data_loader.
         FedNodeVars.data_loader is a DatasetLoader wrapper; the actual PyTorch DataLoader is usually `.data_loader`.
         """
-        dl = nv.data_loader
+        dl = node_vars.data_loader
         if dl is None:
             raise RuntimeError("DataLoader is not prepared. Call FedNodeVars.prepare() first.")
         return getattr(dl, "data_loader", dl)
 
     @staticmethod
-    def _dataset_size(nv) -> int:
+    def _dataset_size(node_vars) -> int:
         """
         Get dataset size safely from FedNodeVars.data_loader.
         """
-        tdl = FedAvgClientTrainingStrategy._get_torch_dataloader(nv)
+        tdl = FedAvgClientTrainingStrategy._get_torch_dataloader(node_vars)
         ds = getattr(tdl, "dataset", None)
         return len(ds) if ds is not None else 0
 
@@ -63,19 +63,19 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         Lightweight local training using the current node_var model weights.
         Return updated weights and training log, but DO NOT write back to node state.
         """
-        nv: FedNodeVars = self.client.node_var
-        if nv is None:
+        node_vars: FedNodeVars = self.client.node_var
+        if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
         # 1) Copy model and load current weights (acts like 'global' init for this client)
-        observe_model: nn.Module = copy.deepcopy(nv.model)
-        if nv.model_weight is not None:
-            observe_model.load_state_dict(nv.model_weight, strict=True)
+        observe_model: nn.Module = copy.deepcopy(node_vars.model)
+        if node_vars.model_weight is not None:
+            observe_model.load_state_dict(node_vars.model_weight, strict=True)
 
         # 2) Resolve config/device and build optimizer/loss/trainer via base helpers
-        # Prefer explicit `self.config`; fall back to nv.config_dict
-        full_cfg = self.config or nv.config_dict or {}
-        device = nv.device if hasattr(nv, "device") and nv.device else "cpu"
+        # Prefer explicit `self.config`; fall back to node_vars.config_dict
+        full_cfg = self.config or node_vars.config_dict or {}
+        device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
         ModelUtils.clear_cuda_cache("cuda")
         console.log(f"Cuda cache cleared: {"cuda"}")
@@ -92,7 +92,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         trainer_type = full_cfg.get("trainer", {}).get("trainer_type", "standard")
         save_path = full_cfg.get("trainer", {}).get("save_path", None)
 
-        train_loader = self._get_torch_dataloader(nv)
+        train_loader = self._get_torch_dataloader(node_vars)
 
         self.trainer = self._build_trainer(
             model=observe_model,
@@ -124,23 +124,23 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
     # ------------------- Full local training (write-back to node_var) -------------------
     def local_training(self) -> Tuple[dict, Any]:
         """
-        Full local training: initialize from nv.model_weight, train, then write updated weights
-        back to nv.model_weight and nv.model.
+        Full local training: initialize from node_vars.model_weight, train, then write updated weights
+        back to node_vars.model_weight and node_vars.model.
         """
-        nv: FedNodeVars = self.client.node_var
-        if nv is None:
+        node_vars: FedNodeVars = self.client.node_var
+        if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
         # 1) Sync cached model with current node_var.model_weight (acts like global init)
-        if nv.model_weight is not None:
-            nv.model.load_state_dict(nv.model_weight, strict=True)
+        if node_vars.model_weight is not None:
+            node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 
-        # 2) Train on a copied model to keep nv.model intact during the run
-        train_model: nn.Module = copy.deepcopy(nv.model)
+        # 2) Train on a copied model to keep node_vars.model intact during the run
+        train_model: nn.Module = copy.deepcopy(node_vars.model)
 
         # 3) Build optimizer, loss, and trainer
-        full_cfg = self.config or nv.config_dict or {}
-        device = nv.device if hasattr(nv, "device") and nv.device else "cpu"
+        full_cfg = self.config or node_vars.config_dict or {}
+        device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
         ModelUtils.clear_cuda_cache("cuda")
         console.log(f"Cuda cache cleared: {"cuda"}")
@@ -157,7 +157,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         trainer_type = full_cfg.get("trainer", {}).get("trainer_type", "standard")
         save_path = full_cfg.get("trainer", {}).get("save_path", None)
 
-        train_loader = self._get_torch_dataloader(nv)
+        train_loader = self._get_torch_dataloader(node_vars)
 
         self.trainer = self._build_trainer(
             model=train_model,
@@ -174,11 +174,11 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         updated_weights, train_record = self.trainer.train(local_epochs)
 
         # 5) Write-back: update node_var weights and sync into its model
-        nv.model_weight = copy.deepcopy(updated_weights)
-        nv.model.load_state_dict(nv.model_weight, strict=True)
+        node_vars.model_weight = copy.deepcopy(updated_weights)
+        node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 
         # Optional: if your FedNodeClient exposes update_weights(), keep this too
         if hasattr(self.client, "update_weights"):
-            self.client.update_weights(nv.model_weight)
+            self.client.update_weights(node_vars.model_weight)
 
         return copy.deepcopy(updated_weights), train_record
