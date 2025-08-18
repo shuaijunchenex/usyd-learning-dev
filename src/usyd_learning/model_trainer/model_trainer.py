@@ -26,13 +26,19 @@ class ModelTrainer(ABC):
         """
         pass
 
+    def set_optimizer(self, optimizer):
+        """
+        Sets the optimizer for the trainer.
+        """
+        self.trainer_args.optimizer = optimizer
+
     def observe(self, epochs=5) -> Any:
         """
         Performs observation without updating the global state.
         """
         pass
 
-    def extract_WbAB(self):
+    def extract_wbab(self):
         """
         Extracts structured model components (e.g., LoRA components).
         """

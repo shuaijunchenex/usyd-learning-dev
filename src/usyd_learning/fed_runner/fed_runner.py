@@ -19,6 +19,7 @@ class FedRunner(ABC):
         self.client_node_list = []
         self.edge_node_list = []
         self.server_node: FedNodeServer|None = None
+        self.run_strategy = None #TODO
         return
 
     #------------------------------------------
@@ -39,6 +40,14 @@ class FedRunner(ABC):
         return self
 
     #------------------------------------------
+
+    def create_run_strategy(self):
+        self.run_strategy = self.__create_run_strategy_from_yaml(self._yaml)
+
+    def __create_run_strategy_from_yaml(self, run_strategy_yaml: str):
+        #TODO
+        return 
+
     def create_nodes(self):
         # Create server node(only 1 node)
         self.__create_server_nodes(self._yaml)
@@ -107,33 +116,31 @@ class FedRunner(ABC):
         self.server_node.create_simu_node(self._switcher)
         return
 
+    @abstractmethod
+    def simulate_local_train():
+        """
+        Local training simulation method.
+        This method should be overridden by subclasses to implement local training logic.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
+    @abstractmethod
+    def simulate_server_broadcast():
+        """
+        Server broadcast simulation method.
+        This method should be overridden by subclasses to implement server broadcast logic.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
+    @abstractmethod
+    def simulate_server_update():
+        """
+        Server update simulation method.
+        This method should be overridden by subclasses to implement server update logic.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
     def run(self):
-        for round in tqdm(range(self.training_rounds + 1)):
-
-            client_list = []
-            console.out(f"\n{'='*10} Training round {round}/{self.training_rounds}, Total participants: {len(self.client_node_list)} {'='*10}")
-
-            client_selection = self.server_node.node_var.client_selection
-            participants = client_selection.select(self.client_node_list)
-            console.info(f"Round: {round}, Select {len(participants)} clients: ', '").ok(f"{', '.join(map(str, participants))}")
-
-            #client_updates = runner.train_round(participants)
-            
-            #client_data = []
-
-            #for i in client_updates:
-            #    client_data.append([i["updated_weights"], i["data_sample_num"]])
-
-            #new_weight = fedavg_aggregator.aggregate_weights(client_data)
-            #server.update_weights(new_weight)
-
-            #for client in client_list:
-            #    client.update_weights(new_weight)
-
-            # Evaluate the global model
-            #eval_results = server.evaluate_global_model(round)
-
-            #logger.record(eval_results)
-
-            console.out(f"{'='*10} Round {round}/{self.training_rounds} End{'='*10}")
-        return
+        if self.run_strategy is None:
+            raise RuntimeError("run_strategy is not set")
+        self.run_strategy.run(self)
