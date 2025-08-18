@@ -7,7 +7,10 @@ import yaml
 from ..ml_utils import console
 from ..ml_simu_switcher import SimuSwitcher
 from ..fed_node import FedNodeClient, FedNodeEdge, FedNodeServer
-
+from ..fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from ..fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
+from ..ml_utils.text_logger import TextLogger
+from ..ml_utils.training_logger import TrainingLogger
 
 class FedRunner(ABC):
     def __init__(self):
@@ -20,6 +23,10 @@ class FedRunner(ABC):
         self.edge_node_list = []
         self.server_node: FedNodeServer|None = None
         self.run_strategy = None #TODO
+        self.__create_aggregator_selector_from_yaml()
+        self.create_nodes() 
+        self.train_logger = TrainingLogger(self._yaml.get("logger", None))
+
         return
 
     #------------------------------------------
@@ -40,7 +47,10 @@ class FedRunner(ABC):
         return self
 
     #------------------------------------------
-
+    def __create_aggregator_selector_from_yaml(self):
+        self.aggregator = FedAggregatorFactory.create_aggregator(self._yaml.get("aggregator", "fedavg"))
+        self.selector = FedClientSelectorFactory.create(self._yaml.get("client_selector", "random"))
+    
     def create_run_strategy(self):
         self.run_strategy = self.__create_run_strategy_from_yaml(self._yaml)
 
@@ -115,30 +125,6 @@ class FedRunner(ABC):
         # Create simu node
         self.server_node.create_simu_node(self._switcher)
         return
-
-    @abstractmethod
-    def simulate_local_train():
-        """
-        Local training simulation method.
-        This method should be overridden by subclasses to implement local training logic.
-        """
-        raise NotImplementedError("Subclasses must implement this method.")
-
-    @abstractmethod
-    def simulate_server_broadcast():
-        """
-        Server broadcast simulation method.
-        This method should be overridden by subclasses to implement server broadcast logic.
-        """
-        raise NotImplementedError("Subclasses must implement this method.")
-
-    @abstractmethod
-    def simulate_server_update():
-        """
-        Server update simulation method.
-        This method should be overridden by subclasses to implement server update logic.
-        """
-        raise NotImplementedError("Subclasses must implement this method.")
 
     def run(self):
         if self.run_strategy is None:

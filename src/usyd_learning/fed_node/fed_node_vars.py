@@ -201,7 +201,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             data_loader_args.collate_fn = self.data_loader_collate_fn
             data_loader_args.transform = self.data_loader_transform
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
-        else:
+            data_loader_args.is_train = False  # get test data loader
+            self.test_data_loader = DatasetLoaderFactory.create(data_loader_args)
             console.warn("WARN: Missing data loader config in yaml.")
 
         # Raise event

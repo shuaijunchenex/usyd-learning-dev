@@ -1,6 +1,20 @@
-from train_strategy.server_strategy.base_server_strategy import ServerStrategy
+from fed_strategy.server_strategy import ServerStrategy
+from model_trainer.model_evaluator import ModelEvaluator
+from tqdm import tqdm
 
-class FedAvgServerTrainingStrategy(ServerStrategy):
+class BaseFedAvgServerStrategy(ServerStrategy):
+
+    #TODO: add test dataloader
+    def __init__(self, server):
+        super().__init__(server)
+        self.model_evaluator = ModelEvaluator(server.node_var.model(), server.node_var.data_loader(), server.node_var.loss_func(), server.node_var.device)
+
+    def aggregation(self, client_weights):
+        return super().aggregation(client_weights)
+    
+    def broadcast(self, aggregated_weights):
+        return super().broadcast(aggregated_weights)
+
     def run(self):
         print(f"\n🚀 Training Client [{self.client.node_id}] ...\n")
 
@@ -10,17 +24,7 @@ class FedAvgServerTrainingStrategy(ServerStrategy):
 
         return data_pack
     
-    def local_training(self):
-        # Retrieve the current model weights
-        current_weight = self.client.args.global_weight
-
-        # Set global weight
-        self.client.args.global_model.load_state_dict(current_weight)
-
-        # Call the trainer for local training
-        updated_weights, train_record = self.client.trainer.train(self.client.args.local_epochs)
-
-        # Update model weights
-        self.client.update_weights(updated_weights)
-
-        return updated_weights, train_record
+    def evaluate(self):
+        self.model_evaluator.evaluate()
+        self.model_evaluator.print_results()
+        return

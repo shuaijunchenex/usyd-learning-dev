@@ -4,6 +4,7 @@ from ..ml_utils import console
 from ..ml_data_process import DataDistribution
 from .fed_node import FedNode
 from .fed_node_type import EFedNodeType
+from ..fed_strategy.server_strategy.fedavg_server import BaseFedAvgServerStrategy
 
 # from train_strategy.client_strategy.fedavg_client import FedAvgClientTrainingStrategy
 # from model_adaptor.lora_model_weight_adaptor import LoRAModelWeightAdapter
@@ -16,9 +17,10 @@ class FedNodeServer(FedNode):
 
         # Server node type
         self.node_type = EFedNodeType.server
+        self.server_strategy = BaseFedAvgServerStrategy(server = self)
+
         return
-
-
+    
     # override
     def run(self) -> None:
         console.info(f"{self._node_id}: Run...")

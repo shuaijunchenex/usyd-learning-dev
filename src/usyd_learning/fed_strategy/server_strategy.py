@@ -24,3 +24,11 @@ class ServerStrategy(ABC):
     @abstractmethod
     def run(self) -> dict:
         pass
+
+    @abstractmethod
+    def evaluate(self) -> None:
+        """
+        Evaluates the server's performance.
+        This method can be overridden by subclasses to implement specific evaluation logic.
+        """
+        pass
