@@ -22,3 +22,10 @@ class FedNodeClient(FedNode):
     def run(self) -> None:
         return
 
+    def receive_weight(self, new_weight):
+        """
+        Receive new weight from server
+        """
+        self.node_var.model_weight = new_weight
+        console.info(f"{self._node_id}: Received new weight from server.")
+        return

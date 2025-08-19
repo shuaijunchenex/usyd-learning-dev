@@ -96,6 +96,11 @@ class FedRunner(ABC):
 
                 # Create simu node and connect to node
                 client.create_simu_node(self._switcher)
+
+                # Create local strategy
+                client.create_local_strategy(self._yaml)
+                
+                # Create topology link
                 client.connect(link_to)
                 node_count += 1
 

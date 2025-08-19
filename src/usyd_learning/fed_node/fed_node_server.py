@@ -26,3 +26,9 @@ class FedNodeServer(FedNode):
         console.info(f"{self._node_id}: Run...")
         pass
 
+    def boroadcast_weight(self):
+        return
+    
+    def update_weight(self, new_weight):
+        self.node_var.model_weight = new_weight
+

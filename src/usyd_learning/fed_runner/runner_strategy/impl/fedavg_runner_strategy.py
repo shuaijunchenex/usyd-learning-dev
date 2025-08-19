@@ -57,13 +57,14 @@ class FedAvgRunner(RunnerStrategy):
             #self.server_node.aggregate_weights(client_data) #TODO
             #new_weight = fedavg_aggregator.aggregate_weights(client_data)
             self.simulate_server_update() #self.runner.server_node.update_weights(new_weight)
+            
             self.simulate_server_broadcast() #self.runner.server_node.broadcast_weights(new_weight)
 
             # for client in client_list:
             #    client.update_weights(new_weight)
 
             #Evaluate the global model
-            eval_results = self.runner.server_node.evaluate_global_model(round)
+            eval_results = self.runner.server_node.evaluate_model(round)
 
             self.runner.train_logger.record(eval_results)
 
