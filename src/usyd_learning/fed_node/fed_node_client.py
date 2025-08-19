@@ -22,6 +22,14 @@ class FedNodeClient(FedNode):
     def run(self) -> None:
         return
 
+    def run_local_training(self):
+        """
+        Run local training on the client node
+        """
+        console.info(f"{self._node_id}: Running local training...")
+        # Implement local training logic here
+        pass
+
     def receive_weight(self, new_weight):
         """
         Receive new weight from server

@@ -80,3 +80,7 @@ lora:
 
    use_bias: True          # use_bias (bool): If True, includes a bias parameter.
    alpha: 0
+
+strategy:
+  type: fedavg
+  object: client

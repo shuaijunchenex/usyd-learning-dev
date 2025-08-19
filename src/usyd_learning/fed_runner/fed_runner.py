@@ -134,4 +134,5 @@ class FedRunner(ABC):
     def run(self):
         if self.run_strategy is None:
             raise RuntimeError("run_strategy is not set")
+        
         self.run_strategy.run(self)

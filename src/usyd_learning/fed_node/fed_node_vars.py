@@ -10,7 +10,7 @@ from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoa
 from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
 from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector
 from ..ml_data_process import DataDistribution
-
+from ..fed_strategy.server_strategy.fedavg_server import BaseFedAvgServerStrategy
 
 class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     """
@@ -298,6 +298,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         return
 
     def prepare_strategy(self):
+        if "strategy" in self.config_dict:
+            self.strategy = self.config_dict["strategy"]
         # Raise strategy event
         args = FedNodeEventArgs("strategy", self.config_dict).with_sender(self)
 

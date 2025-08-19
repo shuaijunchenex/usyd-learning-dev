@@ -26,9 +26,16 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         """
         super().__init__(client, config)
 
+    def create_client_strategy(self):
+        """
+        Return a client strategy based on the provided YAML configuration.
+        This method is typically called during the node's initialization.
+        """
+        return self
+
     # ------------------- Helpers -------------------
     @staticmethod
-    def _get_torch_dataloader(node_vars) -> torch.utils.data.DataLoader:
+    def _get_dataloader(node_vars) -> torch.utils.data.DataLoader:
         """
         Resolve the underlying torch DataLoader from FedNodeVars.data_loader.
         FedNodeVars.data_loader is a DatasetLoader wrapper; the actual PyTorch DataLoader is usually `.data_loader`.
@@ -43,7 +50,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         """
         Get dataset size safely from FedNodeVars.data_loader.
         """
-        tdl = FedAvgClientTrainingStrategy._get_torch_dataloader(node_vars)
+        tdl = FedAvgClientTrainingStrategy._get_dataloader(node_vars)
         ds = getattr(tdl, "dataset", None)
         return len(ds) if ds is not None else 0
 

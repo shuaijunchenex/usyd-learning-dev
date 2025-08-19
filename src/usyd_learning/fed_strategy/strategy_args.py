@@ -27,7 +27,7 @@ class StrategyArgs(KeyValueArgs):
         if config_dict is not None and "strategy" in config_dict:
             self.set_args(config_dict["strategy"], is_clone_dict)
 
-        self.strategy_type = self.get("strategy_type", "fedavg")
-        self.strategy_obj = self.get("strategy_obj", "client")
+        self.strategy_type = self.get("type", "fedavg")
+        self.strategy_obj = self.get("object", None) # can be server or client
 
         return
