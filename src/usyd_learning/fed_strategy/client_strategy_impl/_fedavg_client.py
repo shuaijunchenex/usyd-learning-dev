@@ -33,27 +33,6 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         """
         return self
 
-    # ------------------- Helpers -------------------
-    @staticmethod
-    def _get_dataloader(node_vars) -> torch.utils.data.DataLoader:
-        """
-        Resolve the underlying torch DataLoader from FedNodeVars.data_loader.
-        FedNodeVars.data_loader is a DatasetLoader wrapper; the actual PyTorch DataLoader is usually `.data_loader`.
-        """
-        dl = node_vars.data_loader
-        if dl is None:
-            raise RuntimeError("DataLoader is not prepared. Call FedNodeVars.prepare() first.")
-        return getattr(dl, "data_loader", dl)
-
-    @staticmethod
-    def _dataset_size(node_vars) -> int:
-        """
-        Get dataset size safely from FedNodeVars.data_loader.
-        """
-        tdl = FedAvgClientTrainingStrategy._get_dataloader(node_vars)
-        ds = getattr(tdl, "dataset", None)
-        return len(ds) if ds is not None else 0
-
     # ------------------- Public: Observation wrapper -------------------
     def run_observation(self) -> dict:
         print(f"\n Observation Client [{self.client.node_id}] ...\n")
