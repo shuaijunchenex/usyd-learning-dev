@@ -19,8 +19,10 @@ class FedNodeServer(FedNode):
         self.node_type = EFedNodeType.server
         self.strategy_args = StrategyFactory.create_args(yaml)
         self.server_strategy = StrategyFactory.create_server_strategy(self.strategy_args)
-
         return
+
+    def get_client_nodes(self):
+        return self.simu_switcher._node_dict
 
     # override
     def run(self) -> None:
@@ -28,6 +30,7 @@ class FedNodeServer(FedNode):
         pass
 
     def boroadcast_weight(self):
+        self.server_strategy.broadcast()
         return
     
     def update_weight(self, new_weight):

@@ -10,7 +10,9 @@ from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoa
 from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
 from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector
 from ..ml_data_process import DataDistribution
-from ..fed_strategy.server_strategy.fedavg_server import BaseFedAvgServerStrategy
+from ..fed_strategy.strategy_factory import StrategyFactory
+from ..fl_algorithms import FedClientSelectorFactory
+from ..model_trainer.model_evaluator import ModelEvaluator
 
 class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     """
@@ -289,12 +291,16 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
     def prepare_aggregation(self):
         # Raise strategy event
-        args = FedNodeEventArgs("aggregation", self.config_dict).with_sender(self)
+        args = FedNodeEventArgs("model_aggregation", self.config_dict).with_sender(self)
 
         #########
-        console.error("TODO: prepare_training...")
+        if "model_aggregation" in self.config_dict:
+            self.aggregation_method = FedClientSelectorFactory.create(self.config_dict["model_aggregation"])
 
         self.raise_event("on_prepare_aggregation", args)
+        return
+    
+    def prepare_model_evaluator(self):
         return
 
     def prepare_strategy(self):

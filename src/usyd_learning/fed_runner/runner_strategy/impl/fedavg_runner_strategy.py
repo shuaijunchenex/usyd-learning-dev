@@ -5,7 +5,7 @@ from ....fl_algorithms.selection.fed_client_selector_factory import FedClientSel
 from ...fed_runner import FedRunner
 from ..runner_strategy import RunnerStrategy 
 
-class FedAvgRunner(RunnerStrategy):
+class FedAvgRunnerStrategy(RunnerStrategy):
 
     def simulate_local_train(self):
         #TODO
@@ -14,7 +14,7 @@ class FedAvgRunner(RunnerStrategy):
         This method should be overridden by subclasses to implement local training logic.
         """
 
-        for client in self.participants:
+        for client in self.runner.server_node.get_client_nodes:#TODO: modify to iterate client obj
             console.out(f"Client [{client.node_id}] local training ...")
             updated_weights, train_record = client.run_local_training()
             console.debug(f"Client [{client.node_id}] local training completed.")

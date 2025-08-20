@@ -4,6 +4,8 @@ from collections import defaultdict
 
 import torch
 from fed_strategy.server_strategy import ServerStrategy
+from fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from model_trainer.model_evaluator import ModelEvaluator
 
 
@@ -26,20 +28,19 @@ class FedAvgServerStrategy(ServerStrategy):
 
     # --------------------------------------------------
     def _create_inner(self, args) -> None:
-        """
-        子类的真实初始化逻辑。
-        这里构建 evaluator；如果你有 test/val dataloader，可在 args 或 server.node_var 中拿。
-        """
-        nv = self.server.node_var  # 依据你的 server 设计，这里沿用你原来的用法
-        self.model_evaluator = ModelEvaluator(
-            nv.model(),            # 全局模型
-            nv.data_loader(),      # 评估的 dataloader（如为 train loader，后续可替换为 test）
-            nv.loss_func(),        # 损失函数
-            nv.device,             # 设备
-        )
+        # self.model_evaluator = ModelEvaluator(
+        #     args.model(),            
+        #     args.data_loader(),      
+        #     args.loss_func(),        
+        #     args.device,             
+        # )
+        # self.selection_method = FedClientSelectorFactory()
+        # self.aggregation_method = FedAggregatorFactory()
+        self._server_node.node_var.client_selection
+        self._server_node.node_var.aggregation_method
 
     # 保持向后兼容：等价于调用 create()
-    def create_server_strategy(self, server_strategy_args, fn=None) -> "FedAvgServerStrategy":
+    def create_server_strategy(self, server_strategy_args, fn=None) -> FedAvgServerStrategy:
         """
         Backward-compatible factory-style entry.
         """
