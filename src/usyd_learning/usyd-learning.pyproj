@@ -31,6 +31,9 @@
     <Compile Include="fed_node\__init__.py" />
     <Compile Include="fed_runner\client_manger.py" />
     <Compile Include="fed_runner\fed_runner.py" />
+    <Compile Include="fed_runner\runners\fedavg_runner.py" />
+    <Compile Include="fed_runner\runner_strategy\impl\fedavg_runner_strategy.py" />
+    <Compile Include="fed_runner\runner_strategy\runner_strategy.py" />
     <Compile Include="fed_runner\__init__.py" />
     <Compile Include="fed_strategy\client_strategy\base_client_strategy.py" />
     <Compile Include="fed_strategy\client_strategy\fedavg_client.py" />
@@ -158,6 +161,9 @@
   <ItemGroup>
     <Folder Include="fed_node\" />
     <Folder Include="fed_runner\" />
+    <Folder Include="fed_runner\runners\" />
+    <Folder Include="fed_runner\runner_strategy\" />
+    <Folder Include="fed_runner\runner_strategy\impl\" />
     <Folder Include="fed_strategy\" />
     <Folder Include="fed_strategy\client_strategy\" />
     <Folder Include="fed_strategy\client_strategy\light_weight_client_observation\" />
