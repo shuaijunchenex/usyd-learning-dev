@@ -22,7 +22,7 @@ class FedRunner(ABC):
         self.client_node_list = []
         self.edge_node_list = []
         self.server_node: FedNodeServer|None = None
-        self.run_strategy = None #TODO
+        self.runner_strategy = None #TODO
         self.__create_aggregator_selector_from_yaml()
         self.create_nodes() 
         self.train_logger = TrainingLogger(self._yaml.get("logger", None))
@@ -132,7 +132,7 @@ class FedRunner(ABC):
         return
 
     def run(self):
-        if self.run_strategy is None:
-            raise RuntimeError("run_strategy is not set")
+        if self.runner_strategy is None:
+            raise RuntimeError("runner_strategy is not set")
         
-        self.run_strategy.run(self)
+        self.runner_strategy.run(self)

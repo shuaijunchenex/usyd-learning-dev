@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from .fed_node import FedNode
 from .fed_node_type import EFedNodeType
-
+from ..fed_strategy.strategy_factory import StrategyFactory
 from ..ml_utils import console
 
 # from train_strategy.client_strategy.fedavg_client import FedAvgClientTrainingStrategy
@@ -11,11 +11,13 @@ from ..ml_utils import console
 
 
 class FedNodeClient(FedNode):
-    def __init__(self, node_id: str, node_group:str = ""):
+    def __init__(self, yaml, node_id: str, node_group:str = ""):
         super().__init__(node_id, node_group)
 
         # Client node type
         self.node_type = EFedNodeType.client
+        self.strategy_args = StrategyFactory.create_args(yaml)
+        self.client_strategy = StrategyFactory.create_client_strategy(self.strategy_args)
         return
 
     # override
@@ -27,7 +29,7 @@ class FedNodeClient(FedNode):
         Run local training on the client node
         """
         console.info(f"{self._node_id}: Running local training...")
-        # Implement local training logic here
+        self.client_strategy.run_local_training()
         pass
 
     def receive_weight(self, new_weight):
