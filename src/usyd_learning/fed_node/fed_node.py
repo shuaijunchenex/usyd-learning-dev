@@ -6,7 +6,7 @@ from .fed_node_vars import FedNodeVars
 from .fed_node_type import EFedNodeType
 from ..ml_simu_switcher import SimuNode, SimuSwitcher
 from ..ml_utils import EventHandler
-from ..fed_strategy.client_strategy._fedavg_client import FedAvgClientTrainingStrategy
+from ..fed_strategy.client_strategy_impl._fedavg_client import FedAvgClientTrainingStrategy
 from ..model_trainer.model_evaluator import ModelEvaluator
 
 class FedNode(ABC, EventHandler):
@@ -27,7 +27,7 @@ class FedNode(ABC, EventHandler):
         self.node_var: Optional[FedNodeVars] = None
 
         #
-        self.evaluator = ModelEvaluator(self.node_var)  # Model evaluator
+        #self.evaluator = ModelEvaluator(self.node_var)  # Model evaluator
 
         return
 

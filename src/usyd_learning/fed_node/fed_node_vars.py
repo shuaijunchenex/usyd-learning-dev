@@ -301,6 +301,9 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         return
     
     def prepare_model_evaluator(self):
+
+        self.model_evaluator = ModelEvaluator(self.model, self.data_loader, self.loss_func)
+
         return
 
     def prepare_strategy(self):
@@ -308,10 +311,6 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.strategy = self.config_dict["strategy"]
         # Raise strategy event
         args = FedNodeEventArgs("strategy", self.config_dict).with_sender(self)
-
-        #########
-        console.error("TODO: prepare_strategy...")
-
         self.raise_event("on_prepare_strategy", args)
         return
 
@@ -387,5 +386,15 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         console.info("Prepare training logger...", "")
         self.prepare_training_logger()
         console.ok("OK")
+
+        console.info("Prepare strategy...", "")
+        self.prepare_strategy()
+        console.ok("OK")
+
+        console.info("Prepare model evaluator...", "")
+        self.prepare_model_evaluator()
+        console.ok("OK")
+
+        console.info("Prepare completed.")
 
         return self

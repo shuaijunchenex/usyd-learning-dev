@@ -2,8 +2,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, Optional, Tuple
 
-from model_trainer import ModelTrainer, ModelTrainerFactory, ModelTrainerArgs
-from ml_algorithms import OptimizerBuilder
+from ..model_trainer import ModelTrainer, ModelTrainerFactory, ModelTrainerArgs
+from ..ml_algorithms import OptimizerBuilder
 
 try:
     from ..ml_utils import console

@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchsummary
+from usyd_learning.ml_models.transformer_encoder._nn_model_multi_head_self_attention import MultiHeadSelfAttention
 
-from ._nn_model_multi_head_self_attention import MultiHeadSelfAttention
+#from ._nn_model_multi_head_self_attention import MultiHeadSelfAttention
 
 class TransformerEncoder(nn.Module):
     """

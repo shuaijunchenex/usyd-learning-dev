@@ -93,5 +93,5 @@ data_handler:
     num_workers: 0   
 
 strategy:
-  strategy_name: fedavg
-  role: client
+  strategy_name: "fedavg"
+  role: "client"

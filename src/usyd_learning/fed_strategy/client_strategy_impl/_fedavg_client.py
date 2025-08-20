@@ -11,7 +11,7 @@ from ...ml_algorithms.optimizer_builder import OptimizerBuilder
 from ...ml_data_loader import DatasetLoaderFactory
 from ...ml_algorithms.loss_function_builder import LossFunctionBuilder
 from ...ml_utils import console
-from ...fed_node import FedNodeVars
+from ...fed_node.fed_node_vars import FedNodeVars
 
 import copy
 from typing import Any, Tuple
@@ -63,8 +63,8 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         full_cfg = self.config or node_vars.config_dict or {}
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
-        ModelUtils.clear_cuda_cache("cuda")
-        console.log(f"Cuda cache cleared: {"cuda"}")
+        ModelUtils.clear_cuda_cache(device)
+        console.log(f"Cuda cache cleared: {device}")
         ModelUtils.clear_model_grads(observe_model)
         console.log(f"Model grads cleared: {observe_model}")
 
@@ -128,8 +128,8 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         full_cfg = self.config or node_vars.config_dict or {}
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
-        ModelUtils.clear_cuda_cache("cuda")
-        console.log(f"Cuda cache cleared: {"cuda"}")
+        ModelUtils.clear_cuda_cache(device)
+        console.log(f"Cuda cache cleared: {device}")
         ModelUtils.clear_model_grads(train_model)
         console.log(f"Model grads cleared: {train_model}")
 

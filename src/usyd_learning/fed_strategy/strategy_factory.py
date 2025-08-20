@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Callable
 
-from strategy_args import StrategyArgs
-from client_strategy import ClientStrategy
-from server_strategy import ServerStrategy
+from .strategy_args import StrategyArgs
+from .client_strategy import ClientStrategy
+from .server_strategy import ServerStrategy
 
 class StrategyFactory:
     """
