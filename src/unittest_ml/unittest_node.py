@@ -20,6 +20,7 @@ def test_node_client():
 
     # Create client node with args
     client_node = FedNodeClient("client.1", node_config)
+
     client_node.attach_event("on_prepare_optimizer", on_prepare_optimizer)      #attach EVENT
     client_node.attach_event("on_prepare_strategy", on_prepare_strategy)    
     client_node.attach_event("on_prepare_extractor", on_prepare_extractor)

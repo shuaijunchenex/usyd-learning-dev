@@ -352,7 +352,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         console.info("Prepare NN model...", "")
         self.prepare_model()
-        console.ok("OK")
+        console.ok("OK") #TODO: continue
 
         console.info("Prepare optimizer...", "")
         self.prepare_optimizer()

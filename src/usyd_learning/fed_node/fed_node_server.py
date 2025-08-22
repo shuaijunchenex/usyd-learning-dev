@@ -12,13 +12,11 @@ from ..fed_strategy.strategy_factory import StrategyFactory
 
 
 class FedNodeServer(FedNode):
-    def __init__(self, yaml, node_id: str, node_group: str = ""):
+    def __init__(self, node_id: str, node_group: str = ""):
         super().__init__(node_id, node_group)
 
         # Server node type
         self.node_type = EFedNodeType.server
-        self.strategy_args = StrategyFactory.create_args(yaml)
-        self.server_strategy = StrategyFactory.create_server_strategy(self.strategy_args)
         return
 
     def get_client_nodes(self):

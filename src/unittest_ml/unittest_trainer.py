@@ -11,7 +11,7 @@ from startup_init import startup_init_path
 startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 #-----------------------------------------------------------------
 
-from usyd_learning.fed_trainer import ModelTrainerFactory
+from usyd_learning.model_trainer import ModelTrainerFactory
 from usyd_learning.ml_utils import ConfigLoader, console
 from usyd_learning.ml_algorithms import LoRALinear, LossFunctionBuilder, OptimizerBuilder
 from usyd_learning.ml_data_loader import DatasetLoaderFactory

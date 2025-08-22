@@ -9,7 +9,6 @@ from usyd_learning.ml_utils import AppEntry, console
 class SampleAppEntry(AppEntry):
     def __init__(self):
         super().__init__()    
-        self.fed_runner = FedRunner()       # Runner
 
         # Define runner, client, server, edge yaml variables, can be set outside manually
         self.runner_yaml = None
@@ -31,6 +30,7 @@ class SampleAppEntry(AppEntry):
             self.server_yaml = self.get_app_object("server_yaml")
 
         # Training rounds
+        self.fed_runner = FedRunner()       # Runner
         self.fed_runner.training_rounds = training_rounds
         self.fed_runner.with_yaml(self.runner_yaml)
         self.fed_runner.create_nodes()
@@ -67,6 +67,7 @@ class SampleAppEntry(AppEntry):
         self.fed_runner.server_node.node_var = server_var
 
         self.fed_runner.run()
+        
         return
 
     # Attach events to node variable object
