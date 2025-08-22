@@ -78,7 +78,6 @@ class SampleAppEntry(AppEntry):
         node_var.attach_event("on_prepare_optimizer", self.on_prepare_optimizer)      #attach EVENT
         node_var.attach_event("on_prepare_strategy", self.on_prepare_strategy)    
         node_var.attach_event("on_prepare_extractor", self.on_prepare_extractor)
-        node_var.attach_event("on_prepare_dataset", self.on_prepare_data_loader)
         node_var.attach_event("on_prepare_model", self.on_prepare_model)
         node_var.attach_event("on_prepare_loss_func", self.on_prepare_loss_func)
         node_var.attach_event("on_prepare_data_distribution", self.on_prepare_data_distribution)
