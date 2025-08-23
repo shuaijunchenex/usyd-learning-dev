@@ -8,7 +8,7 @@ from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap,
 from ..ml_models import NNModelFactory
 from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoader
 from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
-from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector
+from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector, FedClientSelectorArgs
 from ..ml_data_process import DataDistribution
 from ..fed_strategy.strategy_factory import StrategyFactory
 from ..fl_algorithms import FedClientSelectorFactory
@@ -274,7 +274,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
     def prepare_client_selection(self):
         if "client_selection" in self.config_dict:
-            self.client_selection = FedClientSelectorFactory.create(self.config_dict["client_selection"])
+            client_selection_args = FedClientSelectorArgs(self.config_dict["client_selection"])
+            self.client_selection = FedClientSelectorFactory.create(client_selection_args)
 
         args = FedNodeEventArgs("client_selection", self.config_dict).with_sender(self).with_data(self.client_selection)
         self.raise_event("on_prepare_client_selection", args)

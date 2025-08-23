@@ -39,7 +39,7 @@ class SampleAppEntry(AppEntry):
         client_var_list = []
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
-            client_var.prepare()
+            client_var.prepare() #TODO: create client strategy
             self.__attach_event_handler(client_var)
 
             # Two way binding
@@ -61,7 +61,7 @@ class SampleAppEntry(AppEntry):
 
         # Prepare server node and var
         server_var = FedNodeVars(self.server_yaml)
-        server_var.prepare()
+        server_var.prepare() #TODO: create server strategy
         self.__attach_event_handler(server_var)
         server_var.owner_nodes = self.fed_runner.server_node        # Two way binding
         self.fed_runner.server_node.node_var = server_var
