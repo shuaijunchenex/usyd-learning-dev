@@ -25,6 +25,21 @@ class StrategyFactory:
                 return StrategyFactory.create_client_strategy(args)
             case "server":
                 return StrategyFactory.create_server_strategy(args)
+            case "runner":
+                return StrategyFactory.cr
+
+    @staticmethod
+    def create_runner_strategy(runner_strategy_args: StrategyArgs, fn:Callable[[ClientStrategy], None] | None = None) -> ClientStrategy:
+        """
+        " Static method to create runner strategy
+        """
+        match runner_strategy_args.strategy_name.lower():
+            case "fedavg":
+                # Import FedAvgRunnerStrategy from the appropriate module
+                from usyd_learning.fed_strategy.runner_strategy_impl._fedavg_runner_strategy import FedAvgRunnerStrategy
+                return FedAvgRunnerStrategy().create_runner_strategy(runner_strategy_args, fn)
+
+        raise ValueError(f"Runner strategy type '{runner_strategy_args.strategy_name}' not support.")
 
     @staticmethod
     def create_client_strategy(client_strategy_args: StrategyArgs, fn:Callable[[ClientStrategy]]|None = None) -> ClientStrategy:

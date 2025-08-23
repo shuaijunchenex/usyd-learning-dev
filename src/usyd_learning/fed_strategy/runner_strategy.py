@@ -1,13 +1,16 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Sequence, Dict, Any, List, Optional
-from ...fed_runner.fed_runner import FedRunner
+from ..fed_runner.fed_runner import FedRunner
+from ..fed_strategy.strategy_args import StrategyArgs
+from ..fed_strategy.strategy import BaseStrategy
 
-class RunnerStrategy(ABC):
+class RunnerStrategy(BaseStrategy):
     
     @abstractmethod
     def run(self, runner: FedRunner) -> None:
-        self.runner = runner
+        self._strategy_type = "runner"
+        self._obj = runner
         return
     
     @abstractmethod

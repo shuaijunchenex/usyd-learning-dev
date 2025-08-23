@@ -1,11 +1,18 @@
 import tqdm
-from ....ml_utils import console
-from ....fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
-from ....fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
+from ...ml_utils import console
+from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ...fed_runner import FedRunner
-from ..runner_strategy import RunnerStrategy 
+from fed_strategy.runner_strategy import RunnerStrategy 
 
 class FedAvgRunnerStrategy(RunnerStrategy):
+
+    def create_runner_strategy(self):
+        """
+        Return a client strategy based on the provided YAML configuration.
+        This method is typically called during the node's initialization.
+        """
+        return self
 
     def simulate_local_train(self):
         #TODO

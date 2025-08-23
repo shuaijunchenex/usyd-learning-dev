@@ -56,12 +56,6 @@ class FedNode(ABC, EventHandler):
         self.simu_node = self.simu_switcher.create_node(self._node_id)
         return
 
-    def create_local_strategy(self, yaml: dict):
-        #TODO: create strategy factory
-        self.client_strategy = FedAvgClientTrainingStrategy(self, yaml)    
-
-        return
-
     def evaluate_model(self, test_data):
         """
         Evaluate model with test data
