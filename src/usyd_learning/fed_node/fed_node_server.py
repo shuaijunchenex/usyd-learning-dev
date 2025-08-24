@@ -17,10 +17,14 @@ class FedNodeServer(FedNode):
 
         # Server node type
         self.node_type = EFedNodeType.server
+        self.node_strategy = None
         return
 
     def get_client_nodes(self):
         return self.simu_switcher._node_dict
+
+    def set_client_nodes(self):
+        self.client_nodes = self.simu_switcher._node_dict
 
     # override
     def run(self) -> None:

@@ -19,28 +19,21 @@ import torch
 import torch.nn as nn
 
 class FedAvgClientTrainingStrategy(ClientStrategy):
-    def __init__(self, client, config):
+    def __init__(self, client_node):
         """
         client: a FedNodeClient (or FedNode) that owns a FedNodeVars in `client.node_var`
         config: high-level strategy/trainer config; falls back to `client.node_var.config_dict` when needed
         """
-        super().__init__(client, config)
-
-    def create_client_strategy(self):
-        """
-        Return a client strategy based on the provided YAML configuration.
-        This method is typically called during the node's initialization.
-        """
-        return self
+        super().__init__(client_node)
 
     # ------------------- Public: Observation wrapper -------------------
     def run_observation(self) -> dict:
-        print(f"\n Observation Client [{self.client.node_id}] ...\n")
+        print(f"\n Observation Client [{self._obj.node_var.node_id}] ...\n")
         updated_weights, train_record = self.observation()
         return {
-            "node_id": self.client.node_id,
+            "node_id": self._obj.node_var.node_id,
             "train_record": train_record,
-            "data_sample_num": self._dataset_size(self.client.node_var),
+            "data_sample_num": self._dataset_size(self._obj.node_var.node_var), # TODO: update to sample num
         }
 
     # ------------------- Observation (no state write-back) -------------------
@@ -49,7 +42,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         Lightweight local training using the current node_var model weights.
         Return updated weights and training log, but DO NOT write back to node state.
         """
-        node_vars: FedNodeVars = self.client.node_var
+        node_vars: FedNodeVars = self._obj.node_var.node_var
         if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
@@ -98,13 +91,13 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
     # ------------------- Public: Local training wrapper -------------------
     def run_local_training(self) -> dict:
-        print(f"\n Training Client [{self.client.node_id}] ...\n")
+        print(f"\n Training Client [{self._obj.node_var.node_id}] ...\n")
         updated_weights, train_record = self.local_training()
         return {
-            "node_id": self.client.node_id,
+            "node_id": self._obj.node_var.node_id,
             "updated_weights": updated_weights,
             "train_record": train_record,
-            "data_sample_num": self._dataset_size(self.client.node_var),
+            "data_sample_num": self._obj.node_var.data_sample_num, #TODO: update
         }
 
     # ------------------- Full local training (write-back to node_var) -------------------
@@ -113,13 +106,13 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         Full local training: initialize from node_vars.model_weight, train, then write updated weights
         back to node_vars.model_weight and node_vars.model.
         """
-        node_vars: FedNodeVars = self.client.node_var
+        node_vars: FedNodeVars = self._obj.node_var
         if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
         # 1) Sync cached model with current node_var.model_weight (acts like global init)
         if node_vars.model_weight is not None:
-            node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
+            node_vars.model.load_state_dict(node_vars.model_weight)
 
         # 2) Train on a copied model to keep node_vars.model intact during the run
         train_model: nn.Module = copy.deepcopy(node_vars.model)
@@ -145,7 +138,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
         train_loader = self._get_torch_dataloader(node_vars)
 
-        self.trainer = self._build_trainer(
+        self.trainer = self._obj._build_trainer(
             model=train_model,
             optimizer=optimizer,
             loss_func=loss_func,

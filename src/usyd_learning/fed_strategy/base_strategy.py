@@ -4,10 +4,10 @@ from .strategy_args import StrategyArgs
 class BaseStrategy(ABC):
 
     def __init__(self):
-        self._strategy_type = None
-        self._obj = None
-        self._is_created = False
-        self._args = None
+        self._strategy_type : str = None
+        self._obj = None # server node / client node / runner
+        self._is_created : bool = False
+        self._args : StrategyArgs = None
         self._after_create_fn = None
 
         return

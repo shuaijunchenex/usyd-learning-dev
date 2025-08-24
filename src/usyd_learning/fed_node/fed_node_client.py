@@ -16,6 +16,7 @@ class FedNodeClient(FedNode):
 
         # Client node type
         self.node_type = EFedNodeType.client
+        self.node_strategy = None
         return
 
     # override
