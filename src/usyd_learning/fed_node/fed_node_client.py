@@ -11,13 +11,12 @@ from ..ml_utils import console
 
 
 class FedNodeClient(FedNode):
-    def __init__(self, yaml, node_id: str, node_group:str = ""):
+    def __init__(self, node_id: str, node_group:str = ""):
         super().__init__(node_id, node_group)
 
         # Client node type
         self.node_type = EFedNodeType.client
-        self.strategy_args = StrategyFactory.create_args(yaml)
-        self.client_strategy = StrategyFactory.create_client_strategy(self.strategy_args)
+        self.node_strategy = None
         return
 
     # override

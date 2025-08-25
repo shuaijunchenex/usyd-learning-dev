@@ -23,9 +23,8 @@ class FedRunner(ABC):
         self.edge_node_list = []
         self.server_node: FedNodeServer|None = None
         self.runner_strategy = None #TODO
-        self.__create_aggregator_selector_from_yaml()
-        self.create_nodes() 
         self.train_logger = TrainingLogger(self._yaml.get("logger", None))
+        #self.__create_aggregator_selector_from_yaml()
 
         return
 
@@ -47,16 +46,8 @@ class FedRunner(ABC):
         return self
 
     #------------------------------------------
-    def __create_aggregator_selector_from_yaml(self):
-        self.aggregator = FedAggregatorFactory.create_aggregator(self._yaml.get("aggregator", "fedavg"))
-        self.selector = FedClientSelectorFactory.create(self._yaml.get("client_selector", "random"))
-    
     def create_run_strategy(self):
         self.run_strategy = self.__create_run_strategy_from_yaml(self._yaml)
-
-    def __create_run_strategy_from_yaml(self, run_strategy_yaml: str):
-        #TODO
-        return 
 
     def create_nodes(self):
         # Create server node(only 1 node)
@@ -94,14 +85,17 @@ class FedRunner(ABC):
 
                 self.client_node_list.append(client)
 
+                print("Create Node", node_id, "with group", group)
+
                 # Create simu node and connect to node
                 client.create_simu_node(self._switcher)
 
                 # Create local strategy
-                client.create_local_strategy(self._yaml)
+                #client.create_local_strategy(self._yaml)
                 
                 # Create topology link
                 client.connect(link_to)
+                
                 node_count += 1
 
         return
@@ -130,6 +124,10 @@ class FedRunner(ABC):
         # Create simu node
         self.server_node.create_simu_node(self._switcher)
         return
+
+    def __create_run_strategy_from_yaml(self, run_strategy_yaml: str):
+        #TODO
+        return 
 
     def run(self):
         if self.runner_strategy is None:

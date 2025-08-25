@@ -1,33 +1,22 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
-
-from torch.utils.data import DataLoader
-import torch.nn as nn
-import torch.optim as optim
-
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional, Tuple, Type, Callable, Union
 from ..ml_utils.key_value_args import KeyValueArgs
+
+Object = str  # "client" | "server"
+StrategyOwner = Union[object]  # 这里 owner 既可能是 client 也可能是 server/fednode
 
 @dataclass
 class StrategyArgs(KeyValueArgs):
 
-    """
-    Strategy type
-    """
-    strategy_obj: str = "client" # or "server"
+    role: str = None                     
+    strategy_name: str = None   
 
-    """
-    strategy mode
-    """
-    strategy_type: str = "fedavg" # "fedavg", "fedprox", "scaffold", etc.
-
-    def __init__(self, config_dict: dict|None = None, is_clone_dict = False):
-        super().__init__(config_dict, is_clone_dict)
-
-        if config_dict is not None and "strategy" in config_dict:
-            self.set_args(config_dict["strategy"], is_clone_dict)
-
-        self.strategy_type = self.get("type", "fedavg")
-        self.strategy_obj = self.get("object", None) # can be server or client
-
-        return
+    def __init__(self, config_dict: Optional[dict] = None, is_clone_dict: bool = False):
+        KeyValueArgs.__init__(self, config_dict, is_clone_dict)
+        self.role = self.get("role", self.role).lower()
+        if self.role not in ("client", "server", "runner"):
+            raise ValueError(f"[StrategyArgs] 'role' must be 'client', 'server' or 'runner', got: {self.role}")
+        self.strategy_name = self.get("strategy_name", self.strategy_name)

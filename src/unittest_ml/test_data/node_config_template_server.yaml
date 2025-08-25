@@ -30,4 +30,10 @@ client_selection:
   round: 1
   number: 2
   random_seed: 42
-   
+
+model_aggregation:
+  method: fedavg
+
+strategy:
+  strategy_name: fedavg
+  role: server

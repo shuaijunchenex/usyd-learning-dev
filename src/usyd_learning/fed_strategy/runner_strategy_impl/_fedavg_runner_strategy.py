@@ -1,37 +1,48 @@
 import tqdm
-from ....ml_utils import console
-from ....fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
-from ....fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
+from ...ml_utils import console
+from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ...fed_runner import FedRunner
-from ..runner_strategy import RunnerStrategy 
+from fed_strategy.runner_strategy import RunnerStrategy 
 
-class FedAvgRunner(RunnerStrategy):
+class FedAvgRunnerStrategy(RunnerStrategy):
+
+    def __init__(self, runner: FedRunner, client_node, server_node) -> None:
+        super().__init__(runner, client_node, server_node)
+
+    def create_runner_strategy(self):
+        """
+        Return a client strategy based on the provided YAML configuration.
+        This method is typically called during the node's initialization.
+        """
+        return self
 
     def simulate_local_train(self):
-        #TODO
-        """
-        Local training simulation method.
-        This method should be overridden by subclasses to implement local training logic.
-        """
 
-        for client in self.participants:
-            console.out(f"Client [{client.node_id}] local training ...")
+        for client in self.client_node:#TODO: modify to iterate client obj
+            console.out(f"Client [{client.node_var.node_id}] local training ...")
             updated_weights, train_record = client.run_local_training()
-            console.debug(f"Client [{client.node_id}] local training completed.")
+            console.debug(f"Client [{client.node_var.node_id}] local training completed.")
             yield {
                 "updated_weights": updated_weights,
-                "data_sample_num": len(client.args.train_data.dataset),
+                "data_sample_num": len(client.node_var.train_data.dataset),
                 "train_record": train_record
             }
 
     def simulate_server_broadcast(self):
         #TODO
+
+        for client in self.client_node:#TODO: modify to iterate client obj
+            # set client weight
+            raise NotImplementedError("Subclasses must implement this method.")
+
         self.runner.server_node.broadcast_weights(self.runner.aggregator.aggregated_weight)
         return
 
-    def simulate_server_update(self):
+    @staticmethod
+    def simulate_server_update(self, weight):
         #TODO
-        self.runner.server_node.update_weights(self.runner.aggregator.aggregated_weight)
+        self._server_node.model_weight = weight
         return
 
     def run(self) -> None:
@@ -52,16 +63,13 @@ class FedAvgRunner(RunnerStrategy):
             for i in client_updates:
                client_data.append([i["updated_weights"], i["data_sample_num"]])
 
-            self.new_aggregated_weight = self.runner.aggregator.aggregate(client_data)
+            self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_data)
 
             #self.server_node.aggregate_weights(client_data) #TODO
             #new_weight = fedavg_aggregator.aggregate_weights(client_data)
-            self.simulate_server_update() #self.runner.server_node.update_weights(new_weight)
-            
-            self.simulate_server_broadcast() #self.runner.server_node.broadcast_weights(new_weight)
+            self.simulate_server_update(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
 
-            # for client in client_list:
-            #    client.update_weights(new_weight)
+            self.simulate_server_broadcast() #self.runner.server_node.broadcast_weights(new_weight)
 
             #Evaluate the global model
             eval_results = self.runner.server_node.evaluate_model(round)

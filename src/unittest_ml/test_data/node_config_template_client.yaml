@@ -90,4 +90,8 @@ data_handler:
     distribution: "mnist_lt"
     batch_size: 64
     shuffle: False
-    num_workers: 0      
+    num_workers: 0   
+
+strategy:
+  strategy_name: "fedavg"
+  role: "client"

@@ -6,7 +6,7 @@ from .fed_node_vars import FedNodeVars
 from .fed_node_type import EFedNodeType
 from ..ml_simu_switcher import SimuNode, SimuSwitcher
 from ..ml_utils import EventHandler
-from ..fed_strategy.client_strategy._fedavg_client import FedAvgClientTrainingStrategy
+from ..fed_strategy.client_strategy_impl._fedavg_client import FedAvgClientTrainingStrategy
 from ..model_trainer.model_evaluator import ModelEvaluator
 
 class FedNode(ABC, EventHandler):
@@ -27,7 +27,7 @@ class FedNode(ABC, EventHandler):
         self.node_var: Optional[FedNodeVars] = None
 
         #
-        self.evaluator = ModelEvaluator(self.node_var)  # Model evaluator
+        #self.evaluator = ModelEvaluator(self.node_var)  # Model evaluator
 
         return
 
@@ -54,12 +54,6 @@ class FedNode(ABC, EventHandler):
         """
         self.simu_switcher = simu_switcher
         self.simu_node = self.simu_switcher.create_node(self._node_id)
-        return
-
-    def create_local_strategy(self, yaml: dict):
-        #TODO: create strategy factory
-        self.client_strategy = FedAvgClientTrainingStrategy(self, yaml)    
-
         return
 
     def evaluate_model(self, test_data):

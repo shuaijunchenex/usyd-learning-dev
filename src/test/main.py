@@ -14,7 +14,6 @@ from fl_sample_1.sample_app_entry import SampleAppEntry
 
 g_app = SampleAppEntry()
 
-
 def main():
     # Load app config set from yaml file
     g_app.load_app_config("./fl_sample_1/sample_app_config.yaml")

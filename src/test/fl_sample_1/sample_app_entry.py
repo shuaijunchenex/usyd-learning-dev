@@ -9,7 +9,6 @@ from usyd_learning.ml_utils import AppEntry, console
 class SampleAppEntry(AppEntry):
     def __init__(self):
         super().__init__()    
-        self.fed_runner = FedRunner()       # Runner
 
         # Define runner, client, server, edge yaml variables, can be set outside manually
         self.runner_yaml = None
@@ -31,6 +30,7 @@ class SampleAppEntry(AppEntry):
             self.server_yaml = self.get_app_object("server_yaml")
 
         # Training rounds
+        self.fed_runner = FedRunner()       # Runner
         self.fed_runner.training_rounds = training_rounds
         self.fed_runner.with_yaml(self.runner_yaml)
         self.fed_runner.create_nodes()
@@ -39,7 +39,7 @@ class SampleAppEntry(AppEntry):
         client_var_list = []
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
-            client_var.prepare()
+            client_var.prepare() #TODO: create client strategy
             self.__attach_event_handler(client_var)
 
             # Two way binding
@@ -61,12 +61,13 @@ class SampleAppEntry(AppEntry):
 
         # Prepare server node and var
         server_var = FedNodeVars(self.server_yaml)
-        server_var.prepare()
+        server_var.prepare() #TODO: create server strategy
         self.__attach_event_handler(server_var)
         server_var.owner_nodes = self.fed_runner.server_node        # Two way binding
         self.fed_runner.server_node.node_var = server_var
 
         self.fed_runner.run()
+        
         return
 
     # Attach events to node variable object
@@ -77,7 +78,6 @@ class SampleAppEntry(AppEntry):
         node_var.attach_event("on_prepare_optimizer", self.on_prepare_optimizer)      #attach EVENT
         node_var.attach_event("on_prepare_strategy", self.on_prepare_strategy)    
         node_var.attach_event("on_prepare_extractor", self.on_prepare_extractor)
-        node_var.attach_event("on_prepare_dataset", self.on_prepare_data_loader)
         node_var.attach_event("on_prepare_model", self.on_prepare_model)
         node_var.attach_event("on_prepare_loss_func", self.on_prepare_loss_func)
         node_var.attach_event("on_prepare_data_distribution", self.on_prepare_data_distribution)
