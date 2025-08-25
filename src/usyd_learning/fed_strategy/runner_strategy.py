@@ -3,19 +3,25 @@ from abc import ABC, abstractmethod
 from typing import Sequence, Dict, Any, List, Optional
 from ..fed_runner.fed_runner import FedRunner
 from ..fed_strategy.strategy_args import StrategyArgs
-from ..fed_strategy.strategy import BaseStrategy
+from .base_strategy import BaseStrategy
 
 class RunnerStrategy(BaseStrategy):
     
-    def __init__(self, runner: FedRunner, client_node, server_node) -> None:
+    def __init__(self):
+        super().__init__()
         self._strategy_type = "runner"
-        self._obj = runner
-        self._server_node = server_node
-        self._client_nodes = client_node
+        self.client_nodes = None
+        self.server_node = None
         return
+
+    def create(self, args: StrategyArgs, client_nodes: List = None, server_nodes: List = None):
+        self._args = args
+        self._create_inner(args, client_nodes, server_nodes)
+        return self
 
     @abstractmethod
     def run(self, runner: FedRunner) -> None:
+
         raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod

@@ -4,7 +4,9 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 from ..model_trainer import ModelTrainer, ModelTrainerFactory, ModelTrainerArgs
 from ..ml_algorithms import OptimizerBuilder
+from .strategy_args import StrategyArgs
 from .base_strategy import BaseStrategy
+from ..fed_node import FedNode
 try:
     from ..ml_utils import console
 except Exception:
@@ -13,10 +15,16 @@ except Exception:
 class ClientStrategy(BaseStrategy):
     """Abstract base for a client's local-training/observation strategy."""
 
-    def __init__(self, client_node) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._strategy_type = "client"
-        self._obj = client_node
+        self._strategy_type : str = "client"
+        self._obj : FedNode = None
+
+    def create(self, args: StrategyArgs, client_node):
+        self._args = args
+        self._create_inner(args, client_node)  # create dataset loader
+
+        return self
 
     @abstractmethod
     def run_observation(self): 

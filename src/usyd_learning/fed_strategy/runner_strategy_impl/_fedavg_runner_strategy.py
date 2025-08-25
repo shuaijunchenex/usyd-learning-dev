@@ -1,4 +1,6 @@
 import tqdm
+
+from usyd_learning.fed_strategy.strategy_args import StrategyArgs
 from ...ml_utils import console
 from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
 from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
@@ -7,14 +9,14 @@ from fed_strategy.runner_strategy import RunnerStrategy
 
 class FedAvgRunnerStrategy(RunnerStrategy):
 
-    def __init__(self, runner: FedRunner, client_node, server_node) -> None:
-        super().__init__(runner, client_node, server_node)
+    def __init__(self, runner: FedRunner) -> None:
+        super().__init__(runner)
 
-    def create_runner_strategy(self):
-        """
-        Return a client strategy based on the provided YAML configuration.
-        This method is typically called during the node's initialization.
-        """
+    def _create_inner(self, args, client_node, server_node) -> None:
+        self._strategy_type = "fedavg"
+        self._args = args
+        self.client_nodes = client_node
+        self.server_node = server_node
         return self
 
     def simulate_local_train(self):

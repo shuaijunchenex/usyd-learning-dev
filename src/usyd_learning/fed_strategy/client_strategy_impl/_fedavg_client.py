@@ -2,6 +2,8 @@ import copy
 import torch
 from typing import Any, Tuple
 
+from usyd_learning.fed_strategy.strategy_args import StrategyArgs
+
 from ..client_strategy import ClientStrategy
 from ...ml_utils.model_utils import ModelUtils
 from ...model_trainer import model_trainer_factory
@@ -19,12 +21,18 @@ import torch
 import torch.nn as nn
 
 class FedAvgClientTrainingStrategy(ClientStrategy):
-    def __init__(self, client_node):
+    def __init__(self):
         """
         client: a FedNodeClient (or FedNode) that owns a FedNodeVars in `client.node_var`
         config: high-level strategy/trainer config; falls back to `client.node_var.config_dict` when needed
         """
-        super().__init__(client_node)
+        super().__init__()
+
+    def _create_inner(self, args, client_node) -> None:
+        self._args = args
+        self._strategy_type = "fedavg"
+        self._obj = client_node
+        return
 
     # ------------------- Public: Observation wrapper -------------------
     def run_observation(self) -> dict:

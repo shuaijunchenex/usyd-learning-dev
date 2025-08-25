@@ -8,10 +8,16 @@ from .base_strategy import BaseStrategy
 
 class ServerStrategy(BaseStrategy):
 
-    def __init__(self, server_node) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._strategy_type: str = "server" 
-        self._obj = server_node
+        self._obj = None
+
+    def create(self, args: StrategyArgs, server_node):
+        self._args = args
+        self._create_inner(args, server_node)  # create dataset loader
+
+        return self
 
     @abstractmethod
     def aggregation(self) -> dict:

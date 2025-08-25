@@ -15,16 +15,16 @@ class BaseStrategy(ABC):
     # --------------------------------------------------
     def create(self, args: StrategyArgs):
         """
-        Create Dataset Loader
+        Create Strategy
         """
         self._args = args
-        self._create_inner(args)  # create dataset loader
+        self._create_inner(args)  # create strategy
 
         return self
     
     @abstractmethod
     def _create_inner(self, args: StrategyArgs) -> None:
         """
-        Real create loader
+        Real strategy
         """
         pass

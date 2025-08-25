@@ -26,7 +26,7 @@ class StrategyFactory:
             case "server":
                 return StrategyFactory.create_server_strategy(args)
             case "runner":
-                return StrategyFactory.cr
+                return StrategyFactory.create_runner_strategy(args)
 
     @staticmethod
     def create_runner_strategy(runner_strategy_args: StrategyArgs, fn:Callable[[ClientStrategy], None] | None = None) -> ClientStrategy:
