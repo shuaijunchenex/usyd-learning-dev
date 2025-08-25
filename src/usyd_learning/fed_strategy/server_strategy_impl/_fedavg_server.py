@@ -21,6 +21,7 @@ class FedAvgServerStrategy(ServerStrategy):
         return self
 
     def aggregation(self) -> dict:
+        aggregator = self._obj.node_var.aggregation_method
         raise NotImplementedError
 
     def broadcast(self) -> None:
@@ -30,6 +31,8 @@ class FedAvgServerStrategy(ServerStrategy):
         raise NotImplementedError
 
     def evaluate(self) -> None:
+        evaluator = self._obj.node_var.model_evaluator
+        test_data = self._obj.node_var.test_data
         raise NotImplementedError
 
     def run(self) -> Dict[str, Any]:
