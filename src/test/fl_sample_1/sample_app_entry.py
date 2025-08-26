@@ -48,16 +48,16 @@ class SampleAppEntry(AppEntry):
             client_var_list.append(client_var)
 
         # Prepare each edge node and var
-        edge_var_list = []
-        for index in range(self.fed_runner.edge_node_count):
-            edge_var = FedNodeVars(self.edge_yaml)
-            #edge_var.prepare()
-            self.__attach_event_handler(edge_var)
+        # edge_var_list = []
+        # for index in range(self.fed_runner.edge_node_count):
+        #     edge_var = FedNodeVars(self.edge_yaml)
+        #     #edge_var.prepare()
+        #     self.__attach_event_handler(edge_var)
 
-            # Two way bind
-            edge_var.owner_nodes = node
-            node.node_var = edge_var
-            edge_var_list.append(edge_var)
+        #     # Two way bind
+        #     edge_var.owner_nodes = node
+        #     node.node_var = edge_var
+        #     edge_var_list.append(edge_var)
 
         # Prepare server node and var
         server_var = FedNodeVars(self.server_yaml)
@@ -83,7 +83,7 @@ class SampleAppEntry(AppEntry):
         node_var.attach_event("on_prepare_data_distribution", self.on_prepare_data_distribution)
         node_var.attach_event("on_prepare_data_handler", self.on_prepare_data_handler)
         node_var.attach_event("on_prepare_client_selection", self.on_prepare_client_selection)
-        node_var.attach_event("on_prepare_training", self.on_prepare_training)
+        node_var.attach_event("on_prepare_trainer", self.on_prepare_trainer)
         node_var.attach_event("on_prepare_aggregation", self.on_prepare_aggregation)
         node_var.attach_event("on_prepare_extractor", self.on_prepare_extractor)
         node_var.attach_event("on_prepare_strategy", self.on_prepare_strategy)
@@ -119,7 +119,7 @@ class SampleAppEntry(AppEntry):
         console.warn(f"TODO: on_prepare_client_selection event")
         return
 
-    def on_prepare_training(self, args: FedNodeEventArgs):
+    def on_prepare_trainer(self, args: FedNodeEventArgs):
         console.warn(f"TODO: on_prepare_training event")
         return
 

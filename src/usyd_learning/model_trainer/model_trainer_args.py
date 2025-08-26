@@ -62,11 +62,12 @@ class ModelTrainerArgs(KeyValueArgs):
         
         return
 
-    def set_trainer_args(self, model, optimizer, loss_func, train_loader):
+    def set_trainer_args(self, model, optimizer, loss_func, train_loader, trainer_type="standard"):
 
         self.model = model
         self.optimizer = optimizer
         self.loss_func = loss_func
         self.train_loader = train_loader
+        self.trainer_type = trainer_type
 
         return

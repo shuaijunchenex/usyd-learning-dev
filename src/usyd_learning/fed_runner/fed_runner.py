@@ -11,6 +11,8 @@ from ..fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFact
 from ..fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ..ml_utils.text_logger import TextLogger
 from ..ml_utils.training_logger import TrainingLogger
+from ..fed_strategy.strategy_factory import StrategyFactory
+from ..fed_strategy.strategy_args import StrategyArgs
 
 class FedRunner(ABC):
     def __init__(self):
@@ -125,8 +127,9 @@ class FedRunner(ABC):
         self.server_node.create_simu_node(self._switcher)
         return
 
-    def __create_run_strategy_from_yaml(self, run_strategy_yaml: str):
-        #TODO
+    def __create_run_strategy_from_yaml(self):
+        args = StrategyFactory.create_args(self._yaml.get("strategy", None))
+        StrategyFactory.create(args)
         return 
 
     def run(self):

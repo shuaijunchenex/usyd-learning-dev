@@ -15,7 +15,6 @@ class StrategyFactory:
         """
         " Static method to create data loader args
         """
-        #TODO
         return StrategyArgs(config_dict, is_clone_dict)
 
     @staticmethod

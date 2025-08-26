@@ -26,7 +26,6 @@ class ModelEvaluator:
         self.criterion = criterion if criterion is not None else nn.CrossEntropyLoss()
         self.latest_metrics = {}
 
-
     def evaluate(self, average = "macro"):
         """
         Evaluate the model using multiple metrics including loss.

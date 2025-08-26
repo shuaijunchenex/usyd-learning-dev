@@ -288,7 +288,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         args = FedNodeEventArgs("training", self.config_dict).with_sender(self)
 
         # build trainer
-        trainer_args = ModelTrainerArgs(self.config_dict["training"]).set_trainer_args(self.model, self.optimizer, self.loss_func, self.data_loader)
+        trainer_args = ModelTrainerFactory.create_args(self.config_dict["trainer"])
+        trainer_args.set_trainer_args(self.model, self.optimizer, self.loss_func, self.data_loader, 'standard') #TODO: add trainer type to config
         self.trainer = ModelTrainerFactory.create(trainer_args)
 
         self.raise_event("on_prepare_trainer", args)
@@ -371,10 +372,6 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.prepare_client_selection()
         console.ok("OK")
 
-        console.info("Prepare trainer...", "")
-        self.prepare_trainer()
-        console.ok("OK")
-
         console.info("Prepare aggregation...", "")
         self.prepare_aggregation()
         console.ok("OK")
@@ -398,6 +395,10 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         console.info("Prepare model evaluator...", "")
         self.prepare_model_evaluator()
+        console.ok("OK")
+        
+        console.info("Prepare trainer...", "")
+        self.prepare_trainer()
         console.ok("OK")
 
         console.info("Prepare completed.")

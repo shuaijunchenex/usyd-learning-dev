@@ -6,6 +6,7 @@ from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFac
 from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ...fed_runner import FedRunner
 from fed_strategy.runner_strategy import RunnerStrategy 
+from fed_node import FedNodeClient, FedNodeServer
 
 class FedAvgRunnerStrategy(RunnerStrategy):
 
@@ -15,16 +16,15 @@ class FedAvgRunnerStrategy(RunnerStrategy):
     def _create_inner(self, args, client_node, server_node) -> None:
         self._strategy_type = "fedavg"
         self._args = args
-        self.client_nodes = client_node
-        self.server_node = server_node
+        self.client_nodes : list[FedNodeClient]= client_node
+        self.server_node : FedNodeServer = server_node
         return self
 
-    def simulate_local_train(self):
-
-        for client in self.client_node:#TODO: modify to iterate client obj
+    def simulate_local_training(self, participants):
+        for client in participants:
             console.out(f"Client [{client.node_var.node_id}] local training ...")
-            updated_weights, train_record = client.run_local_training()
-            console.debug(f"Client [{client.node_var.node_id}] local training completed.")
+            updated_weights, train_record = client.strategy.run_local_training()
+            console.out(f"Client [{client.node_var.node_id}] local training completed.")
             yield {
                 "updated_weights": updated_weights,
                 "data_sample_num": len(client.node_var.train_data.dataset),
@@ -32,8 +32,6 @@ class FedAvgRunnerStrategy(RunnerStrategy):
             }
 
     def simulate_server_broadcast(self):
-        #TODO
-
         for client in self.client_node:#TODO: modify to iterate client obj
             # set client weight
             raise NotImplementedError("Subclasses must implement this method.")
@@ -48,33 +46,28 @@ class FedAvgRunnerStrategy(RunnerStrategy):
         return
 
     def run(self) -> None:
-        # Implement the FedAvg run logic here
         print("Running FedAvg strategy...")
         for round in tqdm(range(self.runner.training_rounds + 1)):
-
-            client_list = self.runner.client_node_list
-            console.out(f"\n{'='*10} Training round {round}/{self.runner.training_rounds}, Total participants: {len(client_list)} {'='*10}")
-
-            self.participants = self.runner.selector.select(self.runner.client_node_list, self.runner.client_node_count)
+           
+            console.out(f"\n{'='*10} Training round {round}/{self.runner.training_rounds}, Total participants: {len(self.client_nodes)} {'='*10}")
+            self.participants = self.server_node.node_var.selector.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
+            
             console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
 
-            client_updates = self.simulate_local_train()
-            
-            client_data = []
+            client_updates = list(self.simulate_local_training(self.participants))         
 
-            for i in client_updates:
-               client_data.append([i["updated_weights"], i["data_sample_num"]])
+            # client_data = []
 
-            self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_data)
+            # for i in client_updates:
+            #    client_data.append([i["updated_weights"], i["data_sample_num"]])
 
-            #self.server_node.aggregate_weights(client_data) #TODO
-            #new_weight = fedavg_aggregator.aggregate_weights(client_data)
+            self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_updates)
+
             self.simulate_server_update(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
 
             self.simulate_server_broadcast() #self.runner.server_node.broadcast_weights(new_weight)
 
-            #Evaluate the global model
-            eval_results = self.runner.server_node.evaluate_model(round)
+            eval_results = self.runner.server_node.strategy.evaluate(round)
 
             self.runner.train_logger.record(eval_results)
 

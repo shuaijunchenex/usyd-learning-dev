@@ -7,7 +7,7 @@ from fed_strategy.server_strategy import ServerStrategy
 from fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
 from fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from model_trainer.model_evaluator import ModelEvaluator
-
+from ml_utils import console
 
 class FedAvgServerStrategy(ServerStrategy):
 
@@ -36,10 +36,13 @@ class FedAvgServerStrategy(ServerStrategy):
     def run(self) -> None:
         raise NotImplementedError
 
-    def evaluate(self) -> None:
-        evaluator = self._obj.node_var.model_evaluator
-        test_data = self._obj.node_var.test_data
-        raise NotImplementedError
+    def evaluate(self, round) -> None:
+        evaluation_dict =  self._obj.node_var.model_evaluator.evaluate()
+        evaluation_dict = {"round": round, **evaluation_dict}
+        self._obj.node_var.model_evaluator.print_results()
+        console.info("Server Evaluation Completed.\n")
+
+        return evaluation_dict
 
     def run(self) -> Dict[str, Any]:
         raise NotImplementedError

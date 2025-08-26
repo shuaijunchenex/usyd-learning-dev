@@ -20,6 +20,7 @@ yaml_section_files:
   - "section-client_strategy.yaml" : client_strategy
   - "section-server_strategy.yaml" : server_strategy
   - "section-runner_strategy.yaml" : runner_strategy
+  - "section-trainer.yaml" : trainer
 #---------------------------------------
 # Combine yamls, can define any combination name,
 # such as 'runner', 'runner-test', 'runner-a' etc
@@ -29,12 +30,13 @@ yaml_combination:
   runner: [general, training_logger, fl_nodes, runner_strategy]
 
   # Client
-  client_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy]
+  client_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer] #, trainer
 
   # Edge
   edge_yaml: []  
 
   # Server
-  server_yaml: [general, training_logger, dataset_loader, nn_model, aggregation, client_selection, server_strategy]
+  # server_yaml: [general, training_logger, dataset_loader, nn_model, aggregation, client_selection, server_strategy, trainer]
+  server_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer]
 
   # Other combinations
