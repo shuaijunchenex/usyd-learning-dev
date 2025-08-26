@@ -22,6 +22,12 @@ class FedAvgServerStrategy(ServerStrategy):
 
     def aggregation(self) -> dict:
         aggregator = self._obj.node_var.aggregation_method
+        aggregated_weights = aggregator.aggregate(self.node_var.client_updates) #TODO: check
+        self.node_var.global_model_weights = aggregated_weights
+        return aggregated_weights
+
+    def receive(self, client_updates) -> None:
+        self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
         raise NotImplementedError
 
     def broadcast(self) -> None:

@@ -38,6 +38,14 @@ class FedAggregator_RBLA(AbstractFedAggregator):
     def _after_aggregation(self) -> None:
         console.debug(f"[RBLA] Aggregation completed.")        
 
+    def build_data_dict(self, aggregation_data_dict: dict) -> None:
+        """
+        Build the aggregation data dictionary from the provided dictionary.
+        Each entry in the dictionary should be a tuple of (model_weights, data_volume).
+        """
+        self._aggregation_data_dict = aggregation_data_dict
+        return
+
     def set_lora_suffixes(self, lora_suffixes: set[str]) -> None:
         """
         Set the suffixes that indicate LoRA parameters.

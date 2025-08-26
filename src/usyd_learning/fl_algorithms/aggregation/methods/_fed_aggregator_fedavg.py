@@ -16,6 +16,14 @@ class FedAggregator_FedAvg(AbstractFedAggregator):
         self._aggregation_method = "fedavg"
         return
 
+    def build_data_list(self, aggregation_data_dict: dict) -> None:
+        """
+        Build the aggregation data list from the provided dictionary.
+        Each entry in the dictionary should be a tuple of (model_weights, data_volume).
+        """
+        self._aggregation_data_list = list(aggregation_data_dict.values())
+        return
+
     # override
     def _before_aggregation(self) -> None:
         console.debug(f"[FedAvg] Starting aggregation with {len(self._aggregation_data_list)} clients...")

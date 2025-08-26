@@ -59,4 +59,14 @@ class ModelTrainerArgs(KeyValueArgs):
         self.device = self.get("device", "cpu")
         self.save_path = self.get("save_path", "./.trainer_result/")
         self.best_val_acc = self.get("best_val_acc", 0)
+        
+        return
+
+    def set_trainer_args(self, model, optimizer, loss_func, train_loader):
+
+        self.model = model
+        self.optimizer = optimizer
+        self.loss_func = loss_func
+        self.train_loader = train_loader
+
         return

@@ -45,7 +45,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         }
 
     # ------------------- Observation (no state write-back) -------------------
-    def observation(self) -> Tuple[dict, Any]:
+    def observation_step(self) -> Tuple[dict, Any]:
         """
         Lightweight local training using the current node_var model weights.
         Return updated weights and training log, but DO NOT write back to node state.
@@ -54,13 +54,10 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
-        # 1) Copy model and load current weights (acts like 'global' init for this client)
         observe_model: nn.Module = copy.deepcopy(node_vars.model)
         if node_vars.model_weight is not None:
             observe_model.load_state_dict(node_vars.model_weight, strict=True)
 
-        # 2) Resolve config/device and build optimizer/loss/trainer via base helpers
-        # Prefer explicit `self.config`; fall back to node_vars.config_dict
         full_cfg = self.config or node_vars.config_dict or {}
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
@@ -69,7 +66,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         ModelUtils.clear_model_grads(observe_model)
         console.log(f"Model grads cleared: {observe_model}")
 
-        optimizer = self._build_optimizer(self, observe_model, full_cfg)
+        optimizer = self.node_var.optimizer_builder.rebuild(self, observe_model.trainable_parameters())
         ModelUtils.reset_optimizer_state(optimizer)
         console.log(f"Optimizer state reset: {optimizer}")
 
@@ -109,7 +106,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         }
 
     # ------------------- Full local training (write-back to node_var) -------------------
-    def local_training(self) -> Tuple[dict, Any]:
+    def local_training_step(self) -> Tuple[dict, Any]:
         """
         Full local training: initialize from node_vars.model_weight, train, then write updated weights
         back to node_vars.model_weight and node_vars.model.
@@ -118,14 +115,11 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         if node_vars is None:
             raise RuntimeError("client.node_var is not set. Use client.with_node_var(...) first.")
 
-        # 1) Sync cached model with current node_var.model_weight (acts like global init)
         if node_vars.model_weight is not None:
             node_vars.model.load_state_dict(node_vars.model_weight)
 
-        # 2) Train on a copied model to keep node_vars.model intact during the run
         train_model: nn.Module = copy.deepcopy(node_vars.model)
 
-        # 3) Build optimizer, loss, and trainer
         full_cfg = self.config or node_vars.config_dict or {}
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 

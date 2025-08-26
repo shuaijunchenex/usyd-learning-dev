@@ -13,6 +13,8 @@ from ..ml_data_process import DataDistribution
 from ..fed_strategy.strategy_factory import StrategyFactory
 from ..fl_algorithms import FedClientSelectorFactory
 from ..model_trainer.model_evaluator import ModelEvaluator
+from ..model_trainer.model_trainer_factory import ModelTrainerFactory
+from ..model_trainer.model_trainer_args import ModelTrainerArgs
 
 class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     """
@@ -38,7 +40,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         # Declare event
         self.declare_events("on_prepare_data_loader", "on_prepare_data_distribution", "on_prepare_data_handler", "on_prepare_model",
-                            "on_prepare_optimizer", "on_prepare_loss_func", "on_prepare_client_selection", "on_prepare_training",
+                            "on_prepare_optimizer", "on_prepare_loss_func", "on_prepare_client_selection", "on_prepare_trainer",
                             "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger")
         return
 
@@ -257,7 +259,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     def prepare_optimizer(self):
         # build optimizer
         if "optimizer" in self.config_dict:
-            self.optimizer = OptimizerBuilder(self.model.parameters(), self.config_dict).build()
+            self.optimizer_builder = OptimizerBuilder(self.model.parameters(), self.config_dict)
+            self.optimizer = self.optimizer_builder.build()
 
         args = FedNodeEventArgs("optimizer", self.config_dict).with_sender(self).with_data(self.optimizer)
         self.raise_event("on_prepare_optimizer", args)
@@ -281,13 +284,14 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.raise_event("on_prepare_client_selection", args)
         return
 
-    def prepare_training(self):
+    def prepare_trainer(self):
         args = FedNodeEventArgs("training", self.config_dict).with_sender(self)
 
-        #########
-        console.error("TODO: prepare_training...")
+        # build trainer
+        trainer_args = ModelTrainerArgs(self.config_dict["training"]).set_trainer_args(self.model, self.optimizer, self.loss_func, self.data_loader)
+        self.trainer = ModelTrainerFactory.create(trainer_args)
 
-        self.raise_event("on_prepare_training", args)
+        self.raise_event("on_prepare_trainer", args)
         return
 
     def prepare_aggregation(self):
@@ -367,8 +371,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.prepare_client_selection()
         console.ok("OK")
 
-        console.info("Prepare training...", "")
-        self.prepare_training()
+        console.info("Prepare trainer...", "")
+        self.prepare_trainer()
         console.ok("OK")
 
         console.info("Prepare aggregation...", "")
