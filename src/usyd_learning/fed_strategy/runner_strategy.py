@@ -16,7 +16,7 @@ class RunnerStrategy(BaseStrategy):
 
     def create(self, args: StrategyArgs, client_nodes: List = None, server_nodes: List = None):
         self._args = args
-        self._create_inner(args, client_nodes, server_nodes)
+        self._create_inner(client_nodes, server_nodes)
         return self
 
     @abstractmethod

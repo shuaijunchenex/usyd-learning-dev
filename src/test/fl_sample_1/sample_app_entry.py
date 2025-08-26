@@ -34,6 +34,7 @@ class SampleAppEntry(AppEntry):
         self.fed_runner.training_rounds = training_rounds
         self.fed_runner.with_yaml(self.runner_yaml)
         self.fed_runner.create_nodes()
+        self.fed_runner.create_run_strategy()
 
         # Prepare each client node and var
         client_var_list = []
@@ -45,6 +46,7 @@ class SampleAppEntry(AppEntry):
             # Two way binding
             client_var.owner_nodes = node
             node.node_var = client_var
+            client_var.prepare_strategy_only()
             client_var_list.append(client_var)
 
         # Prepare each edge node and var

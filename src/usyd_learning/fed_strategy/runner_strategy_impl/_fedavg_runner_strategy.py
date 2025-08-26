@@ -5,17 +5,16 @@ from ...ml_utils import console
 from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
 from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ...fed_runner import FedRunner
-from fed_strategy.runner_strategy import RunnerStrategy 
-from fed_node import FedNodeClient, FedNodeServer
+from ...fed_strategy.runner_strategy import RunnerStrategy 
+from ...fed_node import FedNodeClient, FedNodeServer
 
 class FedAvgRunnerStrategy(RunnerStrategy):
 
     def __init__(self, runner: FedRunner) -> None:
         super().__init__(runner)
 
-    def _create_inner(self, args, client_node, server_node) -> None:
+    def _create_inner(self, client_node, server_node) -> None:
         self._strategy_type = "fedavg"
-        self._args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
         return self

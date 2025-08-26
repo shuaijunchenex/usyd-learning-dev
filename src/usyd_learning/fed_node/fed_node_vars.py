@@ -317,6 +317,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.strategy = self.config_dict["strategy"]
         # Raise strategy event
         args = FedNodeEventArgs("strategy", self.config_dict).with_sender(self)
+        self.strategy = StrategyFactory.create(self.config_dict["strategy"], self.owner_nodes)
         self.raise_event("on_prepare_strategy", args)
         return
 
@@ -375,11 +376,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         console.info("Prepare aggregation...", "")
         self.prepare_aggregation()
         console.ok("OK")
-
-        console.info("Prepare strategy...", "")
-        self.prepare_strategy()
-        console.ok("OK")
-
+        
         console.info("Prepare extractor...", "")
         self.prepare_extractor()
         console.ok("OK")
@@ -387,10 +384,6 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         # Prepare logger
         console.info("Prepare training logger...", "")
         self.prepare_training_logger()
-        console.ok("OK")
-
-        console.info("Prepare strategy...", "")
-        self.prepare_strategy()
         console.ok("OK")
 
         console.info("Prepare model evaluator...", "")
@@ -403,4 +396,10 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         console.info("Prepare completed.")
 
+        return self
+
+    def prepare_strategy_only(self):
+        console.info("Prepare strategy...", "")
+        self.prepare_strategy()
+        console.ok("OK")
         return self

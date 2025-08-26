@@ -49,7 +49,7 @@ class FedRunner(ABC):
 
     #------------------------------------------
     def create_run_strategy(self):
-        self.run_strategy = self.__create_run_strategy_from_yaml(self._yaml)
+        self.run_strategy = self.__create_run_strategy_from_yaml()
 
     def create_nodes(self):
         # Create server node(only 1 node)
@@ -129,7 +129,7 @@ class FedRunner(ABC):
 
     def __create_run_strategy_from_yaml(self):
         args = StrategyFactory.create_args(self._yaml.get("strategy", None))
-        StrategyFactory.create(args)
+        StrategyFactory.create_runner_strategy(args, self.client_node_list, self.server_node)
         return 
 
     def run(self):
