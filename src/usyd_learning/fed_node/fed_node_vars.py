@@ -317,7 +317,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.strategy = self.config_dict["strategy"]
         # Raise strategy event
         args = FedNodeEventArgs("strategy", self.config_dict).with_sender(self)
-        self.strategy = StrategyFactory.create(self.config_dict["strategy"], self.owner_nodes)
+        self.strategy = StrategyFactory.create(StrategyFactory.create_args(self.config_dict["strategy"]), self.owner_nodes[0])
         self.raise_event("on_prepare_strategy", args)
         return
 

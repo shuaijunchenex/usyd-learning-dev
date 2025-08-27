@@ -10,16 +10,21 @@ from ...fed_node import FedNodeClient, FedNodeServer
 
 class FedAvgRunnerStrategy(RunnerStrategy):
 
-    def __init__(self, runner: FedRunner) -> None:
-        super().__init__(runner)
-
-    def _create_inner(self, client_node, server_node) -> None:
+    def __init__(self, runner: FedRunner, client_node, server_node) -> None:
+        super().__init__(runner) #TODO: modify runner object declaration
         self._strategy_type = "fedavg"
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
+
+    def _create_inner(self, client_node, server_node) -> None:
+       
         return self
 
-    def simulate_local_training(self, participants):
+    def run(self, runner: FedRunner) -> None:
+
+        raise NotImplementedError("Subclasses must implement this method.")
+
+    def simulate_client_local_training_process(self, participants):
         for client in participants:
             console.out(f"Client [{client.node_var.node_id}] local training ...")
             updated_weights, train_record = client.strategy.run_local_training()
@@ -28,19 +33,18 @@ class FedAvgRunnerStrategy(RunnerStrategy):
                 "updated_weights": updated_weights,
                 "data_sample_num": len(client.node_var.train_data.dataset),
                 "train_record": train_record
-            }
+        }
 
-    def simulate_server_broadcast(self):
+
+    def simulate_server_broadcast_process(self):
         for client in self.client_node:#TODO: modify to iterate client obj
             # set client weight
             raise NotImplementedError("Subclasses must implement this method.")
 
         self.runner.server_node.broadcast_weights(self.runner.aggregator.aggregated_weight)
         return
-
-    @staticmethod
-    def simulate_server_update(self, weight):
-        #TODO
+    
+    def simulate_server_update_process(self, weight):
         self._server_node.model_weight = weight
         return
 

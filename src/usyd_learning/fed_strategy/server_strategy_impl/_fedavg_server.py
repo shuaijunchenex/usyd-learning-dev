@@ -11,8 +11,12 @@ from ml_utils import console
 
 class FedAvgServerStrategy(ServerStrategy):
 
-    def __init__(self) -> None:
+    def __init__(self, args, server_node) -> None:
         super().__init__()
+        self._args = args
+        self._strategy_type = "fedavg"
+        self._obj = server_node
+        return self
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args

@@ -21,12 +21,15 @@ import torch
 import torch.nn as nn
 
 class FedAvgClientTrainingStrategy(ClientStrategy):
-    def __init__(self):
+    def __init__(self, args, client_node):
         """
         client: a FedNodeClient (or FedNode) that owns a FedNodeVars in `client.node_var`
         config: high-level strategy/trainer config; falls back to `client.node_var.config_dict` when needed
         """
         super().__init__()
+        self._args = args
+        self._strategy_type = "fedavg"
+        self._obj = client_node
 
     def _create_inner(self, args, client_node) -> None:
         self._args = args
@@ -37,7 +40,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
     # ------------------- Public: Observation wrapper -------------------
     def run_observation(self) -> dict:
         print(f"\n Observation Client [{self._obj.node_var.node_id}] ...\n")
-        updated_weights, train_record = self.observation_step()
+        _, train_record = self.observation_step()
         return {
             "node_id": self._obj.node_var.node_id,
             "train_record": train_record,
@@ -47,7 +50,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
     # ------------------- Observation (no state write-back) -------------------
     def observation_step(self) -> Tuple[dict, Any]:
 
-        node_vars: FedNodeVars = self._obj.node_var.node_var
+        node_vars: FedNodeVars = self._obj.node_var
         cfg: dict = self._obj.node_var.config_dict
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
