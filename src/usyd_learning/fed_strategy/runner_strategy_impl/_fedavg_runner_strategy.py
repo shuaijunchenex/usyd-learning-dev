@@ -1,4 +1,4 @@
-import tqdm
+from tqdm import tqdm
 
 from usyd_learning.fed_strategy.strategy_args import StrategyArgs
 from ...ml_utils import console
@@ -10,19 +10,16 @@ from ...fed_node import FedNodeClient, FedNodeServer
 
 class FedAvgRunnerStrategy(RunnerStrategy):
 
-    def __init__(self, runner: FedRunner, client_node, server_node) -> None:
+    def __init__(self, runner: FedRunner, args, client_node, server_node) -> None:
         super().__init__(runner) #TODO: modify runner object declaration
         self._strategy_type = "fedavg"
+        self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
 
     def _create_inner(self, client_node, server_node) -> None:
        
         return self
-
-    def run(self, runner: FedRunner) -> None:
-
-        raise NotImplementedError("Subclasses must implement this method.")
 
     def simulate_client_local_training_process(self, participants):
         for client in participants:
@@ -50,7 +47,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running FedAvg strategy...")
-        for round in tqdm(range(self.runner.training_rounds + 1)):
+        for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.runner.training_rounds}, Total participants: {len(self.client_nodes)} {'='*10}")
             self.participants = self.server_node.node_var.selector.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
@@ -58,11 +55,6 @@ class FedAvgRunnerStrategy(RunnerStrategy):
             console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
 
             client_updates = list(self.simulate_local_training(self.participants))         
-
-            # client_data = []
-
-            # for i in client_updates:
-            #    client_data.append([i["updated_weights"], i["data_sample_num"]])
 
             self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_updates)
 

@@ -18,6 +18,14 @@ class StrategyFactory:
         return StrategyArgs(config_dict, is_clone_dict)
 
     @staticmethod
+    def create_runner_args(config_dict: dict, is_clone_dict: bool = False) -> StrategyArgs:
+        """
+        " Static method to create runner strategy args
+        """
+        runner_config = {**config_dict["general"], **config_dict["strategy"]}
+        return StrategyArgs(runner_config, is_clone_dict)
+
+    @staticmethod
     def create(args: StrategyArgs, node):
         match args.role.lower():
             case "client":
@@ -26,7 +34,7 @@ class StrategyFactory:
                 return StrategyFactory.create_server_strategy(args, node)
 
     @staticmethod
-    def create_runner_strategy(runner_strategy_args: StrategyArgs, client_nodes, server_node) -> ClientStrategy:
+    def create_runner_strategy(runner_strategy_args: StrategyArgs, runner, client_nodes, server_node) -> ClientStrategy:
         """
         " Static method to create runner strategy
         """
@@ -34,7 +42,7 @@ class StrategyFactory:
             case "fedavg":
                 # Import FedAvgRunnerStrategy from the appropriate module
                 from usyd_learning.fed_strategy.runner_strategy_impl._fedavg_runner_strategy import FedAvgRunnerStrategy
-                return FedAvgRunnerStrategy(runner_strategy_args, client_nodes, server_node)
+                return FedAvgRunnerStrategy(runner, runner_strategy_args, client_nodes, server_node)
 
         raise ValueError(f"Runner strategy type '{runner_strategy_args.strategy_name}' not support.")
 
