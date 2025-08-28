@@ -80,6 +80,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         self.set_object("model", None)  # Model
         self.set_object("model_weight", None)  # model weight
+        self.set_object("global_model_weight", None)  # global weight
 
         self.set_object("optimizer", None)  # optimizer
         self.set_object("loss_func", None)  # loss_func
@@ -130,6 +131,14 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     @model_weight.setter
     def model_weight(self, value):
         self.set_object("model_weight", value)
+
+    @property
+    def global_model_weight(self):
+        return self.get_object("global_model_weight")
+
+    @global_model_weight.setter
+    def global_model_weight(self, value):
+        self.set_object("global_model_weight", value)
 
     @property
     def aggregation(self):
