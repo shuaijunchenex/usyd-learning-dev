@@ -24,14 +24,13 @@ class FedAvgRunnerStrategy(RunnerStrategy):
     def simulate_client_local_training_process(self, participants):
         for client in participants:
             console.out(f"Client [{client.node_var.node_id}] local training ...")
-            updated_weights, train_record = client.strategy.run_local_training()
+            updated_weights, train_record = client.node_var.strategy.run_local_training()
             console.out(f"Client [{client.node_var.node_id}] local training completed.")
             yield {
                 "updated_weights": updated_weights,
                 "data_sample_num": len(client.node_var.train_data.dataset),
                 "train_record": train_record
         }
-
 
     def simulate_server_broadcast_process(self):
         for client in self.client_node:#TODO: modify to iterate client obj
@@ -49,12 +48,12 @@ class FedAvgRunnerStrategy(RunnerStrategy):
         print("Running FedAvg strategy...")
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
-            console.out(f"\n{'='*10} Training round {round}/{self.runner.training_rounds}, Total participants: {len(self.client_nodes)} {'='*10}")
-            self.participants = self.server_node.node_var.selector.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
+            console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")
+            self.participants = self.server_node.node_var.client_selection.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
             
             console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
 
-            client_updates = list(self.simulate_local_training(self.participants))         
+            client_updates = list(self.simulate_client_local_training_process(self.participants))         
 
             self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_updates)
 

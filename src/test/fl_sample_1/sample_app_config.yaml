@@ -37,6 +37,6 @@ yaml_combination:
 
   # Server
   # server_yaml: [general, training_logger, dataset_loader, nn_model, aggregation, client_selection, server_strategy, trainer]
-  server_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer]
+  server_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer, client_selection, server_strategy, aggregation]
 
   # Other combinations
