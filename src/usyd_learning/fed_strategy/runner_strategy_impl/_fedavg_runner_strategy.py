@@ -40,7 +40,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
         return
     
     def simulate_server_update_process(self, weight):
-        self._server_node.model_weight = weight
+        self.server_node.node_var.model_weight = weight
         return
 
     def run(self) -> None:
