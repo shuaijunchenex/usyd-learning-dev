@@ -78,7 +78,7 @@ class AbstractFedAggregator(ABC):
         Arg:
             select_numbers(int): number of clients to be selected
         """
-        self._aggregation_data_dict: list = (client_data_dict)  # [[model_weight: dict / wbab, vol],[model_weight: dict / wbab, vol]]
+        self._aggregation_data_dict: list = [(d["updated_weights"], d["train_record"]["data_sample_num"]) for d in client_data_dict]  # [[model_weight: dict / wbab, vol],[model_weight: dict / wbab, vol]]
         self._before_aggregation()
         self._do_aggregation()
         self._after_aggregation()

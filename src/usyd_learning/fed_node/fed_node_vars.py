@@ -216,7 +216,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
             data_loader_args.is_train = False  # get test data loader
             self.test_data_loader = DatasetLoaderFactory.create(data_loader_args)
-            self.data_sample_num = self.data_loader
+            self.data_sample_num = self.data_loader.data_sample_num
             console.warn("WARN: Missing data loader config in yaml.")
 
         # Raise event

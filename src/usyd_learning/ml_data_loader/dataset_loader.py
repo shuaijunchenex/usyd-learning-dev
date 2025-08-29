@@ -49,6 +49,7 @@ class DatasetLoader(ABC):
         if fn is not None:
             self._after_create_fn = fn
             fn(self)
+        self.data_sample_num = self.data_loader.dataset.__len__()
         return self
 
     @abstractmethod

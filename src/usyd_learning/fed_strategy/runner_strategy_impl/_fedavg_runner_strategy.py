@@ -56,13 +56,13 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
             self.new_aggregated_weight = self.server_node.node_var.aggregation_method.aggregate(client_updates)
 
-            self.simulate_server_update(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
+            self.simulate_server_update_process(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
 
-            self.simulate_server_broadcast() #self.runner.server_node.broadcast_weights(new_weight)
+            self.simulate_server_broadcast_process() #self.runner.server_node.broadcast_weights(new_weight)
 
             eval_results = self.runner.server_node.strategy.evaluate(round)
 
-            self.runner.train_logger.record(eval_results)
+            self.server_node.node_var.training_logger.record(eval_results)
 
             console.out(f"{'='*10} Round {round}/{self.runner.training_rounds} End{'='*10}")
 

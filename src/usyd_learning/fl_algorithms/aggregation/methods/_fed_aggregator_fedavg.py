@@ -26,25 +26,27 @@ class FedAggregator_FedAvg(AbstractFedAggregator):
 
     # override
     def _before_aggregation(self) -> None:
-        self.build_data_list(self._aggregation_data_dict)
-        console.debug(f"[FedAvg] Starting aggregation with {len(self._aggregation_data_list)} clients...")
+        #self.build_data_list(self._aggregation_data_dict)
+        return
+        
 
     # override
     def _do_aggregation(self) -> None:
-        sample_state_dict = self._aggregation_data_list[0][0]  # get one sample model
+        console.debug(f"[FedAvg] Starting aggregation with {len(self._aggregation_data_dict)} clients...")
+        sample_state_dict = self._aggregation_data_dict[0][0]  # get one sample model
         new_weights = OrderedDict()
 
         # Init empty tensor for aggregation
         for key in sample_state_dict.keys():
             new_weights[key] = torch.zeros_like(sample_state_dict[key], device=self._device)
 
-        total_data_vol = sum(vol for _, vol in self._aggregation_data_list)
+        total_data_vol = sum(vol for _, vol in self._aggregation_data_dict)
 
         # Debug info
-        for i, (_, vol) in enumerate(self._aggregation_data_list):
+        for i, (_, vol) in enumerate(self._aggregation_data_dict):
             console.debug(f"  Client {i}: {vol} samples ({vol / total_data_vol * 100:.1f}%)")
 
-        for state_dict, vol in self._aggregation_data_list:
+        for state_dict, vol in self._aggregation_data_dict:
             weight = vol / total_data_vol
             for key in new_weights:
                 new_weights[key] += state_dict[key].to(self._device) * weight
