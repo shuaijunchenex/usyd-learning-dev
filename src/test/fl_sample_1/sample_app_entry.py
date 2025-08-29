@@ -66,6 +66,7 @@ class SampleAppEntry(AppEntry):
         server_var.prepare() #TODO: create server strategy
         self.__attach_event_handler(server_var)
         server_var.owner_nodes = self.fed_runner.server_node        # Two way binding
+        server_var.prepare_strategy_only()
         self.fed_runner.server_node.node_var = server_var
 
         self.fed_runner.run()

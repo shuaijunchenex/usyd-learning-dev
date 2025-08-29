@@ -17,7 +17,6 @@ class FedNodeServer(FedNode):
 
         # Server node type
         self.node_type = EFedNodeType.server
-        self.node_strategy = None
         return
 
     def get_client_nodes(self):
@@ -31,8 +30,8 @@ class FedNodeServer(FedNode):
         console.info(f"{self._node_id}: Run...")
         pass
 
-    def boroadcast_weight(self):
-        self.server_strategy.broadcast()
+    def broadcast_weight(self, broadcast_objects):
+        self.node_var.strategy.broadcast(broadcast_objects)
         return
     
     def update_weight(self, new_weight):

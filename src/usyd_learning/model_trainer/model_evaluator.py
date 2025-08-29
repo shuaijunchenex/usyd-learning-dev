@@ -41,7 +41,7 @@ class ModelEvaluator:
         total_samples = 0
 
         with torch.no_grad():
-            for inputs, labels in self.val_loader:
+            for inputs, labels in self.val_loader.test_data_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.model(inputs)
                 

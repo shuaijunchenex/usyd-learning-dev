@@ -32,11 +32,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
         }
 
     def simulate_server_broadcast_process(self):
-        for client in self.client_node:#TODO: modify to iterate client obj
-            # set client weight
-            raise NotImplementedError("Subclasses must implement this method.")
-
-        self.runner.server_node.broadcast_weights(self.runner.aggregator.aggregated_weight)
+        self.server_node.broadcast_weight(self.client_nodes)
         return
     
     def simulate_server_update_process(self, weight):
@@ -60,11 +56,11 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
             self.simulate_server_broadcast_process() #self.runner.server_node.broadcast_weights(new_weight)
 
-            eval_results = self.runner.server_node.strategy.evaluate(round)
+            eval_results = self.server_node.node_var.model_evaluator.evaluate(round)
 
             self.server_node.node_var.training_logger.record(eval_results)
 
-            console.out(f"{'='*10} Round {round}/{self.runner.training_rounds} End{'='*10}")
+            console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
 
             return
         

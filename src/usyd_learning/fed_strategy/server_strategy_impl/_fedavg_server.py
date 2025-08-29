@@ -3,11 +3,11 @@ from typing import Dict, List, Any, Optional
 from collections import defaultdict
 
 import torch
-from fed_strategy.server_strategy import ServerStrategy
-from fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
-from fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
-from model_trainer.model_evaluator import ModelEvaluator
-from ml_utils import console
+from usyd_learning.fed_strategy.server_strategy import ServerStrategy
+from usyd_learning.fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from usyd_learning.fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
+from usyd_learning.model_trainer.model_evaluator import ModelEvaluator
+from usyd_learning.ml_utils import console
 
 class FedAvgServerStrategy(ServerStrategy):
 
@@ -16,7 +16,6 @@ class FedAvgServerStrategy(ServerStrategy):
         self._args = args
         self._strategy_type = "fedavg"
         self._obj = server_node
-        return self
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args
@@ -34,8 +33,10 @@ class FedAvgServerStrategy(ServerStrategy):
         self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
         raise NotImplementedError
 
-    def broadcast(self) -> None:
-        raise NotImplementedError
+    def broadcast(self, broadcast_objects) -> None:
+        for client in broadcast_objects:
+            client.node_var.model_weight = self._obj.node_var.model_weight
+        return
 
     def run(self) -> None:
         raise NotImplementedError

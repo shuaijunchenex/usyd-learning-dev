@@ -26,4 +26,10 @@ class DatasetLoader_Mnist(DatasetLoader):
 
         self._dataset = datasets.MNIST(root=args.root, train=args.is_train, transform=args.transform, download=args.is_download)
         self._data_loader = DataLoader(self._dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
+
+        test_transform = getattr(args, "test_transform", None) or args.transform
+        test_batch_size = getattr(args, "test_batch_size", None) or args.batch_size
+        
+        self._test_dataset = datasets.MNIST(root=args.root, train=False,transform=test_transform, download=args.is_download)
+        self._test_data_loader = DataLoader(self._test_dataset, batch_size=test_batch_size,shuffle=False, num_workers=args.num_workers)
         return

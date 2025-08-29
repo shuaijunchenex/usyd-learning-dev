@@ -14,6 +14,7 @@ class DatasetLoader(ABC):
     def __init__(self):
         self._dataset_type: str = ""                # Dataset type
         self._data_loader: Optional[DataLoader] = None    # Training data loader
+        self._test_data_loader: Optional[DataLoader] = None
         self._dataset: Dataset | None = None
         self._args: DatasetLoaderArgs | None = None
         self._after_create_fn: Callable[[DatasetLoader], None] | None = None
@@ -29,6 +30,13 @@ class DatasetLoader(ABC):
             return self._data_loader 
         else:
             raise ValueError("ERROR: DatasetLoader's data_loader is None.")
+
+    @property
+    def test_data_loader(self) -> DataLoader:
+        if self._test_data_loader is not None:
+            return self._test_data_loader
+        else:
+            raise ValueError("ERROR: DatasetLoader's test_data_loader is None.")
 
     @property
     def data_set(self): return self._dataset
