@@ -23,12 +23,11 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
     def simulate_client_local_training_process(self, participants):
         for client in participants:
-            console.out(f"Client [{client.node_var.node_id}] local training ...")
+            console.out(f"Client [{client.node_id}] local training ...")
             updated_weights, train_record = client.node_var.strategy.run_local_training()
-            console.out(f"Client [{client.node_var.node_id}] local training completed.")
+            console.out(f"Client [{client.node_id}] local training completed.")
             yield {
                 "updated_weights": updated_weights,
-                "data_sample_num": len(client.node_var.train_data.dataset),
                 "train_record": train_record
         }
 
@@ -55,7 +54,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
             client_updates = list(self.simulate_client_local_training_process(self.participants))         
 
-            self.new_aggregated_weight = self._server_node.aggregator.aggregate(client_updates)
+            self.new_aggregated_weight = self.server_node.node_var.aggregation_method.aggregate(client_updates)
 
             self.simulate_server_update(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
 

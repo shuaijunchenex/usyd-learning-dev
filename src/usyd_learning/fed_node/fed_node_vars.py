@@ -8,7 +8,7 @@ from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap,
 from ..ml_models import NNModelFactory
 from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoader
 from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
-from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector, FedClientSelectorArgs
+from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector, FedClientSelectorArgs, FedAggregatorArgs, FedAggregatorFactory
 from ..ml_data_process import DataDistribution
 from ..fed_strategy.strategy_factory import StrategyFactory
 from ..fl_algorithms import FedClientSelectorFactory
@@ -216,6 +216,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
             data_loader_args.is_train = False  # get test data loader
             self.test_data_loader = DatasetLoaderFactory.create(data_loader_args)
+            self.data_sample_num = self.data_loader
             console.warn("WARN: Missing data loader config in yaml.")
 
         # Raise event
@@ -309,8 +310,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         args = FedNodeEventArgs("model_aggregation", self.config_dict).with_sender(self)
 
         #########
-        if "model_aggregation" in self.config_dict:
-            self.aggregation_method = FedClientSelectorFactory.create(self.config_dict["model_aggregation"])
+        if "aggregation" in self.config_dict:
+            self.aggregation_method = FedAggregatorFactory.create_aggregator(FedAggregatorArgs(self.config_dict["aggregation"]))
 
         self.raise_event("on_prepare_aggregation", args)
         return

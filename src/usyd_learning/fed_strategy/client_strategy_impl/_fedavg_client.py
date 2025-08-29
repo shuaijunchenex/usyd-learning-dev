@@ -39,10 +39,10 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
     # ------------------- Public: Local training wrapper -------------------
     def run_local_training(self) -> dict:
-        print(f"\n Training Client [{self._obj.node_var.node_id}] ...\n")
+        print(f"\n Training Client [{self._obj.node_id}] ...\n")
         updated_weights, train_record = self.local_training()
         return {
-            "node_id": self._obj.node_var.node_id,
+            "node_id": self._obj.node_id,
             "updated_weights": updated_weights,
             "train_record": train_record,
             "data_sample_num": self._obj.node_var.data_sample_num, #TODO: update
@@ -111,10 +111,10 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
     # ------------------- Public: Observation wrapper -------------------
     def run_observation(self) -> dict:
-        print(f"\n Observation Client [{self._obj.node_var.node_id}] ...\n")
+        print(f"\n Observation Client [{self._obj.node_id}] ...\n")
         _, train_record = self.observation_step()
         return {
-            "node_id": self._obj.node_var.node_id,
+            "node_id": self._obj.node_id,
             "train_record": train_record,
             "data_sample_num": self._obj.node_var.data_sample_num, # TODO: update to sample num
         }
@@ -128,44 +128,43 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
 
         observe_model: nn.Module = copy.deepcopy(node_vars.model)
         observe_model.load_state_dict(node_vars.model_weight, strict=True)
-        optimizer = self.node_var.optimizer_builder.rebuild(self, observe_model.parameters())
+        optimizer = self._obj.node_var.optimizer_builder.rebuild(self, observe_model.parameters())
 
         ModelUtils.clear_all(observe_model, optimizer)
 
-        self.node_var.trainer.set_optimizer(optimizer)
+        self._obj.node_var.trainer.set_optimizer(optimizer)
 
-        local_epochs = int(cfg.get("training", {}).get("local_epochs", 5))
+        local_epochs = int(cfg.get("training", {}).get("local_epochs", 1))
         updated_weights, train_record = self.trainer.train(local_epochs)
 
         return copy.deepcopy(updated_weights), train_record
 
     # ------------------- Public: Local training wrapper -------------------
     def run_local_training(self) -> dict:
-        print(f"\n Training Client [{self._obj.node_var.node_id}] ...\n")
+        print(f"\n Training Client [{self._obj.node_id}] ...\n")
         updated_weights, train_record = self.local_training_step()
-        return {
-            "node_id": self._obj.node_var.node_id,
+        return updated_weights, {
+            "node_id": self._obj.node_id,
             "updated_weights": updated_weights,
             "train_record": train_record,
-            "data_sample_num": self._obj.node_var.data_sample_num, #TODO: update
-        }
+            "data_sample_num": self._obj.node_var.data_sample_num}
 
     # ------------------- Full local training (write-back to node_var) -------------------
     def local_training_step(self) -> Tuple[dict, Any]:
-        node_vars: FedNodeVars = self._obj.node_var.node_var
+        node_vars: FedNodeVars = self._obj.node_var
         cfg: dict = self._obj.node_var.config_dict
         device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
 
         training_model: nn.Module = copy.deepcopy(node_vars.model)
         training_model.load_state_dict(node_vars.model_weight, strict=True)
-        optimizer = self.node_var.optimizer_builder.rebuild(self, training_model.parameters())
+        optimizer = self._obj.node_var.optimizer_builder.rebuild(training_model.parameters())
 
         ModelUtils.clear_all(training_model, optimizer)
 
-        self.node_var.trainer.set_optimizer(optimizer)
+        self._obj.node_var.trainer.set_optimizer(optimizer)
 
-        local_epochs = int(cfg.get("training", {}).get("local_epochs", 5))
-        updated_weights, train_record = self.trainer.train(local_epochs)
+        local_epochs = int(cfg.get("training", {}).get("epochs", 1))
+        updated_weights, train_record = self._obj.node_var.trainer.train(local_epochs)
 
         # update local state
         node_vars.model_weight = copy.deepcopy(updated_weights)

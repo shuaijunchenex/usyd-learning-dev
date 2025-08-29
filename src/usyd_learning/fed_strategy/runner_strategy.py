@@ -9,7 +9,7 @@ class RunnerStrategy(BaseStrategy):
     
     def __init__(self, runner):
         super().__init__()
-        self._obj = runner #TODO: modify runner object declaration
+        self._obj = runner 
         self._strategy_type = "runner"
         self.client_nodes = None
         self.server_node = None
