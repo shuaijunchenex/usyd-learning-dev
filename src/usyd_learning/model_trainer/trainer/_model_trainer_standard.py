@@ -8,26 +8,30 @@ from ..model_trainer import ModelTrainer
 from ...ml_algorithms import ModelExtractor
 from ...ml_utils import console
 
-
 class ModelTrainer_Standard(ModelTrainer):
     def __init__(self, trainer_args: ModelTrainerArgs):
         super().__init__(trainer_args)
 
         if trainer_args.model is None:
             raise ValueError("Training Model is None.")
-        
         if trainer_args.optimizer is None:
             raise ValueError("Training optimizer is None.")
 
         if str(next(trainer_args.model.parameters()).device) != trainer_args.device:
-            self.model: nn.Module = trainer_args.model.to(trainer_args.device)
-        else:
-            self.model: nn.Module = trainer_args.model
+            trainer_args.model = trainer_args.model.to(trainer_args.device)
+
+        self.model: nn.Module = trainer_args.model
         return
+
+    def set_model(self, model: nn.Module):
+        self.trainer_args.model = model
+        if str(next(model.parameters()).device) != self.trainer_args.device:
+            self.trainer_args.model = model.to(self.trainer_args.device)
+        self.model = self.trainer_args.model
+        return self
 
     def train_step(self) -> float:
         ta = self.trainer_args
-
         if ta.optimizer is None:
             raise ValueError("Trainer optimizer is None.")
         if ta.model is None:
@@ -39,25 +43,22 @@ class ModelTrainer_Standard(ModelTrainer):
 
         train_dl = ta.train_loader.data_loader
         if not hasattr(train_dl, "__iter__"):
-            raise TypeError(
-                f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}"
-            )
+            raise TypeError(f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}")
 
         self._epoch_idx = getattr(self, "_epoch_idx", 0) + 1
+        current_epoch = getattr(self, "_epoch_idx", 0) + 1
         epoch_idx = self._epoch_idx
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
         ta.model.train()
         running_loss, total_batch = 0.0, 0
 
+        from tqdm.auto import tqdm
         loop = tqdm(
             train_dl,
-            desc=f"Training (epoch {epoch_idx}{'/' + str(total_epochs) if total_epochs else ''})",
-            leave=True,
-            ncols=120,
-            mininterval=0.1,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} "
-                    "[{elapsed}<{remaining}, {rate_fmt}]"
+            desc=f"Training (epoch {current_epoch}{'/' + str(total_epochs) if total_epochs else ''})",
+            leave=True, ncols=120, mininterval=0.1,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]"
         )
 
         for inputs, labels in loop:
@@ -87,48 +88,36 @@ class ModelTrainer_Standard(ModelTrainer):
             f"[Epoch {epoch_idx}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
             f"avg_loss={avg_loss:.6f} | batches={total_batch} | device={ta.device}"
         )
-
         return avg_loss
 
-    def train(self, epochs, is_return_wbab = False) -> Any:
-        train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum":0}
+    def train(self, epochs, is_return_wbab=False) -> Any:
+        self.trainer_args.total_epochs = epochs
 
-        console.info(f"\nTraining Start ({epochs} epochs)")
-        for epoch in range(epochs):
+        train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum": 0}
+        for _ in range(epochs):
             train_loss = self.train_step()
             train_stats["train_loss_sum"] += train_loss
             train_stats["train_loss_power_two_sum"] += train_loss ** 2
             train_stats["epoch_loss"].append(train_loss)
-            # console.debug(f"Epoch {epoch + 1:02d}/{epochs} - Loss: {train_loss:.4f}")
 
         train_stats["avg_loss"] = train_stats["train_loss_sum"] / epochs
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
 
-        if is_return_wbab == False:
-            return self.model.state_dict(), train_stats
+        if is_return_wbab:
+            return self.trainer_args.model.state_dict(), train_stats, self.extract_wbab()
         else:
-            return self.model.state_dict(), train_stats, self.extract_wbab()
-    
-    def observe(self, epochs=5) -> Any:
-        train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum":0}
+            return self.trainer_args.model.state_dict(), train_stats
 
-        console.info(f"\nObservation start ({epochs} epochs)")
-        for epoch in range(epochs):
+    def observe(self, epochs=5) -> Any:
+        self.trainer_args.total_epochs = epochs
+        train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum": 0}
+
+        for _ in range(epochs):
             train_loss = self.train_step()
             train_stats["train_loss_sum"] += train_loss
             train_stats["train_loss_power_two_sum"] += train_loss ** 2
             train_stats["epoch_loss"].append(train_loss)
-            # console.info(f"Epoch {epoch + 1:02d}/{epochs} - Loss: {train_loss:.4f}")
 
         train_stats["avg_loss"] = train_stats["train_loss_sum"] / epochs
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
-        # console.info(f"\n[Summary] Total Loss: {train_stats['train_loss_sum']:.4f} | Avg Loss: {train_stats["avg_loss"]:.4f}")
-
-        return self.model.state_dict(), train_stats
-
-    def extract_wbab(self):
-        """
-        Extracts the model parameters using the ModelExtractor.
-        """        
-        return ModelExtractor().extract_layers(self.model)
-    
+        return self.trainer_args.model.state_dict(), train_stats

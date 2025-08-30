@@ -79,22 +79,24 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
     # ------------------- Full local training (write-back to node_var) -------------------
     def local_training_step(self) -> Tuple[dict, Any]:
         node_vars: FedNodeVars = self._obj.node_var
-        cfg: dict = self._obj.node_var.config_dict
-        device = node_vars.device if hasattr(node_vars, "device") and node_vars.device else "cpu"
+        cfg: dict = node_vars.config_dict
+        device = getattr(node_vars, "device", None) or "cpu"
 
-        training_model: nn.Module = copy.deepcopy(node_vars.model)
+        training_model: nn.Module = copy.deepcopy(node_vars.model).to(device)
         training_model.load_state_dict(node_vars.model_weight, strict=True)
-        optimizer = self._obj.node_var.optimizer_builder.rebuild(training_model.parameters())
+
+        optimizer = node_vars.optimizer_builder.rebuild(training_model.parameters())
 
         ModelUtils.clear_all(training_model, optimizer)
 
-        self._obj.node_var.trainer.set_optimizer(optimizer)
-        self._obj.node_var.trainer.set_model(training_model)
+        tr = node_vars.trainer
+        tr.set_model(training_model)
+        tr.set_optimizer(optimizer)
+        tr.trainer_args.device = device
 
         local_epochs = int(cfg.get("training", {}).get("epochs", 1))
-        updated_weights, train_record = self._obj.node_var.trainer.train(local_epochs)
+        updated_weights, train_record = tr.train(local_epochs)
 
-        # update local state
         node_vars.model_weight = copy.deepcopy(updated_weights)
         node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 

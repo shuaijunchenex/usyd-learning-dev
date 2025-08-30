@@ -25,21 +25,12 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
     def simulate_client_local_training_process(self, participants):
         for client in participants:
-            console.info(f"[{client.node_id}] Local training started")
+            console.info(f"\n[{client.node_id}] Local training started")
             updated_weights, train_record = client.node_var.strategy.run_local_training()
             yield {
                 "updated_weights": updated_weights,
                 "train_record": train_record
             }
-    # def simulate_client_local_training_process(self, participants):
-    #     for client in participants:
-    #         console.out(f"Client [{client.node_id}] local training start")
-    #         updated_weights, train_record = client.node_var.strategy.run_local_training()
-    #         console.ok(f"Client [{client.node_id}] local training completed.")
-    #         yield {
-    #             "updated_weights": updated_weights,
-    #             "train_record": train_record
-    #     }
 
     def simulate_server_broadcast_process(self):
         self.server_node.broadcast_weight(self.client_nodes)
@@ -47,6 +38,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
     
     def simulate_server_update_process(self, weight):
         self.server_node.node_var.model_weight = weight
+        self.server_node.node_var.model_evaluator.update_model(weight)
         return
 
     def run(self) -> None:
@@ -68,6 +60,8 @@ class FedAvgRunnerStrategy(RunnerStrategy):
             self.simulate_server_broadcast_process()
 
             eval_results = self.server_node.node_var.model_evaluator.evaluate()
+
+            self.server_node.node_var.model_evaluator.print_results()
 
             self.server_node.node_var.training_logger.record(eval_results)
 

@@ -31,7 +31,7 @@ class FedAggregator_FedAvg(AbstractFedAggregator):
         
     # override
     def _do_aggregation(self) -> None:
-        console.debug(f"[FedAvg] Starting aggregation with {len(self._aggregation_data_dict)} clients...")
+        console.debug(f"\n[FedAvg] Starting aggregation with {len(self._aggregation_data_dict)} clients...")
         sample_state_dict = self._aggregation_data_dict[0][0]  # get one sample model
         new_weights = OrderedDict()
 
