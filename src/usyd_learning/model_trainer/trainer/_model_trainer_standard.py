@@ -25,7 +25,67 @@ class ModelTrainer_Standard(ModelTrainer):
             self.model: nn.Module = trainer_args.model
         return
 
-    
+    # def train_step(self) -> float:
+    #     ta = self.trainer_args
+
+    #     if ta.optimizer is None:
+    #         raise ValueError("Trainer optimizer is None.")
+    #     if ta.model is None:
+    #         raise ValueError("Trainer model is None.")
+    #     if ta.loss_func is None:
+    #         raise ValueError("Trainer loss function is None.")
+    #     if ta.train_loader is None:
+    #         raise ValueError("Trainer train_loader is None.")
+
+    #     train_dl = ta.train_loader.data_loader
+    #     if not hasattr(train_dl, "__iter__"):
+    #         raise TypeError(
+    #             f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}"
+    #         )
+
+    #     ta.model.train()
+    #     running_loss, total_batch = 0.0, 0
+
+    #     loop = tqdm(
+    #         train_dl,
+    #         desc="Training",
+    #         leave=True,
+    #         ncols=120,
+    #         mininterval=0.1,
+    #         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} "
+    #                 "[{elapsed}<{remaining}, {rate_fmt}]"
+    #     )
+
+    #     for inputs, labels in loop:
+    #         total_batch += 1
+    #         inputs = inputs.to(ta.device)
+    #         labels = labels.to(ta.device)
+
+    #         ta.optimizer.zero_grad()
+    #         outputs = ta.model(inputs)
+    #         loss = ta.loss_func(outputs, labels)
+    #         loss.backward()
+    #         ta.optimizer.step()
+
+    #         running_loss += float(loss.item())
+
+    #         loop.set_postfix(
+    #             batch=total_batch,
+    #             loss=f"{loss.item():.4f}",
+    #             avg_loss=f"{running_loss/total_batch:.4f}",
+    #             lr=ta.optimizer.param_groups[0]["lr"]
+    #         )
+
+    #     avg_loss = running_loss / max(total_batch, 1)
+
+    #     console.ok(
+    #         f"[Train Step Finished] avg_loss={avg_loss:.6f} | "
+    #         f"batches={total_batch} | "
+    #         f"device={ta.device}"
+    #     )
+
+    #     return avg_loss
+
     def train_step(self) -> float:
         ta = self.trainer_args
 
@@ -41,14 +101,25 @@ class ModelTrainer_Standard(ModelTrainer):
         train_dl = ta.train_loader.data_loader
         if not hasattr(train_dl, "__iter__"):
             raise TypeError(
-                f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}")
+                f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}"
+            )
+
+        self._epoch_idx = getattr(self, "_epoch_idx", 0) + 1
+        epoch_idx = self._epoch_idx
+        total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
         ta.model.train()
         running_loss, total_batch = 0.0, 0
 
         loop = tqdm(
-            train_dl, desc="Training", leave=True, ncols=100, mininterval=0.1,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]")
+            train_dl,
+            desc=f"Training (epoch {epoch_idx}{'/' + str(total_epochs) if total_epochs else ''})",
+            leave=True,
+            ncols=120,
+            mininterval=0.1,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} "
+                    "[{elapsed}<{remaining}, {rate_fmt}]"
+        )
 
         for inputs, labels in loop:
             total_batch += 1
@@ -63,39 +134,23 @@ class ModelTrainer_Standard(ModelTrainer):
 
             running_loss += float(loss.item())
 
-        return running_loss / max(total_batch, 1)
+            loop.set_postfix(
+                batch=total_batch,
+                loss=f"{loss.item():.4f}",
+                avg_loss=f"{running_loss/total_batch:.4f}",
+                lr=ta.optimizer.param_groups[0]["lr"]
+            )
 
+        avg_loss = running_loss / max(total_batch, 1)
 
-    # # override
-    # def train_step(self) -> float:
-    #     if self.trainer_args.optimizer is None: 
-    #         raise ValueError("Trainer optimizer is None.")
-    #     if self.trainer_args.model is None:                 
-    #         raise ValueError("Trainer model is None")
-        
-    #     self.model.train()
-    #     running_loss = 0.0
-    #     loop = tqdm(self.trainer_args.train_loader, desc="Training", leave=True, ncols=100, mininterval=0.1, 
-    #                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]")
-    #     total_batch = 0
+        from tqdm.auto import tqdm as _tqdm
+        _tqdm.write(
+            f"[Epoch {epoch_idx}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
+            f"avg_loss={avg_loss:.6f} | batches={total_batch} | device={ta.device}"
+        )
 
-    #     for inputs, labels in loop:
-    #         total_batch += 1
-    #         inputs = inputs.to(self.trainer_args.device)
-    #         labels = labels.to(self.trainer_args.device)
+        return avg_loss
 
-    #         self.trainer_args.optimizer.zero_grad()
-    #         outputs = self.trainer_args.model(inputs)
-    #         loss = self.trainer_args.loss_func(outputs, labels)
-    #         loss.backward()
-    #         self.trainer_args.optimizer.step()
-
-    #         running_loss += loss.item()
-    #         #loop.set_postfix(loss=loss.item())
-
-    #     return running_loss / total_batch
-
-    # override
     def train(self, epochs, is_return_wbab = False) -> Any:
         train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum":0}
 

@@ -29,7 +29,6 @@ class FedAggregator_FedAvg(AbstractFedAggregator):
         #self.build_data_list(self._aggregation_data_dict)
         return
         
-
     # override
     def _do_aggregation(self) -> None:
         console.debug(f"[FedAvg] Starting aggregation with {len(self._aggregation_data_dict)} clients...")

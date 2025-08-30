@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import traceback
+import sys
 from typing import Any, Optional
 from colorama import Fore, Back, Style, init
 
@@ -17,7 +18,7 @@ class console:
 
     __const_default_log_path = "./.log/"
     __const_default_log_level = 4
-    __const_char_ok = "✅ "
+    __const_char_ok = "[OK] "#"✅ "
 
     __console_logger: TextLogger = TextLogger()
     __exception_logger: TextLogger = TextLogger()
@@ -137,6 +138,12 @@ class console:
         if console.__debug_log_enabled:
             console.__debug_logger.write(f"{text}", end)
         return
+
+    def _supports_utf8() -> bool:
+        try:
+            return sys.stdout.encoding.lower().startswith("utf")
+        except Exception:
+            return False
 
     #--------------------------------------------------------------
     @staticmethod

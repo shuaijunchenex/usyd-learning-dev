@@ -7,25 +7,43 @@ from torch import nn
 class ModelUtils:
 
     @staticmethod
-    def clear_all(model: nn.modules, optimizer: Optimizer):
+    def clear_all(model: nn.Module, optimizer: Optimizer):
         """
-        Clears gradients of all models and releases unused cached GPU memory.
+        Clears gradients, resets optimizer state, and releases unused cached GPU memory.
         """
-        ModelUtils.clear_cuda_cache()
         ModelUtils.clear_model_grads(model)
         ModelUtils.reset_optimizer_state(optimizer)
-        console.info("All model grads cleared and cuda cache released.")
+        ModelUtils.clear_cuda_cache()
+
+        total_params = sum(p.numel() for p in model.parameters())
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        ratio = trainable_params / total_params if total_params > 0 else 0.0
+
+        console.ok(
+            f"[All Cleared] {model.__class__.__name__} | "
+            f"trainable={trainable_params:,}/{total_params:,} ({ratio:.2%}) | "
+            f"optimizer={optimizer.__class__.__name__}"
+        )
 
     @staticmethod
-    def clear_model_grads(model: nn.modules):
+    def clear_model_grads(model: nn.Module):
         """
         Clears the gradients of all parameters in the given model by setting .grad to None.
+        Also logs parameter statistics.
         """
         for param in model.parameters():
             if param.grad is not None:
                 param.grad = None
 
-        console.info(f"Model grads cleared: {model}, id: {id(model)}")
+        total_params = sum(p.numel() for p in model.parameters())
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        ratio = trainable_params / total_params if total_params > 0 else 0.0
+
+        console.info(
+            f"[Grads Cleared] {model.__class__.__name__} | id={id(model)} | "
+            f"trainable={trainable_params:,} / total={total_params:,} "
+            f"({ratio:.2%})"
+        )
 
     @staticmethod
     def clear_cuda_cache():
@@ -34,12 +52,19 @@ class ModelUtils:
         """
         gc.collect()
         torch.cuda.empty_cache()
-        console.info(f"Cuda cache cleared.")
+        allocated = torch.cuda.memory_allocated() / 1024**2
+        reserved = torch.cuda.memory_reserved() / 1024**2
+        console.info(f"[Cuda Cache Cleared] allocated={allocated:.2f}MB | reserved={reserved:.2f}MB")
 
     @staticmethod
-    def reset_optimizer_state(optimizer : Optimizer):
+    def reset_optimizer_state(optimizer: Optimizer):
         """
         Clears the internal state of an optimizer (e.g., momentum buffers).
         """
         optimizer.state.clear()
-        console.info(f"Optimizer state reset: {optimizer}")
+        num_params = sum(p.numel() for group in optimizer.param_groups for p in group['params'])
+        console.info(
+            f"[Optimizer Reset] {optimizer.__class__.__name__} "
+            f"| id={id(optimizer)} | params={num_params:,}"
+        )
+

@@ -1,3 +1,5 @@
+import time
+
 from tqdm import tqdm
 
 from usyd_learning.fed_strategy.strategy_args import StrategyArgs
@@ -23,13 +25,21 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
     def simulate_client_local_training_process(self, participants):
         for client in participants:
-            console.out(f"Client [{client.node_id}] local training ...")
+            console.info(f"[{client.node_id}] Local training started")
             updated_weights, train_record = client.node_var.strategy.run_local_training()
-            console.out(f"Client [{client.node_id}] local training completed.")
             yield {
                 "updated_weights": updated_weights,
                 "train_record": train_record
-        }
+            }
+    # def simulate_client_local_training_process(self, participants):
+    #     for client in participants:
+    #         console.out(f"Client [{client.node_id}] local training start")
+    #         updated_weights, train_record = client.node_var.strategy.run_local_training()
+    #         console.ok(f"Client [{client.node_id}] local training completed.")
+    #         yield {
+    #             "updated_weights": updated_weights,
+    #             "train_record": train_record
+    #     }
 
     def simulate_server_broadcast_process(self):
         self.server_node.broadcast_weight(self.client_nodes)
@@ -41,6 +51,7 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running FedAvg strategy...")
+        self.server_node.node_var.training_logger.begin()
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")
@@ -52,15 +63,15 @@ class FedAvgRunnerStrategy(RunnerStrategy):
 
             self.new_aggregated_weight = self.server_node.node_var.aggregation_method.aggregate(client_updates)
 
-            self.simulate_server_update_process(self.new_aggregated_weight) #self.runner.server_node.update_weights(new_weight)
+            self.simulate_server_update_process(self.new_aggregated_weight)
 
-            self.simulate_server_broadcast_process() #self.runner.server_node.broadcast_weights(new_weight)
+            self.simulate_server_broadcast_process()
 
-            eval_results = self.server_node.node_var.model_evaluator.evaluate(round)
+            eval_results = self.server_node.node_var.model_evaluator.evaluate()
 
             self.server_node.node_var.training_logger.record(eval_results)
 
             console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
 
-            return
+        return
         
