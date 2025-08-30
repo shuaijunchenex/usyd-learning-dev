@@ -25,67 +25,6 @@ class ModelTrainer_Standard(ModelTrainer):
             self.model: nn.Module = trainer_args.model
         return
 
-    # def train_step(self) -> float:
-    #     ta = self.trainer_args
-
-    #     if ta.optimizer is None:
-    #         raise ValueError("Trainer optimizer is None.")
-    #     if ta.model is None:
-    #         raise ValueError("Trainer model is None.")
-    #     if ta.loss_func is None:
-    #         raise ValueError("Trainer loss function is None.")
-    #     if ta.train_loader is None:
-    #         raise ValueError("Trainer train_loader is None.")
-
-    #     train_dl = ta.train_loader.data_loader
-    #     if not hasattr(train_dl, "__iter__"):
-    #         raise TypeError(
-    #             f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}"
-    #         )
-
-    #     ta.model.train()
-    #     running_loss, total_batch = 0.0, 0
-
-    #     loop = tqdm(
-    #         train_dl,
-    #         desc="Training",
-    #         leave=True,
-    #         ncols=120,
-    #         mininterval=0.1,
-    #         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} "
-    #                 "[{elapsed}<{remaining}, {rate_fmt}]"
-    #     )
-
-    #     for inputs, labels in loop:
-    #         total_batch += 1
-    #         inputs = inputs.to(ta.device)
-    #         labels = labels.to(ta.device)
-
-    #         ta.optimizer.zero_grad()
-    #         outputs = ta.model(inputs)
-    #         loss = ta.loss_func(outputs, labels)
-    #         loss.backward()
-    #         ta.optimizer.step()
-
-    #         running_loss += float(loss.item())
-
-    #         loop.set_postfix(
-    #             batch=total_batch,
-    #             loss=f"{loss.item():.4f}",
-    #             avg_loss=f"{running_loss/total_batch:.4f}",
-    #             lr=ta.optimizer.param_groups[0]["lr"]
-    #         )
-
-    #     avg_loss = running_loss / max(total_batch, 1)
-
-    #     console.ok(
-    #         f"[Train Step Finished] avg_loss={avg_loss:.6f} | "
-    #         f"batches={total_batch} | "
-    #         f"device={ta.device}"
-    #     )
-
-    #     return avg_loss
-
     def train_step(self) -> float:
         ta = self.trainer_args
 

@@ -32,6 +32,12 @@ class ModelTrainer(ABC):
         """
         self.trainer_args.optimizer = optimizer
 
+    def set_model(self, model):
+        """
+        Sets the model for the trainer.
+        """
+        self.trainer_args.model = model
+
     def observe(self, epochs=5) -> Any:
         """
         Performs observation without updating the global state.

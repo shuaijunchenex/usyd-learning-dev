@@ -89,6 +89,7 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         ModelUtils.clear_all(training_model, optimizer)
 
         self._obj.node_var.trainer.set_optimizer(optimizer)
+        self._obj.node_var.trainer.set_model(training_model)
 
         local_epochs = int(cfg.get("training", {}).get("epochs", 1))
         updated_weights, train_record = self._obj.node_var.trainer.train(local_epochs)
