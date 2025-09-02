@@ -29,6 +29,9 @@ class DatasetLoaderArgs(KeyValueArgs):
     transform: Any = None
     text_collate_fn = DatasetLoaderUtil.text_collate_fn
 
+    # For custom dataset
+    dataset = None
+
     def __init__(self, config_dict: dict|None = None, is_clone_dict = False):
         super().__init__(config_dict, is_clone_dict)
 

@@ -5,6 +5,9 @@ Entry class of Sample_1
 from usyd_learning.fed_node import FedNodeVars, FedNodeEventArgs
 from usyd_learning.fed_runner import FedRunner
 from usyd_learning.ml_utils import AppEntry, console
+from usyd_learning.fl_algorithms.noniid.noniid_data_generator import NoniidDataGenerator
+from usyd_learning.ml_data_loader.dataset_loader_factory import DatasetLoaderFactory
+from usyd_learning.ml_data_loader.dataset_loader_args import DatasetLoaderArgs
 
 class SampleAppEntry(AppEntry):
     def __init__(self):
@@ -35,6 +38,23 @@ class SampleAppEntry(AppEntry):
         self.fed_runner.with_yaml(self.runner_yaml)
         self.fed_runner.create_nodes()
         self.fed_runner.create_run_strategy()
+
+        # Load data
+        dataloader_args = DatasetLoaderArgs(self.server_yaml.get("data_loader", None))
+        mnist_train_loader = DatasetLoaderFactory().create(dataloader_args)
+
+        # NonIID handler
+        allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution='mnist_lt_one_label')
+
+        for i in range(len(allocated_noniid_data)):
+            args = DatasetLoaderArgs({
+                    "dataset_name": "custom",
+                    "batch_size": 64,
+                    "shuffle": True,
+                    "num_workers": 0,
+                    "dataset": allocated_noniid_data[i]
+                })
+            allocated_noniid_data[i] = DatasetLoaderFactory().create(args)
 
         # Prepare each client node and var
         client_var_list = []
