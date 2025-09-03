@@ -45,7 +45,7 @@ class ModelTrainer_Standard(ModelTrainer):
         if not hasattr(train_dl, "__iter__"):
             raise TypeError(f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}")
 
-        self._epoch_idx = getattr(self, "_epoch_idx", 0) + 1
+        self._epoch_idx = getattr(self, "_epoch_idx", 0)
         current_epoch = getattr(self, "_epoch_idx", 0) + 1
         epoch_idx = self._epoch_idx
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
@@ -85,7 +85,7 @@ class ModelTrainer_Standard(ModelTrainer):
 
         from tqdm.auto import tqdm as _tqdm
         _tqdm.write(
-            f"[Epoch {epoch_idx}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
+            f"[Epoch {current_epoch}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
             f"avg_loss={avg_loss:.6f} | batches={total_batch} | device={ta.device}"
         )
         return avg_loss
@@ -100,6 +100,7 @@ class ModelTrainer_Standard(ModelTrainer):
             train_stats["train_loss_power_two_sum"] += train_loss ** 2
             train_stats["epoch_loss"].append(train_loss)
 
+        self._epoch_idx = 0
         train_stats["avg_loss"] = train_stats["train_loss_sum"] / epochs
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
 

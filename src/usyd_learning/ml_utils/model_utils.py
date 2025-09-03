@@ -59,12 +59,18 @@ class ModelUtils:
     @staticmethod
     def reset_optimizer_state(optimizer: Optimizer):
         """
-        Clears the internal state of an optimizer (e.g., momentum buffers).
+        Clears the internal state of an optimizer (e.g., momentum buffers),
+        and outputs the current learning rates.
         """
         optimizer.state.clear()
-        num_params = sum(p.numel() for group in optimizer.param_groups for p in group['params'])
+        num_params = sum(
+            p.numel() for group in optimizer.param_groups for p in group['params']
+        )
+
+        lrs = [group.get("lr", None) for group in optimizer.param_groups]
+
         console.info(
             f"[Optimizer Reset] {optimizer.__class__.__name__} "
-            f"| id={id(optimizer)} | params={num_params:,}"
+            f"| id={id(optimizer)} | params={num_params:,} | lr={lrs}"
         )
 

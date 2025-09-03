@@ -11,7 +11,7 @@ import torchvision.datasets as datasets
 '''
 Dataset loader for mnist
 '''
-class DatasetLoader_Mnist(DatasetLoader):
+class DatasetLoader_Mnist(DatasetLoader): # class DatasetLoader_Mnist extends DatasetLoader:
     def __init__(self):
         super().__init__()
 
