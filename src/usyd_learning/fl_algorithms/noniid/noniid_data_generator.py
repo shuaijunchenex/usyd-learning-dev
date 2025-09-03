@@ -6,7 +6,7 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from .noniid_distribution_generator import NoniidDistributionGenerator
-from ...ml_data_loader import CustomDataset
+from ...ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, CustomDataset
 
 
 class NoniidDataGenerator:
@@ -187,14 +187,14 @@ class NoniidDataGenerator:
                 transform=None  # No transform applied
             )
             
-            # Create DataLoader for this client
-            train_loader = CustomDataset.create_custom_loader(
-                train_dataset, 
-                batch_size=batch_size,  # Ensure batch_size doesn't exceed dataset size
-                shuffle=shuffle, 
-                num_workers=num_workers
-            )
+            # # Create DataLoader for this client
+            # train_loader = CustomDataset.create_custom_loader(
+            #     train_dataset, 
+            #     batch_size=batch_size,  # Ensure batch_size doesn't exceed dataset size
+            #     shuffle=shuffle, 
+            #     num_workers=num_workers
+            # )
             
-            train_loaders.append(train_loader)
+            train_loaders.append(train_dataset)
 
         return train_loaders

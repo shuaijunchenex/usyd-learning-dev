@@ -47,4 +47,5 @@ class DatasetLoaderArgs(KeyValueArgs):
         self.batch_size = self.get("batch_size", 64)
         self.shuffle = self.get("shuffle", True)
         self.num_workers = self.get("num_workers", 4)
+        self.dataset = self.get("dataset", None)
         return

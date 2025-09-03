@@ -38,6 +38,12 @@ class ModelTrainer(ABC):
         """
         self.trainer_args.model = model
 
+    def set_train_loader(self, train_loader):
+        """
+        Sets the training data loader for the trainer.
+        """
+        self.trainer_args.train_loader = train_loader
+
     def observe(self, epochs=5) -> Any:
         """
         Performs observation without updating the global state.

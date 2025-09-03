@@ -47,13 +47,16 @@ class SampleAppEntry(AppEntry):
         allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution='mnist_lt_one_label')
 
         for i in range(len(allocated_noniid_data)):
-            args = DatasetLoaderArgs({
-                    "dataset_name": "custom",
-                    "batch_size": 64,
-                    "shuffle": True,
-                    "num_workers": 0,
-                    "dataset": allocated_noniid_data[i]
-                })
+            args = DatasetLoaderArgs({'name': 'custom', 
+                                      'root': '../../../.dataset', 
+                                      'split': '', 
+                                      'batch_size': 64, 
+                                      'shuffle': True, 
+                                      'num_workers': 1, 
+                                      'is_download': True, 
+                                      'is_load_train_set': True, 
+                                      'is_load_test_set': True,
+                                      'dataset': allocated_noniid_data[i]})
             allocated_noniid_data[i] = DatasetLoaderFactory().create(args)
 
         # Prepare each client node and var
@@ -61,6 +64,9 @@ class SampleAppEntry(AppEntry):
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
             client_var.prepare() #TODO: create client strategy
+            client_var.data_loader = allocated_noniid_data[index]
+            client_var.data_sample_num = client_var.data_loader.data_sample_num
+            client_var.trainer.set_train_loader(client_var.data_loader)
             self.__attach_event_handler(client_var)
 
             # Two way binding
@@ -68,18 +74,6 @@ class SampleAppEntry(AppEntry):
             node.node_var = client_var
             client_var.prepare_strategy_only()
             client_var_list.append(client_var)
-
-        # Prepare each edge node and var
-        # edge_var_list = []
-        # for index in range(self.fed_runner.edge_node_count):
-        #     edge_var = FedNodeVars(self.edge_yaml)
-        #     #edge_var.prepare()
-        #     self.__attach_event_handler(edge_var)
-
-        #     # Two way bind
-        #     edge_var.owner_nodes = node
-        #     node.node_var = edge_var
-        #     edge_var_list.append(edge_var)
 
         # Prepare server node and var
         server_var = FedNodeVars(self.server_yaml)

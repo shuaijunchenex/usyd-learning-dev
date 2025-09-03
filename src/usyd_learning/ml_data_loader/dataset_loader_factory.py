@@ -88,5 +88,8 @@ class DatasetLoaderFactory:
             case "yahooanswers":
                 from .loader._dataset_loader_yahooanswers import DatasetLoader_YahooAnswers
                 return DatasetLoader_YahooAnswers().create(data_loader_args, fn)
+            case "custom":
+                from .loader._dataset_loader_custom import DatasetLoader_Custom
+                return DatasetLoader_Custom().create(data_loader_args, fn)
 
         raise ValueError(f"Datasdet type '{data_loader_args.dataset_type}' not support.")
