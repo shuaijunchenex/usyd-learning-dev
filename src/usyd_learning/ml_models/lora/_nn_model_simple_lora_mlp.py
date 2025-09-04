@@ -17,11 +17,11 @@ class NNModel_SimpleLoRAMLP(NNModel):
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
         
-        self._fc1 = LoRALinear(args.input_dim, args.hidden_dim, rank = int(160 * args.rank_ratio), lora_mode=args.lora_mode)
+        self._fc1 = LoRALinear(784, 200, rank = int(160 * args.rank_ratio), lora_mode=args.lora_mode)
         self._relu = nn.ReLU()
-        self._fc2 = LoRALinear(args.hidden_dim, args.hidden_dim, rank = int(100 * args.rank_ratio), lora_mode=args.lora_mode)
+        self._fc2 = LoRALinear(200, 200, rank = int(100 * args.rank_ratio), lora_mode=args.lora_mode)
         self._relu = nn.ReLU()
-        self._fc3 = LoRALinear(args.hidden_dim, args.output_dim, rank = int(10 * args.rank_ratio), lora_mode=args.lora_mode)
+        self._fc3 = LoRALinear(200, 10, rank = int(10 * args.rank_ratio), lora_mode=args.lora_mode)
         return self         #Note: return self
 
     #override
