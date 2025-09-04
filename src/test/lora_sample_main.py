@@ -10,13 +10,13 @@ startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 
 # import
 from usyd_learning.ml_utils import console
-from fl_sample_1.sample_app_entry_2 import SampleAppEntry
+from test.fl_lora_sample.lora_sample_entry import SampleAppEntry
 
 g_app = SampleAppEntry()
 
 def main():
     # Load app config set from yaml file
-    g_app.load_app_config("./fl_sample_1/sample_app_config.yaml")
+    g_app.load_app_config("./fl_lora_sample/sample_app_config.yaml")
 
     # Get training rounds
     general_yaml = g_app.get_app_object("general")

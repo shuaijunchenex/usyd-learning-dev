@@ -2,13 +2,14 @@
 #define globle NN Model and paras
 #-----------------------------
 nn_model:
-  name: mnist_nn_brenden_lora
+  name: simple_lora_mlp
   input_dim: 0
   hidden_dim: 0
   output_dim: 0
   softmax_dim : 1
   rank_ratio: 1
   lora_mode: standard
+  rank_ratio: 1
 
   # Share model bentween nodes
   share_model: True

@@ -13,7 +13,6 @@ class NNModel_SimpleLoRAMLP(NNModel):
     def __init__(self):
         super().__init__()
         
-
     #override
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)

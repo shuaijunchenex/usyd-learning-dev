@@ -1,5 +1,5 @@
 """
-Entry class of Sample_2
+Entry class of lora sample
 """
 
 from usyd_learning.fed_node import FedNodeVars, FedNodeEventArgs
