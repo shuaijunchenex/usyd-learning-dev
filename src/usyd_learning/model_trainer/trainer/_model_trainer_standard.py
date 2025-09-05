@@ -45,9 +45,6 @@ class ModelTrainer_Standard(ModelTrainer):
         if not hasattr(train_dl, "__iter__"):
             raise TypeError(f"train_loader must be an iterable DataLoader, got {type(train_dl).__name__}")
 
-        self._epoch_idx = getattr(self, "_epoch_idx", 0)
-        current_epoch = getattr(self, "_epoch_idx", 0) + 1
-        epoch_idx = self._epoch_idx
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
         ta.model.train()
@@ -56,7 +53,7 @@ class ModelTrainer_Standard(ModelTrainer):
         from tqdm.auto import tqdm
         loop = tqdm(
             train_dl,
-            desc=f"Training (epoch {current_epoch}{'/' + str(total_epochs) if total_epochs else ''})",
+            desc=f"Training (epoch {self._epoch_idx}{'/' + str(total_epochs) if total_epochs else ''})",
             leave=True, ncols=120, mininterval=0.1,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]"
         )
@@ -85,7 +82,7 @@ class ModelTrainer_Standard(ModelTrainer):
 
         from tqdm.auto import tqdm as _tqdm
         _tqdm.write(
-            f"[Epoch {current_epoch}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
+            f"[Epoch {self._epoch_idx}{'/' + str(total_epochs) if total_epochs else ''} Finished] "
             f"avg_loss={avg_loss:.6f} | batches={total_batch} | device={ta.device}"
         )
         return avg_loss
@@ -93,8 +90,11 @@ class ModelTrainer_Standard(ModelTrainer):
     def train(self, epochs, is_return_wbab=False) -> Any:
         self.trainer_args.total_epochs = epochs
 
+        self._epoch_idx = 0
+
         train_stats = {"train_loss_sum": 0, "epoch_loss": [], "train_loss_power_two_sum": 0}
         for _ in range(epochs):
+            self._epoch_idx += 1
             train_loss = self.train_step()
             train_stats["train_loss_sum"] += train_loss
             train_stats["train_loss_power_two_sum"] += train_loss ** 2
