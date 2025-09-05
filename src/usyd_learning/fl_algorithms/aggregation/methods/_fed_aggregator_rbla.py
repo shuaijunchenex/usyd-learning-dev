@@ -1,121 +1,162 @@
 import torch
+from collections import OrderedDict
 
 from ..fed_aggregator_abc import AbstractFedAggregator
 from ..fed_aggregator_args import FedAggregatorArgs
 from ....ml_utils import console
 
+
 class FedAggregator_RBLA(AbstractFedAggregator):
-
-    #TODO: verify if this is the correct import path for the base class
-
     """
-    Implements the RBLA aggregation method.
+    RBLA aggregation that is API-compatible with FedAggregator_FedAvg:
+      - build_data_list(dict_like) takes values of (state_dict, data_volume)
+      - _do_aggregation() aggregates into self._aggregated_weight (OrderedDict)
     """
-    
-    def __init__(self, args: FedAggregatorArgs|None = None):
+
+    def __init__(self, args: FedAggregatorArgs | None = None):
         super().__init__(args)
         self._aggregation_method = "rbla"
-        self._lora_suffixes = {"lora_A", "lora_B"}
-        self._pad_mode = 'nan'
-
+        self._lora_suffixes: set[str] = {"lora_A", "lora_B"}
+        self._pad_mode: str = "nan"   # 'nan' or 'zero'
         return
 
-    def _before_aggregation(self) -> None:
-        console.debug(f"[RBLA] Starting aggregation with {len(self._aggregation_data_dict['weights'])} clients...")
-
-    def _do_aggregation(self) -> None:
-        """
-        Aggregate model weights using RBLA.
-        """
-
-        self.aggregate_state_dicts(self._aggregation_data_dict['state_dicts'],
-                                   weights=self._aggregation_data_dict['weights'],
-                                   lora_suffixes=self._lora_suffixes,
-                                   pad_mode=self._pad_mode)
-        
-        return
-    
-    def _after_aggregation(self) -> None:
-        console.debug(f"[RBLA] Aggregation completed.")        
-
-    def build_data_dict(self, aggregation_data_dict: dict) -> None:
-        """
-        Build the aggregation data dictionary from the provided dictionary.
-        Each entry in the dictionary should be a tuple of (model_weights, data_volume).
-        """
-        self._aggregation_data_dict = aggregation_data_dict
-        return
-
+    # ---------- Public config ----------
     def set_lora_suffixes(self, lora_suffixes: set[str]) -> None:
-        """
-        Set the suffixes that indicate LoRA parameters.
-        """
         self._lora_suffixes = lora_suffixes
 
     def set_pad_mode(self, pad_mode: str) -> None:
-        """
-        Set the padding mode for LoRA tensor aggregation.
-        
-        Args:
-            pad_mode: 'nan' for NaN padding; 'zero' for zero padding.
-        """
         assert pad_mode in {"nan", "zero"}, f"Unsupported pad_mode: {pad_mode}"
         self._pad_mode = pad_mode
 
+    # ---------- FedAvg-style data building ----------
+    def build_data_list(self, aggregation_data_dict: dict) -> None:
+        """
+        Make internal list like: [(state_dict, data_volume), ...]
+        (Compatible with FedAggregator_FedAvg expectation)
+        """
+        self._aggregation_data_list = list(aggregation_data_dict.values())
+        return
+
+    def build_data_dict(self, aggregation_data_dict: dict) -> None:
+        """If you still pass {'state_dicts': [...], 'weights': [...]}, keep it."""
+        self._aggregation_data_dict = aggregation_data_dict
+
+    # ---------- Aggregation lifecycle ----------
+    def _before_aggregation(self) -> None:
+        # console.debug(f"[RBLA] Starting aggregation with {len(self._aggregation_data_list)} clients...")
+        return
+
+    def _do_aggregation(self) -> None:
+        """
+        Aggregate using RBLA. Accept inputs as:
+        1) self._aggregation_data_list = [(state_dict, data_volume), ...]
+        2) self._aggregation_data_dict = [(state_dict, data_volume), ...]
+        3) self._aggregation_data_dict = {'state_dicts': [...], 'weights': [...]}
+        """
+        state_dicts, weights = None, None
+
+        # 1) Preferred list-on-list
+        if hasattr(self, "_aggregation_data_list") and self._aggregation_data_list:
+            pairs = self._aggregation_data_list
+            state_dicts = [sd for sd, vol in pairs]
+            weights    = [float(vol) for sd, vol in pairs]
+
+        # 2) Your current case: _aggregation_data_dict is actually a list of (sd, vol)
+        elif hasattr(self, "_aggregation_data_dict") and isinstance(self._aggregation_data_dict, list):
+            pairs = self._aggregation_data_dict
+            state_dicts = [sd for sd, vol in pairs]
+            weights    = [float(vol) for sd, vol in pairs]
+
+        # 3) Legacy dict form
+        elif hasattr(self, "_aggregation_data_dict") and isinstance(self._aggregation_data_dict, dict):
+            state_dicts = self._aggregation_data_dict["state_dicts"]
+            weights     = self._aggregation_data_dict.get("weights", None)
+
+        else:
+            raise ValueError("[RBLA] No aggregation data found. Provide a list of (state_dict, data_volume) "
+                            "or dict {'state_dicts': [...], 'weights': [...]}.")
+
+        console.debug(f"\n[RBLA] Aggregating {len(state_dicts)} clients...")
+
+        # move to device
+        dev = self._device
+        sds_on_device = [{k: v.to(dev) for k, v in sd.items()} for sd in state_dicts]
+
+        aggregated = self.aggregate_state_dicts(
+            sds_on_device,
+            weights=weights,
+            lora_suffixes=self._lora_suffixes,
+            pad_mode=self._pad_mode,
+        )
+
+        # keep key order like the first state_dict
+        from collections import OrderedDict
+        sample_keys = list(state_dicts[0].keys())
+        ordered = OrderedDict((k, aggregated[k]) for k in sample_keys)
+        self._aggregated_weight = ordered
+
+        first_param_name = next(iter(ordered.keys()))
+        console.debug(f"[RBLA] Aggregated first param mean: {ordered[first_param_name].mean():.6f}")
+
+
+    def _after_aggregation(self) -> None:
+        console.debug("[RBLA] Aggregation completed.")
+
+    # ---------- Core RBLA ops ----------
     @staticmethod
     def get_suffix(key: str) -> str:
-        """Return the suffix after the last dot in a key string."""
-        return key.rsplit('.', 1)[-1]
+        """Return the suffix after the last dot."""
+        return key.rsplit(".", 1)[-1]
 
     @staticmethod
-    def pad_tensors_to_max_shape(tensors: list[torch.Tensor], pad_mode: str = 'nan') -> torch.Tensor:
+    def pad_tensors_to_max_shape(tensors: list[torch.Tensor], pad_mode: str = "nan") -> torch.Tensor:
         """
-        Pad tensors to the same shape using either 'nan' or 'zero' padding.
-
-        Args:
-            tensors: List of 2D tensors with potentially different shapes.
-            pad_mode: 'nan' for NaN padding; 'zero' for zero padding.
-
-        Returns:
-            A padded 3D tensor of shape (N, max_rows, max_cols).
+        Pad 2D tensors to a common shape; return stacked 3D tensor: (N, max_rows, max_cols).
         """
         assert pad_mode in {"nan", "zero"}, f"Unsupported pad_mode: {pad_mode}"
+        if len(tensors) == 0:
+            raise ValueError("pad_tensors_to_max_shape: empty tensor list")
+
+        # Ensure 2D for LoRA matrices
+        for t in tensors:
+            if t.dim() != 2:
+                raise ValueError(f"LoRA tensor must be 2D, got {t.dim()}D for shape {tuple(t.shape)}")
+
         max_rows = max(t.shape[0] for t in tensors)
         max_cols = max(t.shape[1] for t in tensors)
         device = tensors[0].device
         dtype = tensors[0].dtype
 
-        padded = []
+        fill_val = float("nan") if pad_mode == "nan" else 0.0
+        padded_list = []
         for t in tensors:
-            fill_val = float('nan') if pad_mode == 'nan' else 0.0
-            padded_t = torch.full((max_rows, max_cols), fill_val, dtype=dtype, device=device)
-            padded_t[:t.shape[0], :t.shape[1]] = t
-            padded.append(padded_t)
-        return torch.stack(padded, dim=0)
+            pad = torch.full((max_rows, max_cols), fill_val, dtype=dtype, device=device)
+            pad[: t.shape[0], : t.shape[1]] = t
+            padded_list.append(pad)
+        return torch.stack(padded_list, dim=0)
 
     @staticmethod
-    def aggregate_lora_tensors(tensors: list[torch.Tensor], weights: list[float], pad_mode: str = 'nan') -> torch.Tensor:
+    def aggregate_lora_tensors(
+        tensors: list[torch.Tensor],
+        weights: list[float],
+        pad_mode: str = "nan",
+    ) -> torch.Tensor:
         """
-        Aggregate a list of LoRA matrices using weighted average with padding.
-
-        Args:
-            tensors: List of 2D LoRA matrices.
-            weights: Weight for each matrix.
-            pad_mode: 'nan' or 'zero' padding for alignment.
-
-        Returns:
-            A 2D tensor as the aggregated result.
+        Weighted average with padding-aware handling for LoRA matrices.
         """
+        if len(tensors) == 0:
+            raise ValueError("aggregate_lora_tensors: empty tensor list")
+
         weights_tensor = torch.tensor(weights, dtype=torch.float32, device=tensors[0].device).view(-1, 1, 1)
         padded = FedAggregator_RBLA.pad_tensors_to_max_shape(tensors, pad_mode=pad_mode)
 
-        if pad_mode == 'nan':
+        if pad_mode == "nan":
             valid_mask = ~torch.isnan(padded)
             padded = torch.nan_to_num(padded, nan=0.0)
             weighted_sum = (padded * weights_tensor).sum(dim=0)
             weight_mask = valid_mask * weights_tensor
             total_weight = weight_mask.sum(dim=0)
-            total_weight[total_weight == 0] = 1.0  # Avoid division by zero
+            total_weight[total_weight == 0] = 1.0  # avoid div-by-zero
             return weighted_sum / total_weight
         else:  # zero padding
             weighted_sum = (padded * weights_tensor).sum(dim=0)
@@ -125,78 +166,61 @@ class FedAggregator_RBLA(AbstractFedAggregator):
     @staticmethod
     def aggregate_state_dicts(
         state_dicts: list[dict],
-        weights: list[float] = None,
+        weights: list[float] | None = None,
         lora_suffixes: set[str] = {"lora_A", "lora_B"},
-        pad_mode: str = 'nan') -> dict:
+        pad_mode: str = "nan",
+    ) -> dict:
         """
-        Aggregate multiple state_dicts, applying LoRA-aware weighted averaging.
-
-        Args:
-            state_dicts: List of state_dicts from clients.
-            weights: Aggregation weights for each client.
-            lora_suffixes: Suffixes indicating LoRA parameters.
-            pad_mode: Padding strategy: 'nan' or 'zero'.
-
-        Returns:
-            Aggregated state_dict.
+        Aggregate multiple state_dicts with LoRA-aware averaging.
         """
+        if len(state_dicts) == 0:
+            raise ValueError("aggregate_state_dicts: empty state_dicts")
+
         if weights is None:
             weights = [1.0] * len(state_dicts)
 
-        keys = state_dicts[0].keys()
-        aggregated = {}
+        # normalize weights to sum=1 for stability
+        tw = float(sum(weights))
+        weights = [w / tw for w in weights] if tw > 0 else [1.0 / len(weights)] * len(weights)
+
+        keys = list(state_dicts[0].keys())
+        aggregated: dict[str, torch.Tensor] = {}
 
         for key in keys:
             values = [sd[key] for sd in state_dicts]
             suffix = FedAggregator_RBLA.get_suffix(key)
 
             if suffix in lora_suffixes:
-                # LoRA parameter: aggregate with padding
                 aggregated[key] = FedAggregator_RBLA.aggregate_lora_tensors(values, weights, pad_mode=pad_mode)
             else:
-                # Normal parameter: standard weighted average
                 stacked = torch.stack(values, dim=0)  # (N, ...)
-                weight_tensor = torch.tensor(weights, dtype=stacked.dtype, device=stacked.device).view(
-                    -1, *[1] * (stacked.dim() - 1))
+                # weights reshape: (N, 1, 1, ..., 1)
+                view_shape = (len(weights),) + (1,) * (stacked.dim() - 1)
+                weight_tensor = torch.as_tensor(weights, dtype=stacked.dtype, device=stacked.device).view(*view_shape)
                 weighted_sum = (stacked * weight_tensor).sum(dim=0)
-                total_weight = sum(weights)
-                aggregated[key] = weighted_sum / total_weight
+                aggregated[key] = weighted_sum  # weights已归一化
 
         return aggregated
 
     @staticmethod
-    def broadcast_lora_state_dict(global_sd: dict, local_sd: dict, lora_suffixes={"lora_A", "lora_B"}) -> dict:
+    def broadcast_lora_state_dict(global_sd: dict, local_sd: dict, lora_suffixes: set[str] = {"lora_A", "lora_B"}) -> dict:
         """
-        Distribute global aggregated state_dict to a client by slicing LoRA matrices.
-
-        Args:
-            global_sd: Aggregated global state_dict (full-rank).
-            local_sd: Local client model state_dict (used to determine rank).
-            lora_suffixes: Set of suffixes that indicate LoRA parameters.
-
-        Returns:
-            New local state_dict with sliced LoRA parameters and others replaced directly.
+        Slice global LoRA matrices back to each client rank, copy non-LoRA tensors directly.
         """
         new_local_sd = {}
-
-        for key in local_sd:
+        for key, local_tensor in local_sd.items():
             global_tensor = global_sd[key]
-            local_tensor = local_sd[key]
             suffix = FedAggregator_RBLA.get_suffix(key)
 
             if suffix not in lora_suffixes:
-                # Non-LoRA parameter: directly replace
                 new_local_sd[key] = global_tensor.clone()
             else:
-                # LoRA parameter: slice to match local rank
-                if suffix == "lora_A":
+                if suffix == "lora_A":       # [r, in]
                     r_local = local_tensor.shape[0]
                     new_local_sd[key] = global_tensor[:r_local, :].clone()
-                elif suffix == "lora_B":
+                elif suffix == "lora_B":     # [out, r]
                     r_local = local_tensor.shape[1]
                     new_local_sd[key] = global_tensor[:, :r_local].clone()
                 else:
                     raise ValueError(f"Unrecognized LoRA suffix: {suffix}")
-
         return new_local_sd
-    

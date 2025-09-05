@@ -5,6 +5,10 @@ Entry class of lora sample
 from usyd_learning.fed_node import FedNodeVars, FedNodeEventArgs
 from usyd_learning.fed_runner import FedRunner
 from usyd_learning.ml_utils import AppEntry, console
+from usyd_learning.fl_algorithms.noniid.noniid_data_generator import NoniidDataGenerator
+from usyd_learning.ml_data_loader.dataset_loader_factory import DatasetLoaderFactory
+from usyd_learning.ml_data_loader.dataset_loader_args import DatasetLoaderArgs
+
 
 class SampleAppEntry(AppEntry):
     def __init__(self):
@@ -44,11 +48,34 @@ class SampleAppEntry(AppEntry):
         server_var.prepare_strategy_only()
         self.fed_runner.server_node.node_var = server_var
 
+        # Load data
+        dataloader_args = DatasetLoaderArgs(self.server_yaml.get("data_loader", None))
+        mnist_train_loader = DatasetLoaderFactory().create(dataloader_args)
+
+        # NonIID handler
+        allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution='mnist_lt_one_label')
+
+        for i in range(len(allocated_noniid_data)):
+            args = DatasetLoaderArgs({'name': 'custom', 
+                                      'root': '../../../.dataset', 
+                                      'split': '', 
+                                      'batch_size': 64, 
+                                      'shuffle': True, 
+                                      'num_workers': 1, 
+                                      'is_download': True, 
+                                      'is_load_train_set': True, 
+                                      'is_load_test_set': True,
+                                      'dataset': allocated_noniid_data[i]})
+            allocated_noniid_data[i] = DatasetLoaderFactory().create(args)
+
         # Prepare each client node and var
         client_var_list = []
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
             client_var.prepare() #TODO: create client strategy
+            client_var.data_loader = allocated_noniid_data[index]
+            client_var.data_sample_num = client_var.data_loader.data_sample_num
+            client_var.trainer.set_train_loader(client_var.data_loader)
             self.__attach_event_handler(client_var)
 
             # Two way binding

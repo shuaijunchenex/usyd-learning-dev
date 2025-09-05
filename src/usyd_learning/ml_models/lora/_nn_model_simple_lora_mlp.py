@@ -1,32 +1,54 @@
+from typing import Any
+import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-from .. import AbstractNNModel, NNModel, NNModelArgs
-
-from ...ml_algorithms.lora import LoRALinear
+from .. import AbstractNNModel, NNModelArgs, NNModel
+from ...ml_algorithms.lora import MSLoRALinear   # 你保存的微软实现路径
 
 class NNModel_SimpleLoRAMLP(NNModel):
-
     """
-    " Private class for SimpleLoRA model implementation
+    Simple MLP with LoRA-enabled Linear layers (using Microsoft MSLoRALinear).
     """
 
     def __init__(self):
         super().__init__()
-        
-    #override
+        self.lora_mode = "standard"   # 默认模式
+
+    # override
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
-        
-        self._fc1 = LoRALinear(784, 200, rank = int(160 * args.rank_ratio), lora_mode=args.lora_mode)
-        self._relu = nn.ReLU()
-        self._fc2 = LoRALinear(200, 200, rank = int(100 * args.rank_ratio), lora_mode=args.lora_mode)
-        self._relu = nn.ReLU()
-        self._fc3 = LoRALinear(200, 10, rank = int(10 * args.rank_ratio), lora_mode=args.lora_mode)
-        return self         #Note: return self
 
-    #override
+        # 参数可从 args 中取，也可以写死
+        rank = getattr(args, "lora_rank", 4)
+        scaling = getattr(args, "lora_scaling", 0.5)
+        use_bias = getattr(args, "use_bias", True)
+
+        self._flatten = nn.Flatten()
+        self._fc1 = MSLoRALinear(784, 200, r=160, lora_alpha=int(rank * scaling),
+                                 lora_dropout=0.0, fan_in_fan_out=False,
+                                 merge_weights=False, bias=use_bias)
+        self._relu1 = nn.ReLU()
+        self._fc2 = MSLoRALinear(200, 200, r=160, lora_alpha=int(rank * scaling),
+                                 lora_dropout=0.0, fan_in_fan_out=False,
+                                 merge_weights=False, bias=use_bias)
+        self._relu2 = nn.ReLU()
+        self._fc3 = MSLoRALinear(200, 10, r=100, lora_alpha=int(rank * scaling),
+                                 lora_dropout=0.0, fan_in_fan_out=False,
+                                 merge_weights=False, bias=use_bias)
+        return self  
+
+    # override
     def forward(self, x):
-        x = self._relu(self._fc1(x))
-        x = self._fc2(x)
+        x = self._flatten(x)
+        x = self._relu1(self._fc1(x))
+        x = self._relu2(self._fc2(x))
         x = self._fc3(x)
         return x
+
+    def set_lora_mode(self, mode: str):
+        if mode not in ["standard", "lora_only", "lora_disabled", "scaling"]:
+            raise ValueError(f"Unsupported lora_mode: {mode}")
+        self.lora_mode = mode
+        for layer in [self._fc1, self._fc2, self._fc3]:
+            layer.lora_mode = mode
