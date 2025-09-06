@@ -38,3 +38,10 @@ class FedNodeClient(FedNode):
         self.node_var.model_weight = new_weight
         console.info(f"{self._node_id}: Received new weight from server.")
         return
+    
+    def set_local_weight(self, global_weight):
+        """
+        Set local weight to the current model weight
+        """
+        self.node_var.strategy.set_local_weight(global_weight)
+        return

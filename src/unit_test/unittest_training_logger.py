@@ -14,7 +14,6 @@ from usyd_learning.ml_utils import ConfigLoader, CsvDataRecorder,FileNameMaker,T
 header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
 log_data = {"round": "1", "accuracy" : "2", "precision": "3", "recall" : "4", "f1_score" : "5"}
 
-
 def test_csv_data_recorder():
     #log file name
     file_names = FileNameMaker.make("csv-data-record")

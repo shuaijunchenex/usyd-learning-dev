@@ -73,9 +73,9 @@ class SampleAppEntry(AppEntry):
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
             client_var.prepare() #TODO: create client strategy
-            #client_var.data_loader = allocated_noniid_data[index]
-            #client_var.data_sample_num = client_var.data_loader.data_sample_num
-            #client_var.trainer.set_train_loader(client_var.data_loader)
+            client_var.data_loader = allocated_noniid_data[index]
+            client_var.data_sample_num = client_var.data_loader.data_sample_num
+            client_var.trainer.set_train_loader(client_var.data_loader)
             self.__attach_event_handler(client_var)
 
             # Two way binding
