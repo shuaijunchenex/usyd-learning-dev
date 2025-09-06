@@ -19,7 +19,6 @@ class NNModel_SimpleLoRAMLP(NNModel):
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
         super().create_model(args)
 
-        # 参数可从 args 中取，也可以写死
         rank = getattr(args, "lora_rank", 4)
         scaling = getattr(args, "lora_scaling", 0.5)
         use_bias = getattr(args, "use_bias", True)

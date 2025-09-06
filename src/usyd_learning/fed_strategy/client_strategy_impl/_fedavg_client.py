@@ -98,6 +98,6 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         updated_weights, train_record = tr.train(local_epochs)
 
         node_vars.model_weight = copy.deepcopy(updated_weights)
-        node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
+        #node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 
         return copy.deepcopy(updated_weights), train_record

@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Any
 
 import torch.nn as nn
+import copy
 
 from .fed_node_event_args import FedNodeEventArgs
 from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap, KeyValueArgs

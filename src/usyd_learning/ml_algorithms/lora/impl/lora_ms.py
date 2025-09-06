@@ -111,7 +111,7 @@ class MSLoRALinear(nn.Linear, MSLoRALayer):
         if r > 0:
             self.lora_A = nn.Parameter(self.weight.new_zeros((r, in_features)))
             self.lora_B = nn.Parameter(self.weight.new_zeros((out_features, r)))
-            self.scaling = self.lora_alpha / self.r
+            self.scaling = 0.1#self.lora_alpha / self.r
             # Freezing the pre-trained weight matrix
             self.weight.requires_grad = False
         self.reset_parameters()
@@ -144,6 +144,17 @@ class MSLoRALinear(nn.Linear, MSLoRALayer):
             if self.r > 0:
                 self.weight.data += T(self.lora_B @ self.lora_A) * self.scaling
             self.merged = True
+
+
+    # def forward(self, x: torch.Tensor):
+    #     if self.r > 0:
+    #         # delta = (x @ A^T @ B^T) * scaling
+    #         delta = (self.lora_dropout(x) @ self.lora_A.T @ self.lora_B.T) * self.scaling
+    #         if self.bias is not None:
+    #             delta = delta + self.bias
+    #         return delta
+
+
 
     def forward(self, x: torch.Tensor):
         def T(w):
