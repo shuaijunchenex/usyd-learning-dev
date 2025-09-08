@@ -60,6 +60,7 @@ class CsvDataRecorder:
             
         if self.__csv_writer is not None:
             self.__csv_writer.writerow(result_dict)
+            self.__csv_stream.flush()
         return self
 
     def __del__(self):
