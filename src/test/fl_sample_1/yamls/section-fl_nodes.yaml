@@ -4,13 +4,13 @@
 #-----------------------------
 client_nodes:
   group-1:                 # Node group id
-    number: 10
+    number: 2
     id_prefix: client      # Client id format: <prefix>.<number> i.e. client.1, client.2 etc
     link_to: server-1
-  # group-2:
-  #   number: 3
-  #   id_prefix: client      # Client id format: <prefix>.<number> i.e. client.1, client.2 etc
-  #   link_to: server-1
+  group-2:
+    number: 3
+    id_prefix: client      # Client id format: <prefix>.<number> i.e. client.1, client.2 etc
+    link_to: server-1
 
 # Define edge nodes
 edge_nodes:

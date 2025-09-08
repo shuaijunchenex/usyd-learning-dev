@@ -10,7 +10,7 @@ startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 
 # import
 from usyd_learning.ml_utils import console
-from test.fl_lora_sample.lora_sample_entry import SampleAppEntry
+from fl_lora_sample.lora_sample_entry import SampleAppEntry
 
 g_app = SampleAppEntry()
 

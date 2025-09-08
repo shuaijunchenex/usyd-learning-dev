@@ -16,7 +16,7 @@ g_app = Entry()
 
 def main():
     # Load app config set from yaml file
-    g_app.load_app_config("./product_sum/config.yaml")
+    g_app.load_app_config("./sum_product/config.yaml")
 
     # Get training rounds
     general_yaml = g_app.get_app_object("general")

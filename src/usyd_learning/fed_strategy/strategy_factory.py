@@ -43,6 +43,12 @@ class StrategyFactory:
                 # Import FedAvgRunnerStrategy from the appropriate module
                 from usyd_learning.fed_strategy.runner_strategy_impl._fedavg_runner_strategy import FedAvgRunnerStrategy
                 return FedAvgRunnerStrategy(runner, runner_strategy_args, client_nodes, server_node)
+            case "rbla":
+                from usyd_learning.fed_strategy.runner_strategy_impl._rbla_runner_strategy import RblaRunnerStrategy
+                return RblaRunnerStrategy(runner, runner_strategy_args, client_nodes, server_node)
+            case "sp":
+                from usyd_learning.fed_strategy.runner_strategy_impl._sp_runner_strategy import SpRunnerStrategy
+                return SpRunnerStrategy(runner, runner_strategy_args, client_nodes, server_node)
 
         raise ValueError(f"Runner strategy type '{runner_strategy_args.strategy_name}' not support.")
 
@@ -55,6 +61,12 @@ class StrategyFactory:
             case "fedavg":
                 from usyd_learning.fed_strategy.client_strategy_impl._fedavg_client import FedAvgClientTrainingStrategy
                 return FedAvgClientTrainingStrategy(client_strategy_args, client_node_input)
+            case "rbla":
+                from usyd_learning.fed_strategy.client_strategy_impl._rbla_client import RblaClientTrainingStrategy
+                return RblaClientTrainingStrategy(client_strategy_args, client_node_input)
+            case "sp":
+                from usyd_learning.fed_strategy.client_strategy_impl._sp_client import SpClientTrainingStrategy
+                return SpClientTrainingStrategy(client_strategy_args, client_node_input)
 
         raise ValueError(f"Client strategy type '{client_strategy_args.strategy_name}' not support.")
 
@@ -67,5 +79,11 @@ class StrategyFactory:
             case "fedavg":
                 from usyd_learning.fed_strategy.server_strategy_impl._fedavg_server import FedAvgServerStrategy
                 return FedAvgServerStrategy(server_strategy_args, serve_node_input)
+            case "rbla":
+                from usyd_learning.fed_strategy.server_strategy_impl._rbla_server import RblaServerStrategy
+                return RblaServerStrategy(server_strategy_args, serve_node_input)
+            case "sp":
+                from usyd_learning.fed_strategy.server_strategy_impl._sp_server import SpServerStrategy
+                return SpServerStrategy(server_strategy_args, serve_node_input)
 
         raise ValueError(f"Server strategy type '{server_strategy_args.strategy_name}' not support.")
