@@ -32,19 +32,28 @@
     <Compile Include="fed_runner\client_manger.py" />
     <Compile Include="fed_runner\fed_runner.py" />
     <Compile Include="fed_runner\runners\fedavg_runner.py" />
-    <Compile Include="fed_runner\runner_strategy\impl\fedavg_runner_strategy.py" />
-    <Compile Include="fed_runner\runner_strategy\runner_strategy.py" />
     <Compile Include="fed_runner\__init__.py" />
-    <Compile Include="fed_strategy\client_strategy\base_client_strategy.py" />
-    <Compile Include="fed_strategy\client_strategy\fedavg_client.py" />
-    <Compile Include="fed_strategy\client_strategy\light_weight_client_observation\svd_ab.py" />
-    <Compile Include="fed_strategy\client_strategy\light_weight_client_observation\w_init_ab.py" />
-    <Compile Include="fed_strategy\client_strategy\light_weight_client_observation\w_svd_ab.py" />
-    <Compile Include="fed_strategy\client_strategy\lora_aggregation\sum_time_client.py" />
-    <Compile Include="fed_strategy\client_strategy\lora_aggregation\time_sum_client.py" />
-    <Compile Include="fed_strategy\client_strategy\rbla_client.py" />
-    <Compile Include="fed_strategy\server_strategy\base_server_strategy.py" />
-    <Compile Include="fed_strategy\server_strategy\fedavg_server.py" />
+    <Compile Include="fed_strategy\base_strategy.py" />
+    <Compile Include="fed_strategy\client_strategy.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\light_weight_client_observation\svd_ab.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\light_weight_client_observation\w_init_ab.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\light_weight_client_observation\w_svd_ab.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\lora_aggregation\sum_time_client.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\lora_aggregation\time_sum_client.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\todo\rbla_client.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\_fedavg_client.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\_rbla_client.py" />
+    <Compile Include="fed_strategy\client_strategy_impl\__init__.py" />
+    <Compile Include="fed_strategy\runner_strategy.py" />
+    <Compile Include="fed_strategy\runner_strategy_impl\_fedavg_runner_strategy.py" />
+    <Compile Include="fed_strategy\runner_strategy_impl\_rbla_runner_strategy.py" />
+    <Compile Include="fed_strategy\runner_strategy_impl\__init__.py" />
+    <Compile Include="fed_strategy\server_strategy.py" />
+    <Compile Include="fed_strategy\server_strategy_impl\_fedavg_server.py" />
+    <Compile Include="fed_strategy\server_strategy_impl\_rbla_server.py" />
+    <Compile Include="fed_strategy\server_strategy_impl\__init__.py" />
+    <Compile Include="fed_strategy\strategy_args.py" />
+    <Compile Include="fed_strategy\strategy_factory.py" />
     <Compile Include="fed_strategy\__init__.py" />
     <Compile Include="fed_trainer\model_trainer_factory.py" />
     <Compile Include="fed_trainer\model_trainer_args.py" />
@@ -58,6 +67,9 @@
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_fedavg.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_flexlora.py" />
     <Compile Include="fl_algorithms\aggregation\methods\_fed_aggregator_rbla.py" />
+    <Compile Include="fl_algorithms\noniid\noniid_dataloader.py" />
+    <Compile Include="fl_algorithms\noniid\noniid_data_generator.py" />
+    <Compile Include="fl_algorithms\noniid\noniid_distribution_generator.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_args.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_factory.py" />
     <Compile Include="fl_algorithms\selection\fed_client_selector_abc.py" />
@@ -85,6 +97,7 @@
     <Compile Include="ml_data_loader\loader\_dataset_loader_agnews.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_cifar10.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_cifar100.py" />
+    <Compile Include="ml_data_loader\loader\_dataset_loader_custom.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_dbpedia.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_emnist.py" />
     <Compile Include="ml_data_loader\loader\_dataset_loader_fmnist.py" />
@@ -128,6 +141,7 @@
     <Compile Include="ml_utils\filename_helper.py" />
     <Compile Include="ml_utils\key_value_map.py" />
     <Compile Include="ml_utils\model_parameter_counter.py" />
+    <Compile Include="ml_utils\model_utils.py" />
     <Compile Include="ml_utils\object_map.py" />
     <Compile Include="ml_utils\key_value_args.py" />
     <Compile Include="ml_utils\event_handler\event_args.py" />
@@ -156,6 +170,12 @@
     <Compile Include="ml_utils\text_logger.py" />
     <Compile Include="ml_utils\training_logger.py" />
     <Compile Include="ml_utils\__init__.py" />
+    <Compile Include="model_trainer\model_evaluator.py" />
+    <Compile Include="model_trainer\model_trainer.py" />
+    <Compile Include="model_trainer\model_trainer_args.py" />
+    <Compile Include="model_trainer\model_trainer_factory.py" />
+    <Compile Include="model_trainer\trainer\_model_trainer_standard.py" />
+    <Compile Include="model_trainer\__init__.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
@@ -165,15 +185,18 @@
     <Folder Include="fed_runner\runner_strategy\" />
     <Folder Include="fed_runner\runner_strategy\impl\" />
     <Folder Include="fed_strategy\" />
-    <Folder Include="fed_strategy\client_strategy\" />
-    <Folder Include="fed_strategy\client_strategy\light_weight_client_observation\" />
-    <Folder Include="fed_strategy\client_strategy\lora_aggregation\" />
-    <Folder Include="fed_strategy\server_strategy\" />
+    <Folder Include="fed_strategy\client_strategy_impl\" />
+    <Folder Include="fed_strategy\client_strategy_impl\todo\" />
+    <Folder Include="fed_strategy\client_strategy_impl\todo\light_weight_client_observation\" />
+    <Folder Include="fed_strategy\client_strategy_impl\todo\lora_aggregation\" />
+    <Folder Include="fed_strategy\runner_strategy_impl\" />
+    <Folder Include="fed_strategy\server_strategy_impl\" />
     <Folder Include="fed_trainer\" />
     <Folder Include="fed_trainer\trainer\" />
     <Folder Include="fl_algorithms\" />
     <Folder Include="fl_algorithms\aggregation\" />
     <Folder Include="fl_algorithms\aggregation\methods\" />
+    <Folder Include="fl_algorithms\noniid\" />
     <Folder Include="fl_algorithms\selection\" />
     <Folder Include="fl_algorithms\selection\methods\" />
     <Folder Include="ml_algorithms\" />
@@ -195,6 +218,12 @@
     <Folder Include="ml_utils\event_handler\" />
     <Folder Include="ml_utils\" />
     <Folder Include="ml_data_process\" />
+    <Folder Include="model_trainer\" />
+    <Folder Include="model_trainer\trainer\" />
+    <Folder Include="model_trainer\trainer\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="model_trainer\trainer\__pycache__\_model_trainer_standard.cpython-313.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

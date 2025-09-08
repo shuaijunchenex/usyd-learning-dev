@@ -23,15 +23,38 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fl_lora_sample\lora_sample_entry.py" />
+    <Compile Include="fl_lora_sample\sample_app_entry.py" />
+    <Compile Include="lora_sample_main.py" />
     <Compile Include="main.py" />
     <Compile Include="fl_sample_1\sample_app_entry.py" />
     <Compile Include="startup_init.py" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="fl_lora_sample\" />
+    <Folder Include="fl_lora_sample\yamls\" />
     <Folder Include="fl_sample_1\" />
     <Folder Include="fl_sample_1\yamls\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="fl_lora_sample\sample_app_config.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-aggregation.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-client_selection.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-client_strategy.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-dataset_loader.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-data_distribution.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-data_handler.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-fl_nodes.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-general.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-lora.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-loss_func.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-nn_model.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-optimizer.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-runner_strategy.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-server_strategy.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-trainer.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-training.yaml" />
+    <Content Include="fl_lora_sample\yamls\section-training_logger.yaml" />
     <Content Include="fl_sample_1\yamls\section-data_handler.yaml" />
     <Content Include="fl_sample_1\yamls\section-client_selection.yaml" />
     <Content Include="fl_sample_1\yamls\section-training_logger.yaml" />

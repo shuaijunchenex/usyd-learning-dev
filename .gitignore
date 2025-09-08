@@ -9,6 +9,7 @@ __pycache__/
 #VS
 .vs
 _ReSharper.Caches
+*.csv
 
 # Distribution / packaging
 .Python
