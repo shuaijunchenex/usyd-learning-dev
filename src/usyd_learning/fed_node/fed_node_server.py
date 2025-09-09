@@ -35,5 +35,6 @@ class FedNodeServer(FedNode):
         return
     
     def update_weight(self, new_weight):
-        self.node_var.model_weight = new_weight
+        self.node_var.strategy.update(new_weight)
+        #self.node_var.model_weight = new_weight
 

@@ -35,11 +35,15 @@ class FedAvgServerStrategy(ServerStrategy):
 
     def broadcast(self, broadcast_objects) -> None:
         for client in broadcast_objects:
-            client.node_var.model_weight = self._obj.node_var.model_weight
+            client.node_var.strategy.receive_weight(self._obj.node_var.model_weight)
         return
 
     def run(self) -> None:
         raise NotImplementedError
+
+    def update(self, weight):
+        self._obj.node_var.model_weight = weight
+        return
 
     def evaluate(self, round) -> None:
         evaluation_dict =  self._obj.node_var.model_evaluator.evaluate()

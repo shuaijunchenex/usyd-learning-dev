@@ -31,17 +31,17 @@ class FedNodeClient(FedNode):
         self.client_strategy.run_local_training()
         pass
 
-    def receive_weight(self, new_weight):
+    def receive_weight(self, broadcast_weight):
         """
         Receive new weight from server
         """
-        self.node_var.model_weight = new_weight
+        self.node_var.strategy.receive_weight(broadcast_weight)
         console.info(f"{self._node_id}: Received new weight from server.")
         return
     
-    def set_local_weight(self, global_weight):
+    def set_local_weight(self):
         """
         Set local weight to the current model weight
         """
-        self.node_var.strategy.set_local_weight(global_weight)
+        self.node_var.strategy.set_local_weight()
         return

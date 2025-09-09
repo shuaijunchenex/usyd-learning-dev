@@ -101,3 +101,11 @@ class FedAvgClientTrainingStrategy(ClientStrategy):
         #node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 
         return copy.deepcopy(updated_weights), train_record
+    
+    def receive_weight(self, global_weight) -> dict:
+        self._obj.node_var.cache_weight = global_weight
+        return
+    
+    def set_local_weight(self) -> dict:
+        self._obj.node_var.model_weight = self._obj.node_var.cache_weight
+        return

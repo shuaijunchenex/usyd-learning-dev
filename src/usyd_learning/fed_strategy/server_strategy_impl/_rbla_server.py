@@ -8,6 +8,7 @@ from usyd_learning.fl_algorithms.aggregation.fed_aggregator_facotry import FedAg
 from usyd_learning.fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from usyd_learning.model_trainer.model_evaluator import ModelEvaluator
 from usyd_learning.ml_utils import console
+from usyd_learning.ml_algorithms.lora.lora_utils import LoRAUtils
 
 class RblaServerStrategy(ServerStrategy):
 
@@ -38,6 +39,10 @@ class RblaServerStrategy(ServerStrategy):
             client.set_local_weight
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
+
+    def sp_svd_split(self, aggregated_weight) -> dict:
+        new_weight = LoRAUtils.rbla_split_global_weight(aggregated_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
+        raise NotImplementedError
 
     def run(self) -> None:
         raise NotImplementedError

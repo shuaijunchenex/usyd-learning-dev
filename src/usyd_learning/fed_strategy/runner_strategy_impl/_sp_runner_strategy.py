@@ -5,6 +5,7 @@ from tqdm import tqdm
 from usyd_learning.fed_strategy.strategy_args import StrategyArgs
 from ...ml_utils import console
 from ...fl_algorithms.aggregation.fed_aggregator_facotry import FedAggregatorFactory
+from ...fl_algorithms.aggregation.methods._fed_aggregator_sp import FedAggregator_SP
 from ...fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from ...fed_runner import FedRunner
 from ...fed_strategy.runner_strategy import RunnerStrategy 
@@ -37,8 +38,7 @@ class SpRunnerStrategy(RunnerStrategy):
         return
     
     def simulate_server_update_process(self, weight):
-        self.server_node.node_var.model_weight = weight
-        self.server_node.node_var.model_evaluator.update_model(weight)
+        self.server_node.node_var.strategy.server_update(weight)
         return
 
     def run(self) -> None:

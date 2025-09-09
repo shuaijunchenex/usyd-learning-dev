@@ -8,6 +8,7 @@ from usyd_learning.fl_algorithms.aggregation.fed_aggregator_facotry import FedAg
 from usyd_learning.fl_algorithms.selection.fed_client_selector_factory import FedClientSelectorFactory
 from usyd_learning.model_trainer.model_evaluator import ModelEvaluator
 from usyd_learning.ml_utils import console
+from usyd_learning.ml_algorithms.lora.lora_utils import LoRAUtils
 
 class SpServerStrategy(ServerStrategy):
 
@@ -29,13 +30,21 @@ class SpServerStrategy(ServerStrategy):
         self.node_var.global_model_weights = aggregated_weights
         return aggregated_weights
 
-    def receive(self, client_updates) -> None:
+    def receive_client_updates(self, client_updates) -> None:
         self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
         raise NotImplementedError
 
+    def server_update(self, weight):
+        self._obj.node_var.cache_weight = weight
+        svd_weight = LoRAUtils.svd_split_global_weight(weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
+        self._obj.node_var.model_weight = svd_weight
+        self._obj.node_var.model_evaluator.update_model(svd_weight)
+        return
+
     def broadcast(self, broadcast_objects) -> None:
         for client in broadcast_objects:
-            client.set_local_weights(self._obj.node_var.model_weight)
+            client.receive_weight(self._obj.node_var.cache_weight)
+            client.set_local_weight()
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
 

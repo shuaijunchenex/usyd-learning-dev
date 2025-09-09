@@ -15,6 +15,7 @@ from ...ml_algorithms.loss_function_builder import LossFunctionBuilder
 from ...ml_utils import console
 from ...fed_node.fed_node_vars import FedNodeVars
 from ...fl_algorithms.aggregation.methods._fed_aggregator_sp import FedAggregator_SP
+from ...ml_algorithms.lora.lora_utils import LoRAUtils
 
 import copy
 from typing import Any, Tuple
@@ -102,9 +103,14 @@ class SpClientTrainingStrategy(ClientStrategy):
         #node_vars.model.load_state_dict(node_vars.model_weight, strict=True)
 
         return copy.deepcopy(updated_weights), train_record
-    
-    def set_local_weight(self, global_weight) -> dict:
 
-        self._obj.node_var.model_weight = FedAggregator_SP._svd_factorize(global_weight, self._obj.node_var.rank)
+    def receive_weight(self, global_weight) -> dict:
+        self._obj.node_var.cache_weight = global_weight
+
+    def set_local_weight(self) -> dict:
+
+        svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
+        self._obj.node_var.model_weight = svd_weight
+        self._obj.node_var.model_evaluator.update_model(svd_weight)
 
         return
