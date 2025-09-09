@@ -9,7 +9,7 @@ from usyd_learning.fl_algorithms.selection.fed_client_selector_factory import Fe
 from usyd_learning.model_trainer.model_evaluator import ModelEvaluator
 from usyd_learning.ml_utils import console
 
-class RblaServerStrategy(ServerStrategy):
+class SpServerStrategy(ServerStrategy):
 
     def __init__(self, args, server_node) -> None:
         super().__init__()
@@ -35,7 +35,7 @@ class RblaServerStrategy(ServerStrategy):
 
     def broadcast(self, broadcast_objects) -> None:
         for client in broadcast_objects:
-            client.set_local_weight
+            client.set_local_weights(self._obj.node_var.model_weight)
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
 

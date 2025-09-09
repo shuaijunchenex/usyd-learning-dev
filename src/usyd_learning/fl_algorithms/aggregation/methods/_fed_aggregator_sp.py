@@ -122,6 +122,10 @@ class FedAggregator_SP(AbstractFedAggregator):
         return B, A
 
     @staticmethod
+    def _reconstruct_lora_matrix(full_rank_weight, rank) -> torch.Tensor:
+        return
+
+    @staticmethod
     def _weighted_avg_tensors(tensors: List[torch.Tensor], weights: List[float]) -> torch.Tensor:
         stacked = torch.stack(tensors, dim=0)
         w = torch.as_tensor(weights, dtype=stacked.dtype, device=stacked.device).view(len(weights), *([1] * (stacked.dim() - 1)))

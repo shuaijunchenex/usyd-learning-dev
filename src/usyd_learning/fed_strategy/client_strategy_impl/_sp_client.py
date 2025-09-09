@@ -14,7 +14,7 @@ from ...ml_data_loader import DatasetLoaderFactory
 from ...ml_algorithms.loss_function_builder import LossFunctionBuilder
 from ...ml_utils import console
 from ...fed_node.fed_node_vars import FedNodeVars
-from ...fl_algorithms.aggregation.methods._fed_aggregator_rbla import FedAggregator_RBLA
+from ...fl_algorithms.aggregation.methods._fed_aggregator_sp import FedAggregator_SP
 
 import copy
 from typing import Any, Tuple
@@ -105,6 +105,6 @@ class SpClientTrainingStrategy(ClientStrategy):
     
     def set_local_weight(self, global_weight) -> dict:
 
-        self._obj.node_var.model_weight = FedAggregator_RBLA.broadcast_lora_state_dict(global_weight, self._obj.node_var.model_weight)
+        self._obj.node_var.model_weight = FedAggregator_SP._svd_factorize(global_weight, self._obj.node_var.rank)
 
         return

@@ -10,7 +10,7 @@ from ...fed_runner import FedRunner
 from ...fed_strategy.runner_strategy import RunnerStrategy 
 from ...fed_node import FedNodeClient, FedNodeServer
 
-class FedAvgRunnerStrategy(RunnerStrategy):
+class RblaRunnerStrategy(RunnerStrategy):
 
     def __init__(self, runner: FedRunner, args, client_node, server_node) -> None:
         super().__init__(runner) #TODO: modify runner object declaration
