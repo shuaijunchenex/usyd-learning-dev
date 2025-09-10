@@ -72,8 +72,8 @@ class FedNodeServer(FedNode):
         return
     
     def select_clients(self, available_clients) -> list:
-        self.strategy.select_clients(available_clients)
-        return #self.node_var.client_selection.select(available_clients, self.node_var.config_dict["client_selection"]["number"])
+
+        return self.strategy.select_clients(available_clients)#self.node_var.client_selection.select(available_clients, self.node_var.config_dict["client_selection"]["number"])
     
     def prepare(self, logger_header, client_nodes) -> None:
         self.strategy.prepare(logger_header, client_nodes)

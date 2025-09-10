@@ -58,13 +58,12 @@ class SpServerStrategy(ServerStrategy):
     def run(self) -> None:
         raise NotImplementedError
 
-    def evaluate(self, round) -> None:
-        evaluation_dict =  self._obj.node_var.model_evaluator.evaluate()
-        evaluation_dict = {"round": round, **evaluation_dict}
+    def evaluate(self) -> None:
+        self._obj.eval_results =  self._obj.node_var.model_evaluator.evaluate()
         self._obj.node_var.model_evaluator.print_results()
         console.info("Server Evaluation Completed.\n")
 
-        return evaluation_dict
+        return
 
     def prepare(self, logger_header, client_nodes_in) -> None:
         self._obj.node_var.training_logger.begin(logger_header)
