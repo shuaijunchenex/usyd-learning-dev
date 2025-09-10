@@ -57,24 +57,15 @@ class SpRunnerStrategy(RunnerStrategy):
 
             self.server_node.receive_client_updates(client_updates)
 
-            self.new_aggregated_weight = self.server_node.aggregation()
+            self.server_node.aggregation()
 
             self.server_node.server_update()
 
             self.server_node.broadcast_weight()
 
-            #self.simulate_server_update_process(self.new_aggregated_weight)
-
-            #self.simulate_server_broadcast_process()
-
             self.server_node.evaluate()
 
             self.server_node.record_evaluation()
-            #eval_results = self.server_node.node_var.model_evaluator.evaluate()
-
-            # self.server_node.node_var.model_evaluator.print_results()
-
-            # self.server_node.node_var.training_logger.record(eval_results)
 
             console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
 

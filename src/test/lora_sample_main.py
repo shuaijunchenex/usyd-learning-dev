@@ -26,7 +26,6 @@ def main():
     g_app.run(training_rounds)
     return
 
-
 if __name__ == "__main__":
     #Initial console options
     console.set_log_level("all")  # Log level: error > warn > ok > info > out > all
