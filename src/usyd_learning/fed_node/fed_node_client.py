@@ -4,7 +4,7 @@ from .fed_node import FedNode
 from .fed_node_type import EFedNodeType
 from ..fed_strategy.strategy_factory import StrategyFactory
 from ..ml_utils import console
-
+from .fed_node_event_args import FedNodeEventArgs
 # from train_strategy.client_strategy.fedavg_client import FedAvgClientTrainingStrategy
 # from model_adaptor.lora_model_weight_adaptor import LoRAModelWeightAdapter
 # from model_extractor.advanced_model_extractor import AdvancedModelExtractor
@@ -44,4 +44,13 @@ class FedNodeClient(FedNode):
         Set local weight to the current model weight
         """
         self.node_var.strategy.set_local_weight()
+        return
+    
+    def prepare_strategy(self):
+        if "strategy" in self.node_var.config_dict:
+            self.strategy = self.node_var.config_dict["strategy"]
+        # Raise strategy event
+        args = FedNodeEventArgs("strategy", self.node_var.config_dict).with_sender(self)
+        self.strategy = StrategyFactory.create(StrategyFactory.create_args(self.node_var.config_dict["strategy"]), self)
+        self.raise_event("on_prepare_strategy", args)
         return
