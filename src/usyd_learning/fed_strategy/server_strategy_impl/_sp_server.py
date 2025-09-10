@@ -26,25 +26,23 @@ class SpServerStrategy(ServerStrategy):
 
     def aggregation(self) -> dict:
         aggregator = self._obj.node_var.aggregation_method
-        aggregated_weights = aggregator.aggregate(self.node_var.client_updates) #TODO: check
-        self.node_var.global_model_weights = aggregated_weights
-        return aggregated_weights
+        aggregated_weights = aggregator.aggregate(self._obj.node_var.client_updates) #TODO: check
+        self._obj.node_var.aggregated_weight = aggregated_weights
+        return
 
     def receive_client_updates(self, client_updates) -> None:
-        self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
-        raise NotImplementedError
-
-    def server_update(self, weight):
-        self._obj.node_var.cache_weight = weight
-        svd_weight = LoRAUtils.svd_split_global_weight(weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
+        self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
+    
+    def server_update(self):
+        self._obj.node_var.cache_weight = self._obj.node_var.aggregated_weight
+        svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
         self._obj.node_var.model_weight = svd_weight
         self._obj.node_var.model_evaluator.update_model(svd_weight)
         return
 
-    def broadcast(self, broadcast_objects) -> None:
-        for client in broadcast_objects:
-            client.receive_weight(self._obj.node_var.cache_weight)
-            client.set_local_weight()
+    def broadcast(self) -> None:
+        for client in self._obj.client_nodes:
+            client.receive_weight(self._obj.node_var.model_weight)
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
 

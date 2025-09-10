@@ -20,26 +20,26 @@ class FedNodeServer(FedNode):
         self.node_type = EFedNodeType.server
         return
 
-    def get_client_nodes(self):
+    def get_client_nodes_from_switcher(self):
+        self.client_nodes = self.simu_switcher._node_dict
         return self.simu_switcher._node_dict
 
-    def set_client_nodes(self):
-        self.client_nodes = self.simu_switcher._node_dict
+    def set_client_nodes(self, client_nodes):
+        self.client_nodes = client_nodes
+        return
 
     # override
     def run(self) -> None:
         console.info(f"{self._node_id}: Run...")
         pass
 
-    def broadcast_weight(self, broadcast_objects):
-        self.strategy.broadcast(broadcast_objects)
+    def broadcast_weight(self):
+        self.strategy.broadcast()
         #self.node_var.strategy.broadcast(broadcast_objects)
         return
     
-    def update_weight(self, new_weight):
-        #self.node_var.strategy.update(new_weight)
-        self.strategy.update(new_weight)
-        #self.node_var.model_weight = new_weight
+    def server_update(self):
+        self.strategy.server_update()
 
     def prepare_strategy(self):
         self.declare_events('on_prepare_strategy')
@@ -50,4 +50,26 @@ class FedNodeServer(FedNode):
         self.strategy = StrategyFactory.create(StrategyFactory.create_args(self.node_var.config_dict["strategy"]), self.node_var.owner_nodes[0])
         self.raise_event("on_prepare_strategy", args)
         return
+    
+    def receive_client_updates(self, client_updates) -> None:
+        self.strategy.receive_client_updates(client_updates)
+        #self.node_var.strategy.receive_client_updates(client_updates)
+        return
 
+    def aggregation(self) -> None:
+        self.strategy.aggregation()
+        return
+
+    def evaluate(self) -> None:
+        results = self.node_var.model_evaluator.evaluate()
+        self.eval_results = results
+        self.node_var.model_evaluator.print_results()
+        console.info("Server Evaluation Completed.\n")
+        return
+    
+    def record_evaluation(self)-> None:
+        self.node_var.training_logger.record(self.eval_results)
+        return
+    
+    def select_clients(self, available_clients) -> list:
+        return self.node_var.client_selection.select(available_clients, self.node_var.config_dict["client_selection"]["number"])

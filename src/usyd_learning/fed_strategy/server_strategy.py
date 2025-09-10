@@ -49,3 +49,10 @@ class ServerStrategy(BaseStrategy):
         Evaluate server-side performance/metrics.
         """
         pass
+
+    @abstractmethod
+    def server_update(self, weight) -> None:
+        """
+        Update local model weights with the aggregated weights.
+        """
+        pass
