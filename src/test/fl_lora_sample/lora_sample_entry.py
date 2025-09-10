@@ -47,7 +47,7 @@ class SampleAppEntry(AppEntry):
         server_var.owner_nodes = self.fed_runner.server_node        # Two way binding
         self.fed_runner.server_node.node_var = server_var
         self.fed_runner.server_node.prepare_strategy()
-        server_var.prepare_strategy_only()
+        #server_var.prepare_strategy_only()
         self.fed_runner.server_node.node_var = server_var
 
         # Load data
@@ -83,7 +83,8 @@ class SampleAppEntry(AppEntry):
             # Two way binding
             client_var.owner_nodes = node
             node.node_var = client_var
-            client_var.prepare_strategy_only()
+            node.prepare_strategy()
+            #client_var.prepare_strategy_only()
             client_var_list.append(client_var)
 
         self.fed_runner.run()

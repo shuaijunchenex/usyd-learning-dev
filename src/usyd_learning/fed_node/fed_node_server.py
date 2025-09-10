@@ -32,11 +32,13 @@ class FedNodeServer(FedNode):
         pass
 
     def broadcast_weight(self, broadcast_objects):
-        self.node_var.strategy.broadcast(broadcast_objects)
+        self.strategy.broadcast(broadcast_objects)
+        #self.node_var.strategy.broadcast(broadcast_objects)
         return
     
     def update_weight(self, new_weight):
-        self.node_var.strategy.update(new_weight)
+        #self.node_var.strategy.update(new_weight)
+        self.strategy.update(new_weight)
         #self.node_var.model_weight = new_weight
 
     def prepare_strategy(self):

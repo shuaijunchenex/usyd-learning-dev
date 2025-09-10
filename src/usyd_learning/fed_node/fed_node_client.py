@@ -35,7 +35,8 @@ class FedNodeClient(FedNode):
         """
         Receive new weight from server
         """
-        self.node_var.strategy.receive_weight(broadcast_weight)
+        #self.node_var.strategy.receive_weight(broadcast_weight)
+        self.strategy.receive_weight(broadcast_weight)
         console.info(f"{self._node_id}: Received new weight from server.")
         return
     
@@ -43,14 +44,16 @@ class FedNodeClient(FedNode):
         """
         Set local weight to the current model weight
         """
-        self.node_var.strategy.set_local_weight()
+        #self.node_var.strategy.set_local_weight()
+        self.strategy.set_local_weight()
         return
     
     def prepare_strategy(self):
+        self.declare_events('on_prepare_strategy')
         if "strategy" in self.node_var.config_dict:
             self.strategy = self.node_var.config_dict["strategy"]
         # Raise strategy event
         args = FedNodeEventArgs("strategy", self.node_var.config_dict).with_sender(self)
-        self.strategy = StrategyFactory.create(StrategyFactory.create_args(self.node_var.config_dict["strategy"]), self)
+        self.strategy = StrategyFactory.create(StrategyFactory.create_args(self.node_var.config_dict["strategy"]), self.node_var.owner_nodes[0])
         self.raise_event("on_prepare_strategy", args)
         return

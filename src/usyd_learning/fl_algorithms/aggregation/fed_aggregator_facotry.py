@@ -29,7 +29,7 @@ class FedAggregatorFactory:
                 return FedAggregator_RBLA(args)
             case "sp":
                 from .methods._fed_aggregator_sp import FedAggregator_SP
-                print("Using FlexLoRA aggregator")
+                print("Using Sum-Product aggregator")
                 return FedAggregator_SP(args)
             case _:
                 raise ValueError(f"Unsupported aggregation method: {args.method}")

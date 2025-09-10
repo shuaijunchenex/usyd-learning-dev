@@ -27,7 +27,7 @@ class SpRunnerStrategy(RunnerStrategy):
     def simulate_client_local_training_process(self, participants):
         for client in participants:
             console.info(f"\n[{client.node_id}] Local training started")
-            updated_weights, train_record = client.node_var.strategy.run_local_training()
+            updated_weights, train_record = client.strategy.run_local_training()
             yield {
                 "updated_weights": updated_weights,
                 "train_record": train_record
@@ -38,7 +38,7 @@ class SpRunnerStrategy(RunnerStrategy):
         return
     
     def simulate_server_update_process(self, weight):
-        self.server_node.node_var.strategy.server_update(weight)
+        self.server_node.strategy.server_update(weight)
         return
 
     def run(self) -> None:
