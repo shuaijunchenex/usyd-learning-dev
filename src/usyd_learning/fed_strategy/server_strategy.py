@@ -51,8 +51,41 @@ class ServerStrategy(BaseStrategy):
         pass
 
     @abstractmethod
-    def server_update(self, weight) -> None:
+    def select_clients(self, available_clients) -> list:
         """
-        Update local model weights with the aggregated weights.
+        Select a subset of clients for the current round.
+        :param available_clients: List of available client nodes.
+        :return: List of selected client nodes.
+        """
+        pass
+
+    @abstractmethod
+    def record_evaluation(self)-> None:
+        """
+        Record evaluation metrics.
+        """
+        pass
+
+    @abstractmethod
+    def receive_client_updates(self, client_updates) -> None:
+        """
+        Receive updates from clients.
+        :param client_updates: List of updates from clients.
+        """
+        pass
+
+    @abstractmethod
+    def prepare(self, logger_header, client_nodes_in) -> None:
+        """
+        Prepare the strategy before starting the training rounds.
+        :param logger_header: Header information for logging.
+        :param client_nodes_in: List of client nodes to be used in the strategy.
+        """
+        pass
+
+    @abstractmethod
+    def apply_weight(self): 
+        """
+        Apply the aggregated weights to the server's model.
         """
         pass

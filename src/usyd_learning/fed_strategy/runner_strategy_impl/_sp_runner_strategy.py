@@ -19,10 +19,20 @@ class SpRunnerStrategy(RunnerStrategy):
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
+        self.set_node_connection()
 
     def _create_inner(self, client_node, server_node) -> None:
-       
         return self
+
+    def set_node_connection(self) -> None:
+        self.server_node.set_client_nodes(self.client_nodes)
+        for client in self.client_nodes:
+            client.set_server_node(self.server_node)
+        return
+
+    def prepare(self, logger_header) -> None:
+        self.server_node.prepare(logger_header, self.client_nodes)
+        return
 
     def simulate_client_local_training_process(self, participants):
         for client in participants:
@@ -44,11 +54,11 @@ class SpRunnerStrategy(RunnerStrategy):
     def run(self) -> None:
         print("Running FedAvg strategy...")
         header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
-        self.server_node.node_var.training_logger.begin(header_data)
-        self.server_node.set_client_nodes(self.client_nodes)
+        self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")
+            
             self.participants = self.server_node.select_clients(self.client_nodes)
             
             console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
@@ -59,9 +69,9 @@ class SpRunnerStrategy(RunnerStrategy):
 
             self.server_node.aggregation()
 
-            self.server_node.server_update()
+            self.server_node.apply_weight()
 
-            self.server_node.broadcast_weight()
+            self.server_node.broadcast()
 
             self.server_node.evaluate()
 

@@ -30,10 +30,19 @@ class SpServerStrategy(ServerStrategy):
         self._obj.node_var.aggregated_weight = aggregated_weights
         return
 
+    def select_clients(self, available_clients) -> list:
+        selector = self._obj.node_var.client_selection
+        selected_clients = selector.select(available_clients, self._obj.node_var.config_dict["client_selection"]["number"])
+        return selected_clients
+
+    def record_evaluation(self)-> None:
+        self._obj.node_var.training_logger.record(self._obj.eval_results)
+        return
+
     def receive_client_updates(self, client_updates) -> None:
         self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
     
-    def server_update(self):
+    def apply_weight(self):
         self._obj.node_var.cache_weight = self._obj.node_var.aggregated_weight
         svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
         self._obj.node_var.model_weight = svd_weight
@@ -56,6 +65,11 @@ class SpServerStrategy(ServerStrategy):
         console.info("Server Evaluation Completed.\n")
 
         return evaluation_dict
+
+    def prepare(self, logger_header, client_nodes_in) -> None:
+        self._obj.node_var.training_logger.begin(logger_header)
+        self._obj.set_client_nodes(client_nodes_in)
+        return
 
     def run(self) -> Dict[str, Any]:
         raise NotImplementedError

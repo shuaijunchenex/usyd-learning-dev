@@ -19,6 +19,10 @@ class FedNodeClient(FedNode):
         self.node_strategy = None
         return
 
+    def set_server_node(self, server_node):
+        self.server_node = server_node
+        return
+
     # override
     def run(self) -> None:
         return
