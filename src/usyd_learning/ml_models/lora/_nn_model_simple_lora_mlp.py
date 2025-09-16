@@ -13,7 +13,7 @@ class NNModel_SimpleLoRAMLP(NNModel):
 
     def __init__(self):
         super().__init__()
-        self.lora_mode = "standard"   # 默认模式
+        self.lora_mode = "standard" 
 
     # override
     def create_model(self, args: NNModelArgs) -> AbstractNNModel:
@@ -43,6 +43,7 @@ class NNModel_SimpleLoRAMLP(NNModel):
         x = self._relu1(self._fc1(x))
         x = self._relu2(self._fc2(x))
         x = self._fc3(x)
+
         return x
 
     def set_lora_mode(self, mode: str):

@@ -211,6 +211,118 @@ class LoRAUtils:
 
         return out
 
+    @staticmethod
+    def convert_lora_for_sp_inference(
+        base_state_dict: dict,
+        lora_template_state_dict: dict,
+        suffix_a: str = "lora_A",
+        suffix_b: str = "lora_B",
+        remove_key: str = "sp_aggregated",
+        clone_base: bool = True,
+        overwrite_existing: bool = True,
+    ) -> OrderedDict:
+        """
+        在 base_state_dict 中补齐与模板相同形状的 LoRA A/B（置零），并移除所有 *.sp_aggregated。
+        - suffix_a/suffix_b: LoRA 后缀（如 'lora_A','lora_B' 或 'lora_down','lora_up'）
+        - remove_key: 需要移除的键名（末段），默认 'sp_aggregated'
+        - overwrite_existing: 如 base 已有同名 A/B，是否用全 0 覆盖
+        """
+        def has_remove_key(k: str) -> bool:
+            # 末段或整键包含都移除更稳妥
+            return (k.endswith(remove_key)) or (remove_key in k.split("."))
+
+        def is_lora_key(k: str) -> bool:
+            return k.endswith(suffix_a) or k.endswith(suffix_b)
+
+        def split_prefix(k: str):
+            # '_fc1.lora_A' -> ('_fc1', 'lora_A')
+            if k.endswith(suffix_a):
+                return k[: -len(suffix_a)].rstrip("."), suffix_a
+            if k.endswith(suffix_b):
+                return k[: -len(suffix_b)].rstrip("."), suffix_b
+            return None, None
+
+        # 1) 先拷贝 base，并且过滤掉所有 *.sp_aggregated
+        if clone_base:
+            new_sd = OrderedDict(
+                (k, (v.clone().detach() if torch.is_tensor(v) else v))
+                for k, v in base_state_dict.items()
+                if not has_remove_key(k)
+            )
+        else:
+            new_sd = OrderedDict((k, v) for k, v in base_state_dict.items() if not has_remove_key(k))
+
+        # 2) 按模板的 LoRA 键补齐零矩阵，dtype/device 优先对齐该层 weight，否则对齐模板张量
+        added = 0
+        for k_tmpl, v_tmpl in lora_template_state_dict.items():
+            if not is_lora_key(k_tmpl):
+                continue
+
+            prefix, sfx = split_prefix(k_tmpl)
+            if prefix is None:
+                continue
+
+            ref_key = f"{prefix}.weight"
+            ref = base_state_dict.get(ref_key, v_tmpl)
+            if not torch.is_tensor(ref):
+                ref = v_tmpl
+
+            zero_like = torch.zeros_like(v_tmpl, dtype=ref.dtype, device=ref.device)
+
+            if overwrite_existing or (k_tmpl not in new_sd):
+                new_sd[k_tmpl] = zero_like
+                added += 1
+
+        if added == 0:
+            raise ValueError(
+                f"模板中未发现以 '{suffix_a}' 或 '{suffix_b}' 结尾的 LoRA 参数。"
+                f"（当前 remove_key='{remove_key}'，已移除相应 sp 缓存）"
+            )
+
+        return new_sd
+
+    @staticmethod
+    def _natural_list(s: str):
+        import re
+        """把字符串拆成 [文本/数字] 列表，支持 layers.10 vs layers.2 的自然排序。"""
+        parts = []
+        for token in s.split("."):
+            # 再把 token 中的数字段拆开
+            parts.extend(int(t) if t.isdigit() else t for t in re.split(r'(\d+)', token) if t != "")
+        return parts
+
+    @staticmethod
+    def sort_state_dict_by_suffix(
+        state_dict: dict,
+        suffix_weight: str = "weight",
+        suffix_bias: str   = "bias",
+        suffix_a: str      = "lora_A",
+        suffix_b: str      = "lora_B",
+    ) -> OrderedDict:
+        """
+        返回一个按层前缀自然排序、且同层内按 [weight, bias, lora_A, lora_B, 其他] 排序的新 OrderedDict。
+        """
+        prio_map = {
+            suffix_weight: 0,
+            suffix_bias:   1,
+            suffix_a:      2,
+            suffix_b:      3,
+        }
+
+        def split_prefix_suffix(k: str):
+            if "." in k:
+                prefix, suf = k.rsplit(".", 1)
+            else:
+                prefix, suf = k, ""
+            return prefix, suf
+
+        def sort_key(k: str):
+            prefix, suf = split_prefix_suffix(k)
+            prio = prio_map.get(suf, 99)
+            return (LoRAUtils._natural_list(prefix), prio, LoRAUtils._natural_list(suf))
+
+        items = sorted(state_dict.items(), key=lambda kv: sort_key(kv[0]))
+        return OrderedDict(items)
 
 # import torch.nn as nn
 # import torch

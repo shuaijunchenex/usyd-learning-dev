@@ -30,12 +30,12 @@ class SpClientTrainingStrategy(ClientStrategy):
         """
         super().__init__()
         self._args = args
-        self._strategy_type = "rbla"
+        self._strategy_type = "sp"
         self._obj = client_node
 
     def _create_inner(self, args, client_node) -> None:
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "sp"
         self._obj = client_node
         return
 
@@ -58,7 +58,7 @@ class SpClientTrainingStrategy(ClientStrategy):
 
         observe_model: nn.Module = copy.deepcopy(node_vars.model)
         observe_model.load_state_dict(node_vars.model_weight, strict=True)
-        optimizer = self._obj.node_var.optimizer_builder.rebuild(self, observe_model.parameters())
+        optimizer = node_vars.optimizer_builder.rebuild(observe_model.parameters())
 
         ModelUtils.clear_all(observe_model, optimizer)
 
@@ -111,6 +111,5 @@ class SpClientTrainingStrategy(ClientStrategy):
 
         svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
         self._obj.node_var.model_weight = svd_weight
-        self._obj.node_var.model_evaluator.update_model(svd_weight)
 
         return

@@ -167,6 +167,88 @@ class MSLoRALinear(nn.Linear, MSLoRALayer):
         else:
             return F.linear(x, T(self.weight), bias=self.bias)
 
+# class MSLoRALinear(nn.Linear):
+#     def __init__(
+#         self,
+#         in_features: int,
+#         out_features: int,
+#         r: int = 0,
+#         lora_alpha: int = 10,
+#         lora_dropout: float = 0.0,
+#         fan_in_fan_out: bool = False,
+#         merge_weights: bool = False,   # LoRA-only 建议 False
+#         bias: bool = True,
+#         zero_base: bool = True,        # <<< 新增：是否把 W 清零并冻结
+#         **kwargs
+#     ):
+#         super().__init__(in_features, out_features, bias=bias, **kwargs)
+#         self.r = r
+#         self.lora_alpha = lora_alpha
+#         self.lora_dropout = nn.Dropout(lora_dropout) if lora_dropout > 0 else (lambda x: x)
+#         self.fan_in_fan_out = fan_in_fan_out
+#         self.merge_weights = merge_weights
+#         self.merged = False
+#         self._zero_base = bool(zero_base)
+
+#         if r > 0:
+#             # LoRA 参数
+#             self.lora_A = nn.Parameter(self.weight.new_zeros((r, in_features)))
+#             self.lora_B = nn.Parameter(self.weight.new_zeros((out_features, r)))
+#             # 规范缩放：alpha / r（如需改为 1，可自己设定）
+#             self.scaling = 1#float(lora_alpha) / float(r)
+#         else:
+#             self.scaling = 1.0
+
+#         self.reset_parameters()
+
+#         # Linear 的部分实现里有些模块用 (fan_in, fan_out) 存权重；此处保持和你原逻辑一致
+#         if self.fan_in_fan_out:
+#             self.weight.data = self.weight.data.T
+
+#         # <<< 关键：清零并冻结 base W（若启用）
+#         if self._zero_base:
+#             with torch.no_grad():
+#                 self.weight.zero_()
+#             self.weight.requires_grad = False  # 防止被优化器更新
+
+#     def reset_parameters(self):
+#         # 先按 Linear 默认初始化
+#         super().reset_parameters()
+#         # 再初始化 LoRA：A 随机、B=0，确保初始 delta=0（传统 LoRA 稳定做法）
+#         if hasattr(self, "lora_A"):
+#             nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+#             nn.init.zeros_(self.lora_B)
+
+#     def _T(self, w):
+#         return w.T if self.fan_in_fan_out else w
+
+#     @torch.no_grad()
+#     def zero_base_weight_(self, freeze: bool = True):
+#         """
+#         运行时再次把 base W 清零；freeze=True 时同时冻结。
+#         """
+#         self.weight.zero_()
+#         if freeze:
+#             self.weight.requires_grad = False
+#         self._zero_base = True
+
+#     def forward(self, x: torch.Tensor):
+#         if self.r > 0:
+#             # LoRA-only/standard 的 delta 路径
+#             after_A = self.lora_dropout(x) @ self.lora_A.T   # [N, r]
+#             delta   = after_A @ self.lora_B.T                # [N, out]
+#             out     = delta * self.scaling
+
+#             # LoRA-only：只用 delta（仍可叠加 bias）
+#             # 如果你想要 standard（base + delta），把下面一行改为：
+#             out = F.linear(x, self._T(self.weight), bias=None) + out
+#             if self.bias is not None:
+#                 out = out + self.bias
+#             return out
+#         else:
+#             # 未启用 LoRA 时，正常 Linear；若 W 被清零则等价于仅输出 bias
+#             return F.linear(x, self._T(self.weight), bias=self.bias)
+
 
 class MSMergedLinear(nn.Linear, MSLoRALayer):
     # LoRA implemented in a dense layer

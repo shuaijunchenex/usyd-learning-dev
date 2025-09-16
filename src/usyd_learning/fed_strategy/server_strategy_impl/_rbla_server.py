@@ -15,12 +15,12 @@ class RblaServerStrategy(ServerStrategy):
     def __init__(self, args, server_node) -> None:
         super().__init__()
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "rbla"
         self._obj = server_node
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "rbla"
         self._obj = server_node
         return self
 
@@ -49,7 +49,8 @@ class RblaServerStrategy(ServerStrategy):
 
     def broadcast(self) -> None:
         for client in self._obj.client_nodes:
-            client.receive_weight(self._obj.node_var.model_weight)
+            client.receive_weight(self._obj.node_var.aggregated_weight)
+            client.set_local_weight()
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
 

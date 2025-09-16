@@ -15,12 +15,12 @@ class SpServerStrategy(ServerStrategy):
     def __init__(self, args, server_node) -> None:
         super().__init__()
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "sp"
         self._obj = server_node
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "sp"
         self._obj = server_node
         return self
 
@@ -43,15 +43,15 @@ class SpServerStrategy(ServerStrategy):
         self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
     
     def apply_weight(self):
-        self._obj.node_var.cache_weight = self._obj.node_var.aggregated_weight
-        svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
-        self._obj.node_var.model_weight = svd_weight
-        self._obj.node_var.model_evaluator.update_model(svd_weight)
+        inference_weight = LoRAUtils.convert_lora_for_sp_inference(self._obj.node_var.aggregated_weight, self._obj.node_var.model_weight)
+        inference_weight = LoRAUtils.sort_state_dict_by_suffix(inference_weight)
+        self._obj.node_var.model_evaluator.update_model(inference_weight)
         return
 
     def broadcast(self) -> None:
         for client in self._obj.client_nodes:
             client.receive_weight(self._obj.node_var.model_weight)
+            client.set_local_weight()
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return
 

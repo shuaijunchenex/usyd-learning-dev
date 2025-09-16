@@ -34,7 +34,7 @@ class RblaClientTrainingStrategy(ClientStrategy):
 
     def _create_inner(self, args, client_node) -> None:
         self._args = args
-        self._strategy_type = "fedavg"
+        self._strategy_type = "rbla"
         self._obj = client_node
         return
 
@@ -106,8 +106,6 @@ class RblaClientTrainingStrategy(ClientStrategy):
     def receive_weight(self, global_weight) -> dict:
         self._obj.node_var.cache_weight = global_weight
 
-    def set_local_weight(self, global_weight) -> dict:
-
-        self._obj.node_var.model_weight = FedAggregator_RBLA.broadcast_lora_state_dict(global_weight, self._obj.node_var.model_weight)
-
+    def set_local_weight(self) -> dict:
+        self._obj.node_var.model_weight = FedAggregator_RBLA.broadcast_lora_state_dict(self._obj.node_var.cache_weight, self._obj.node_var.model_weight)
         return

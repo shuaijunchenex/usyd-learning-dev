@@ -15,7 +15,7 @@ class SpRunnerStrategy(RunnerStrategy):
 
     def __init__(self, runner: FedRunner, args, client_node, server_node) -> None:
         super().__init__(runner) #TODO: modify runner object declaration
-        self._strategy_type = "fedavg"
+        self._strategy_type = "sp"
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
@@ -44,11 +44,10 @@ class SpRunnerStrategy(RunnerStrategy):
             }
 
     def simulate_server_broadcast_process(self):
-        self.server_node.broadcast_weight(self.client_nodes)
+        self.server_node.broadcast(self.client_nodes)
         return
-    
-    def simulate_server_update_process(self, weight):
-        self.server_node.strategy.server_update(weight)
+
+    def simulate_server_update_process(self):
         return
 
     def run(self) -> None:

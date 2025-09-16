@@ -25,33 +25,48 @@ class FedAvgServerStrategy(ServerStrategy):
 
     def aggregation(self) -> dict:
         aggregator = self._obj.node_var.aggregation_method
-        aggregated_weights = aggregator.aggregate(self.node_var.client_updates) #TODO: check
-        self.node_var.global_model_weights = aggregated_weights
-        return aggregated_weights
+        aggregated_weights = aggregator.aggregate(self._obj.node_var.client_updates) #TODO: check
+        self._obj.node_var.aggregated_weight = aggregated_weights
+        return
 
-    def receive(self, client_updates) -> None:
-        self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
-        raise NotImplementedError
+    def select_clients(self, available_clients) -> list:
+        selector = self._obj.node_var.client_selection
+        selected_clients = selector.select(available_clients, self._obj.node_var.config_dict["client_selection"]["number"])
+        return selected_clients
 
-    def broadcast(self, broadcast_objects) -> None:
-        for client in broadcast_objects:
-            client.node_var.strategy.receive_weight(self._obj.node_var.model_weight)
+    def record_evaluation(self)-> None:
+        self._obj.node_var.training_logger.record(self._obj.eval_results)
+        return
+
+    def receive_client_updates(self, client_updates) -> None:
+        self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
+    
+    def apply_weight(self):
+        self._obj.node_var.model_weight = self._obj.node_var.aggregated_weight
+        self._obj.node_var.model_evaluator.update_model(self._obj.node_var.model_weight)
+        
+        return
+
+    def broadcast(self) -> None:
+        for client in self._obj.client_nodes:
+            client.receive_weight(self._obj.node_var.model_weight)
+            client.set_local_weight()
         return
 
     def run(self) -> None:
         raise NotImplementedError
 
-    def update(self, weight):
-        self._obj.node_var.model_weight = weight
-        return
-
-    def evaluate(self, round) -> None:
-        evaluation_dict =  self._obj.node_var.model_evaluator.evaluate()
-        evaluation_dict = {"round": round, **evaluation_dict}
+    def evaluate(self) -> None:
+        self._obj.eval_results = self._obj.node_var.model_evaluator.evaluate()
         self._obj.node_var.model_evaluator.print_results()
         console.info("Server Evaluation Completed.\n")
 
-        return evaluation_dict
+        return
+
+    def prepare(self, logger_header, client_nodes_in) -> None:
+        self._obj.node_var.training_logger.begin(logger_header)
+        self._obj.set_client_nodes(client_nodes_in)
+        return
 
     def run(self) -> Dict[str, Any]:
         raise NotImplementedError

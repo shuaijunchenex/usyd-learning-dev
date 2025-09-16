@@ -14,7 +14,7 @@ class RblaRunnerStrategy(RunnerStrategy):
 
     def __init__(self, runner: FedRunner, args, client_node, server_node) -> None:
         super().__init__(runner) #TODO: modify runner object declaration
-        self._strategy_type = "fedavg"
+        self._strategy_type = "rbla"
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
@@ -52,7 +52,7 @@ class RblaRunnerStrategy(RunnerStrategy):
         return
 
     def run(self) -> None:
-        print("Running FedAvg strategy...")
+        print("Running [RBLA] strategy...")
         header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
         self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):

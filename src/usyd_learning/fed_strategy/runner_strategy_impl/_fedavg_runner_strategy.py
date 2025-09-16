@@ -18,53 +18,64 @@ class FedAvgRunnerStrategy(RunnerStrategy):
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
+        self.set_node_connection()
 
     def _create_inner(self, client_node, server_node) -> None:
        
         return self
+    
+    def prepare(self, logger_header) -> None:
+        self.server_node.prepare(logger_header, self.client_nodes)
+        return
 
+    def set_node_connection(self) -> None:
+        self.server_node.set_client_nodes(self.client_nodes)
+        for client in self.client_nodes:
+            client.set_server_node(self.server_node)
+        return
+    
     def simulate_client_local_training_process(self, participants):
         for client in participants:
             console.info(f"\n[{client.node_id}] Local training started")
-            updated_weights, train_record = client.node_var.strategy.run_local_training()
+            updated_weights, train_record = client.run_local_training()
             yield {
                 "updated_weights": updated_weights,
                 "train_record": train_record
             }
 
     def simulate_server_broadcast_process(self):
-        self.server_node.broadcast_weight(self.client_nodes)
+        self.server_node.broadcast(self.client_nodes)
         return
     
     def simulate_server_update_process(self, weight):
-        self.server_node.node_var.model_weight = weight
-        self.server_node.node_var.model_evaluator.update_model(weight)
+        self.server_node.strategy.server_update(weight)
         return
 
     def run(self) -> None:
-        print("Running FedAvg strategy...")
+        print("Running [FedAvg] strategy...")
         header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
-        self.server_node.node_var.training_logger.begin(header_data)
+        self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")
-            self.participants = self.server_node.node_var.client_selection.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
+            
+            self.participants = self.server_node.select_clients(self.client_nodes)
             
             console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
 
             client_updates = list(self.simulate_client_local_training_process(self.participants))         
 
-            self.new_aggregated_weight = self.server_node.node_var.aggregation_method.aggregate(client_updates)
+            self.server_node.receive_client_updates(client_updates)
 
-            self.simulate_server_update_process(self.new_aggregated_weight)
+            self.server_node.aggregation()
 
-            self.simulate_server_broadcast_process()
+            self.server_node.apply_weight()
 
-            eval_results = self.server_node.node_var.model_evaluator.evaluate()
+            self.server_node.broadcast()
 
-            self.server_node.node_var.model_evaluator.print_results()
+            self.server_node.evaluate()
 
-            self.server_node.node_var.training_logger.record(eval_results)
+            self.server_node.record_evaluation()
 
             console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
 

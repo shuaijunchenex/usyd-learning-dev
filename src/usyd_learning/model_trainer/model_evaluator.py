@@ -29,38 +29,27 @@ class ModelEvaluator:
     def update_model(self, weight):
         self.model.load_state_dict(weight, strict=True)
 
-    def evaluate(self, average = "macro"):
-        """
-        Evaluate the model using multiple metrics including loss.
-
-        :param average: averaging method for multi-class metrics
-        :return: dictionary of evaluation results
-        """
-
+    def evaluate(self, average="macro"):
         self.model.eval()
-        all_preds = []
-        all_labels = []
-        total_loss = 0.0
-        total_samples = 0
+        all_preds, all_labels = [], []
+        total_loss, total_samples = 0.0, 0
 
-        with torch.no_grad():
-            for inputs, labels in self.val_loader.test_data_loader:
-                inputs, labels = inputs.to(self.device), labels.to(self.device)
+        with torch.inference_mode():
+            # 如果 val_loader 就是 DataLoader：
+            for inputs, labels in getattr(self.val_loader, "test_data_loader", self.val_loader):
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device).long()
+
                 outputs = self.model(inputs)
-                
-                # Calculate loss
                 loss = self.criterion(outputs, labels)
-                total_loss += loss.item() * inputs.size(0)  # Multiply by batch size
+                total_loss += loss.item() * inputs.size(0)
                 total_samples += inputs.size(0)
-                
-                # Get predictions
-                _, predicted = torch.max(outputs.data, 1)
 
+                predicted = outputs.argmax(dim=1)
                 all_preds.extend(predicted.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        # Calculate average loss
-        avg_loss = total_loss / total_samples
+        avg_loss = total_loss / max(total_samples, 1)
 
         self.latest_metrics = {
             "accuracy": accuracy_score(all_labels, all_preds),
@@ -68,11 +57,10 @@ class ModelEvaluator:
             "precision": precision_score(all_labels, all_preds, average=average, zero_division=0),
             "recall": recall_score(all_labels, all_preds, average=average, zero_division=0),
             "f1_score": f1_score(all_labels, all_preds, average=average, zero_division=0),
-            "total_test_samples": total_samples
+            "total_test_samples": total_samples,
         }
-
         return self.latest_metrics
-    
+        
     def print_results(self):
         """
         Pretty-print the latest evaluation metrics.
@@ -101,9 +89,6 @@ class ModelEvaluator:
 
 
     def get_loss(self):
-        """
-        Quick access to loss metric.
-        :return: loss value or None if not evaluated yet
-        """
-        return self.latest_metrics.get('loss', None)
+        return self.latest_metrics.get('average_loss', None)
+
 
