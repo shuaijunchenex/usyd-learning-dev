@@ -50,7 +50,7 @@ class SpServerStrategy(ServerStrategy):
 
     def broadcast(self) -> None:
         for client in self._obj.client_nodes:
-            client.receive_weight(self._obj.node_var.model_weight)
+            client.receive_weight(self._obj.node_var.aggregated_weight)
             client.set_local_weight()
             #client.node_var.model_weight = self._obj.node_var.model_weight
         return

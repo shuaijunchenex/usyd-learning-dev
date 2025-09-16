@@ -111,7 +111,7 @@ class MSLoRALinear(nn.Linear, MSLoRALayer):
         if r > 0:
             self.lora_A = nn.Parameter(self.weight.new_zeros((r, in_features)))
             self.lora_B = nn.Parameter(self.weight.new_zeros((out_features, r)))
-            self.scaling = 0.1#self.lora_alpha / self.r
+            self.scaling = self.lora_alpha / self.r
             # Freezing the pre-trained weight matrix
             self.weight.requires_grad = False
         self.reset_parameters()
@@ -123,7 +123,7 @@ class MSLoRALinear(nn.Linear, MSLoRALayer):
         if hasattr(self, 'lora_A'):
             # initialize A the same way as the default for nn.Linear and B to zero
             nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
-            nn.init.zeros_(self.lora_B)
+            #nn.init.kaiming_uniform_(self.lora_B)
 
     def train(self, mode: bool = True):
         def T(w):

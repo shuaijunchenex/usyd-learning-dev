@@ -347,6 +347,9 @@ class FedAggregator_RBLA(AbstractFedAggregator):
                             "or dict {'state_dicts': [...], 'weights': [...]}.")
 
         console.debug(f"\n[RBLA] Aggregating {len(state_dicts)} clients...")
+        total_data_vol = sum(vol for _, vol in self._aggregation_data_dict)
+        for i, (_, vol) in enumerate(self._aggregation_data_dict):
+            console.debug(f"  Client {i}: {vol} samples ({vol / total_data_vol * 100:.1f}%)")
 
         # move to device
         dev = self._device
