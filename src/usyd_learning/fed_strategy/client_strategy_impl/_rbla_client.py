@@ -103,6 +103,9 @@ class RblaClientTrainingStrategy(ClientStrategy):
 
         return copy.deepcopy(updated_weights), train_record
     
+    def receive_weight(self, global_weight) -> dict:
+        self._obj.node_var.cache_weight = global_weight
+
     def set_local_weight(self, global_weight) -> dict:
 
         self._obj.node_var.model_weight = FedAggregator_RBLA.broadcast_lora_state_dict(global_weight, self._obj.node_var.model_weight)

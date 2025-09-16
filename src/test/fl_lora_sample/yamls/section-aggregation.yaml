@@ -2,6 +2,6 @@
 # Aggregation section args
 #-----------------------------
 aggregation:
-  method: sp
+  method: rbla
   device: cpu
   is_wbab: False
