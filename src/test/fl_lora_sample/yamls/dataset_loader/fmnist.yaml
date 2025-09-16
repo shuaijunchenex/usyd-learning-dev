@@ -2,7 +2,7 @@
 # Data loader section args
 #-----------------------------
 data_loader:
-  name: mnist
+  name: fmnist
   root: "../../../.dataset"      # Data set folder
   split: ""
   batch_size: 64

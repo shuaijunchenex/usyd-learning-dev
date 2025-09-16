@@ -18,15 +18,26 @@ class RblaRunnerStrategy(RunnerStrategy):
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
+        self.set_node_connection()
 
     def _create_inner(self, client_node, server_node) -> None:
        
         return self
+    
+    def prepare(self, logger_header) -> None:
+        self.server_node.prepare(logger_header, self.client_nodes)
+        return
 
+    def set_node_connection(self) -> None:
+        self.server_node.set_client_nodes(self.client_nodes)
+        for client in self.client_nodes:
+            client.set_server_node(self.server_node)
+        return
+    
     def simulate_client_local_training_process(self, participants):
         for client in participants:
             console.info(f"\n[{client.node_id}] Local training started")
-            updated_weights, train_record = client.node_var.strategy.run_local_training()
+            updated_weights, train_record = client.strategy.run_local_training()
             yield {
                 "updated_weights": updated_weights,
                 "train_record": train_record
@@ -37,8 +48,7 @@ class RblaRunnerStrategy(RunnerStrategy):
         return
     
     def simulate_server_update_process(self, weight):
-        self.server_node.node_var.model_weight = weight
-        self.server_node.node_var.model_evaluator.update_model(weight)
+        self.server_node.strategy.server_update(weight)
         return
 
     def run(self) -> None:

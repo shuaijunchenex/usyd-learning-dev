@@ -43,10 +43,8 @@ class RblaServerStrategy(ServerStrategy):
         self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
     
     def apply_weight(self):
-        self._obj.node_var.cache_weight = self._obj.node_var.aggregated_weight
-        svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.cache_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
-        self._obj.node_var.model_weight = svd_weight
-        self._obj.node_var.model_evaluator.update_model(svd_weight)
+        self._obj.node_var.model_weight = self._obj.node_var.aggregated_weight
+        self._obj.node_var.model_evaluator.update_model(self._obj.node_var.aggregated_weight)
         return
 
     def broadcast(self) -> None:
