@@ -2,7 +2,7 @@
 # Optimizer section args
 #-----------------------------
 optimizer:
-  type: SGD             # Options: SGD, Adam, Adagrad, RMSprop, etc.
+  type: Adam             # Options: SGD, Adam, Adagrad, RMSprop, etc.
   lr: 0.01              # Learning rate
   weight_decay: 0.0001  # Weight decay (set to None if not used)
   momentum: 0.9         # Momentum (for SGD and RMSprop, set to None if not used)

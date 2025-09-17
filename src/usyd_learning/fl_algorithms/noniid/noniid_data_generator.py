@@ -95,12 +95,25 @@ class NoniidDataGenerator:
                                       [593, 674, 595, 613, 584, 542, 591, 626, 585, 594],
                                       [593, 674, 595, 613, 584, 542, 591, 626, 585, 594]]
 
+        cifar_data_volum_list_one_label = [[5000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 5000, 0, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 5000, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 5000, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 5000, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 5000, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 5000, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 5000, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 0, 5000, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 5000]]
+
         if distribution == "mnist_lt":
             return mnist_data_volum_list_lt
         if distribution == 'mnist_data_volum_balance':
             return mnist_data_volum_balance
         if distribution == 'mnist_lt_one_label':
             return mnist_data_volum_list_one_label
+        if distribution == 'cifar10_one_label':
+            return cifar_data_volum_list_one_label 
         elif distribution == "custom":
             if data_volum_list is None:
                 raise ValueError("Custom distribution requires 'data_volum_list'.")

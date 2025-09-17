@@ -5,7 +5,7 @@ data_distribution:
 
   # Use distribution name, predefined 'mnist_lt', 'mnist_lt_one_label', 'mnist_data_volum_balance',
   # others for custom distribution from 'custom_define'
-  use: mnist_lt          
+  use: cifar10_one_label          
 
   # define custom data list SAMPLE
   custom_define:

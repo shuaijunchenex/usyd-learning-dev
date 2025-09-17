@@ -11,19 +11,20 @@ startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 # import
 from usyd_learning.ml_utils import console
 from fl_lora_sample.lora_sample_entry import SampleAppEntry
+from usyd_learning.ml_utils.model_utils import ModelUtils
 
 g_app = SampleAppEntry()
 
 def main():
     # Load app config set from yaml file
     g_app.load_app_config("./fl_lora_sample/rbla_config.yaml")
-
+    device = ModelUtils.accelerator_device()
     # Get training rounds
     general_yaml = g_app.get_app_object("general")
     training_rounds = general_yaml["general"]["training_rounds"]
 
     # Run app
-    g_app.run(training_rounds)
+    g_app.run(device, training_rounds)
     return
 
 if __name__ == "__main__":

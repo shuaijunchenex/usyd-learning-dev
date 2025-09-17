@@ -21,7 +21,7 @@ class SampleAppEntry(AppEntry):
         self.server_yaml = None 
 
     #override
-    def run(self, training_rounds = 50):
+    def run(self, device = 'cpu', training_rounds = 50):
 
         # Yamls - if yamls are None, get yaml from app config file automatically
         if self.runner_yaml is None:
@@ -45,6 +45,7 @@ class SampleAppEntry(AppEntry):
         server_var.prepare() #TODO: create server strategy
         self.__attach_event_handler(server_var)
         server_var.owner_nodes = self.fed_runner.server_node        # Two way binding
+        server_var.set_device(device)
         self.fed_runner.server_node.node_var = server_var
         self.fed_runner.server_node.prepare_strategy()
         #server_var.prepare_strategy_only()
@@ -55,7 +56,7 @@ class SampleAppEntry(AppEntry):
         mnist_train_loader = DatasetLoaderFactory().create(dataloader_args)
 
         # NonIID handler
-        allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution='mnist_lt_one_label')
+        allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution=self.server_yaml["data_distribution"]["use"])
 
         for i in range(len(allocated_noniid_data)):
             args = DatasetLoaderArgs({'name': 'custom', 
@@ -77,6 +78,7 @@ class SampleAppEntry(AppEntry):
             client_var.prepare() #TODO: create client strategy
             client_var.data_loader = allocated_noniid_data[index]
             client_var.data_sample_num = client_var.data_loader.data_sample_num
+            client_var.set_device(device)
             client_var.trainer.set_train_loader(client_var.data_loader)
             self.__attach_event_handler(client_var)
 

@@ -414,3 +414,10 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.prepare_strategy()
         console.ok("OK")
         return self
+    
+    def set_device(self, device: str):
+        """
+        Set computation device
+        """
+        self.device = device
+        return

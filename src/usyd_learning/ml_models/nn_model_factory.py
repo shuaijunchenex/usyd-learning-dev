@@ -34,5 +34,8 @@ class NNModelFactory:
             case "simple_lora_cnn":
                 from .lora._nn_model_simple_lora_cnn import NNModel_SimpleLoRACNN
                 return NNModel_SimpleLoRACNN().create_model(args)
+            case "cifar_lora_cnn":
+                from .lora._nn_model_cifar_lora_cnn import NNModel_CifarLoRACNN
+                return NNModel_CifarLoRACNN().create_model(args)
 
         raise ValueError(f"Unknown mode type '{args.model_type}'")
