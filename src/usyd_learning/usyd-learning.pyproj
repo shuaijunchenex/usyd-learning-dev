@@ -55,12 +55,6 @@
     <Compile Include="fed_strategy\strategy_args.py" />
     <Compile Include="fed_strategy\strategy_factory.py" />
     <Compile Include="fed_strategy\__init__.py" />
-    <Compile Include="fed_trainer\model_trainer_factory.py" />
-    <Compile Include="fed_trainer\model_trainer_args.py" />
-    <Compile Include="fed_trainer\model_trainer.py" />
-    <Compile Include="fed_trainer\model_evaluator.py" />
-    <Compile Include="fed_trainer\trainer\_model_trainer_standard.py" />
-    <Compile Include="fed_trainer\__init__.py" />
     <Compile Include="fl_algorithms\aggregation\fed_aggregator_abc.py" />
     <Compile Include="fl_algorithms\aggregation\fed_aggregator_args.py" />
     <Compile Include="fl_algorithms\aggregation\fed_aggregator_facotry.py" />
@@ -191,8 +185,6 @@
     <Folder Include="fed_strategy\client_strategy_impl\todo\lora_aggregation\" />
     <Folder Include="fed_strategy\runner_strategy_impl\" />
     <Folder Include="fed_strategy\server_strategy_impl\" />
-    <Folder Include="fed_trainer\" />
-    <Folder Include="fed_trainer\trainer\" />
     <Folder Include="fl_algorithms\" />
     <Folder Include="fl_algorithms\aggregation\" />
     <Folder Include="fl_algorithms\aggregation\methods\" />
