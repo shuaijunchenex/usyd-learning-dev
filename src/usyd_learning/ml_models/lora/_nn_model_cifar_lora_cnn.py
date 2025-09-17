@@ -30,7 +30,7 @@ class NNModel_CifarLoRACNN(NNModel):
         super().create_model(args)
 
         # LoRA/正则配置
-        r_conv        = int(getattr(args, "lora_rank_conv", 16))
+        r_conv        = int(getattr(args, "lora_rank_conv", 64))
         r_fc          = int(getattr(args, "lora_rank_fc", 16))
         alpha_conv    = int(getattr(args, "lora_alpha_conv", r_conv if r_conv > 0 else 1))
         alpha_fc      = int(getattr(args, "lora_alpha_fc",   r_fc   if r_fc   > 0 else 1))

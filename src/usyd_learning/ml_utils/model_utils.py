@@ -5,7 +5,6 @@ from torch.optim import Optimizer
 from torch import nn
 
 class ModelUtils:
-
     @staticmethod
     def accelerator_device():
         if torch.cuda.is_available():

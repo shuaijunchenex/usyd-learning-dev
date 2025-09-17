@@ -53,7 +53,7 @@ class RblaRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running [RBLA] strategy...")
-        header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
+        header_data = {"dataset": "mnist", "aggregation" : "rbla"}
         self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            

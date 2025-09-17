@@ -52,7 +52,7 @@ class SpRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running [Sum-Product] strategy...")
-        header_data = {"aggregation": "sp", "dataset": "mnist"}
+        header_data = {"dataset": "mnist", "aggregation" : "sp"}
         self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            

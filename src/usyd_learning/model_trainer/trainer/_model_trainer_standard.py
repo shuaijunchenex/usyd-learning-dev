@@ -7,6 +7,7 @@ from usyd_learning.model_trainer.model_trainer_args import ModelTrainerArgs
 from ..model_trainer import ModelTrainer
 from ...ml_algorithms import ModelExtractor
 from ...ml_utils import console
+from ...ml_utils.model_utils import ModelUtils
 
 class ModelTrainer_Standard(ModelTrainer):
     def __init__(self, trainer_args: ModelTrainerArgs):
@@ -16,10 +17,8 @@ class ModelTrainer_Standard(ModelTrainer):
             raise ValueError("Training Model is None.")
         if trainer_args.optimizer is None:
             raise ValueError("Training optimizer is None.")
-
-        if str(next(trainer_args.model.parameters()).device) != trainer_args.device:
-            trainer_args.model = trainer_args.model.to(trainer_args.device)
-
+        
+        self.device = ModelUtils.accelerator_device()
         self.model: nn.Module = trainer_args.model
         return
 
@@ -47,6 +46,7 @@ class ModelTrainer_Standard(ModelTrainer):
 
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
+        ta.model.to(self.device)
         ta.model.train()
         running_loss, total_batch = 0.0, 0
 
