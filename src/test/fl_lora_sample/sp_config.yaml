@@ -38,6 +38,7 @@ yaml_section_files:
   - "section-server_strategy-sp.yaml" : server_strategy
   - "section-runner_strategy-sp.yaml" : runner_strategy
   - "section-trainer.yaml" : trainer
+  - "section-rank_distribution.yaml" : rank_distribution
 #---------------------------------------
 # Combine yamls, can define any combination name,
 # such as 'runner', 'runner-test', 'runner-a' etc
@@ -54,6 +55,6 @@ yaml_combination:
 
   # Server
   # server_yaml: [general, training_logger, dataset_loader, nn_model, aggregation, client_selection, server_strategy, trainer]
-  server_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer, client_selection, server_strategy, aggregation]
+  server_yaml: [general, training_logger, dataset_loader, nn_model, loss_func, optimizer, training, distribution, client_strategy, trainer, client_selection, server_strategy, aggregation, rank_distribution, lora]
 
   # Other combinations

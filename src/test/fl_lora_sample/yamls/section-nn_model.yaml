@@ -8,6 +8,7 @@ nn_model:
   output_dim: 0
   softmax_dim : 1
   lora_mode: standard
+  rank_ratio: 1
 
   # Share model bentween nodes
   share_model: False

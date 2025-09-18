@@ -55,6 +55,7 @@ class RblaRunnerStrategy(RunnerStrategy):
         print("Running [RBLA] strategy...")
         header_data = {"dataset": "mnist", "aggregation" : "rbla"}
         self.server_node.prepare(header_data, self.client_nodes)
+        self.server_node.broadcast()
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")

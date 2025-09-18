@@ -49,7 +49,7 @@ class SpServerStrategy(ServerStrategy):
             self._obj.node_var.model_evaluator.update_model(inference_weight)
         elif mode == "regular":
             self._obj.node_var.model_weight = self._obj.node_var.aggregated_weight
-            svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.model_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
+            svd_weight = LoRAUtils.svd_split_global_weight(self._obj.node_var.model_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.inference_model))
             self._obj.node_var.model_evaluator.update_model(svd_weight)
         return
 

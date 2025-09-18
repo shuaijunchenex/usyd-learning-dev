@@ -360,10 +360,9 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             self.inference_model = NNModelFactory.create(args)
             aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
             self.model_evaluator.change_model(self.inference_model, aligned_weight)
-
-        # Raise extractor event
-        args = FedNodeEventArgs("lora_inference_model", self.config_dict).with_sender(self)
-        self.raise_event("on_prepare_lora_inference_model", args)
+            # Raise extractor event
+            args = FedNodeEventArgs("lora_inference_model", self.config_dict).with_sender(self)
+            self.raise_event("on_prepare_lora_inference_model", args)
         return
 
     # endregion
