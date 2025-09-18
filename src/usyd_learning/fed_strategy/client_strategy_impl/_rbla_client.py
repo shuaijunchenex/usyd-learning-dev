@@ -30,7 +30,14 @@ class RblaClientTrainingStrategy(ClientStrategy):
         super().__init__()
         self._args = args
         self._strategy_type = "rbla"
-        self._obj = client_node
+        self._obj = client_node  
+              
+        import random
+        import numpy as np
+        import torch
+        random.seed(42)
+        np.random.seed(42)
+        torch.manual_seed(42)
 
     def _create_inner(self, args, client_node) -> None:
         self._args = args

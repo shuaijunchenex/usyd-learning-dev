@@ -14,11 +14,20 @@ class RblaRunnerStrategy(RunnerStrategy):
 
     def __init__(self, runner: FedRunner, args, client_node, server_node) -> None:
         super().__init__(runner) #TODO: modify runner object declaration
+        
+        import random
+        import numpy as np
+        import torch
+        random.seed(42)
+        np.random.seed(42)
+        torch.manual_seed(42)
+
         self._strategy_type = "rbla"
         self.args = args
         self.client_nodes : list[FedNodeClient]= client_node
         self.server_node : FedNodeServer = server_node
         self.set_node_connection()
+
 
     def _create_inner(self, client_node, server_node) -> None:
        

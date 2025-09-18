@@ -16,7 +16,14 @@ class RblaServerStrategy(ServerStrategy):
         super().__init__()
         self._args = args
         self._strategy_type = "rbla"
-        self._obj = server_node
+        self._obj = server_node        
+        
+        import random
+        import numpy as np
+        import torch
+        random.seed(42)
+        np.random.seed(42)
+        torch.manual_seed(42)
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args
@@ -71,48 +78,3 @@ class RblaServerStrategy(ServerStrategy):
 
     def run(self) -> Dict[str, Any]:
         raise NotImplementedError
-
-    # def __init__(self, args, server_node) -> None:
-    #     super().__init__()
-    #     self._args = args
-    #     self._strategy_type = "fedavg"
-    #     self._obj = server_node
-
-    # def _create_inner(self, args, server_node) -> None:
-    #     self._args = args
-    #     self._strategy_type = "fedavg"
-    #     self._obj = server_node
-    #     return self
-
-    # def aggregation(self) -> dict:
-    #     aggregator = self._obj.node_var.aggregation_method
-    #     aggregated_weights = aggregator.aggregate(self.node_var.client_updates) #TODO: check
-    #     self.node_var.global_model_weights = aggregated_weights
-    #     return aggregated_weights
-
-    # def receive(self, client_updates) -> None:
-    #     self.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
-    #     raise NotImplementedError
-
-    # def broadcast(self) -> None:
-    #     for client in self._obj.client_nodes:
-    #         client.receive_weight(self._obj.node_var.model_weight)
-    #         #client.node_var.model_weight = self._obj.node_var.model_weight
-    #     return
-
-    # def sp_svd_split(self, aggregated_weight) -> dict:
-    #     new_weight = LoRAUtils.rbla_split_global_weight(aggregated_weight, LoRAUtils.get_lora_ranks(self._obj.node_var.model))
-    #     raise NotImplementedError
-
-    # def run(self) -> None:
-    #     raise NotImplementedError
-    
-    # def evaluate(self) -> None:
-    #     self._obj.eval_results =  self._obj.node_var.model_evaluator.evaluate()
-    #     self._obj.node_var.model_evaluator.print_results()
-    #     console.info("Server Evaluation Completed.\n")
-
-    #     return
-    
-    # def run(self) -> Dict[str, Any]:
-    #     raise NotImplementedError
