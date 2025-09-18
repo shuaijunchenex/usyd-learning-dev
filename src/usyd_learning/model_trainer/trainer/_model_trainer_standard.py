@@ -15,11 +15,7 @@ from ...ml_utils.model_utils import ModelUtils
 class ModelTrainer_Standard(ModelTrainer):
     def __init__(self, trainer_args: ModelTrainerArgs):
         super().__init__(trainer_args)
-        
-        random.seed(42)
-        np.random.seed(42)
-        torch.manual_seed(42)
-        
+
         if trainer_args.model is None:
             raise ValueError("Training Model is None.")
         if trainer_args.optimizer is None:

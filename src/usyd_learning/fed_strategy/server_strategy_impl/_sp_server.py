@@ -17,13 +17,6 @@ class SpServerStrategy(ServerStrategy):
         self._args = args
         self._strategy_type = "sp"
         self._obj = server_node        
-        
-        import random
-        import numpy as np
-        import torch
-        random.seed(42)
-        np.random.seed(42)
-        torch.manual_seed(42)
 
     def _create_inner(self, args, server_node) -> None:
         self._args = args

@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
 from .strategy_args import StrategyArgs
+from ..ml_utils.training_utils import TrainingUtils
 
 class BaseStrategy(ABC):
 
     def __init__(self):
+
+        TrainingUtils.set_seed(42)
+
         self._strategy_type : str = None
         self._obj = None # server node / client node / runner
         self._is_created : bool = False

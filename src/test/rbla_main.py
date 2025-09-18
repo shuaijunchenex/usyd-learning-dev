@@ -29,7 +29,7 @@ def main():
     return
 
 if __name__ == "__main__":
-    TrainingUtils.set_seed(42)
+    TrainingUtils.set_seed_all(42)
     #Initial console options
     console.set_log_level("all")  # Log level: error > warn > ok > info > out > all
     console.set_debug(True)  # True for display debug info

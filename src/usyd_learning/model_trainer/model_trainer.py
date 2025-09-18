@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from .model_trainer_args import ModelTrainerArgs
-
+from ..ml_utils.training_utils import TrainingUtils
 
 class ModelTrainer(ABC):
     """
@@ -10,6 +10,7 @@ class ModelTrainer(ABC):
     """
 
     def __init__(self, trainer_args: ModelTrainerArgs):
+        TrainingUtils.set_seed(42)
         self.trainer_args: ModelTrainerArgs = trainer_args
 
     @abstractmethod
