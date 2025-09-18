@@ -197,6 +197,7 @@ class LoRAUtils:
 
             # 3) SVD at effective rank, then zero-pad to target rank if necessary.
             eff_r = max(1, min(target_r, W.shape[0], W.shape[1]))
+            
             A_eff, B_eff = LoRAUtils.svd_split(W, eff_r, method=svd_method)
 
             if eff_r < target_r:

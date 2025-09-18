@@ -12,10 +12,12 @@ startup_init_path(os.path.dirname(os.path.abspath(__file__)))
 from usyd_learning.ml_utils import console
 from fl_lora_sample.lora_sample_entry import SampleAppEntry
 from usyd_learning.ml_utils.model_utils import ModelUtils
-
+from usyd_learning.ml_utils.training_utils import TrainingUtils
+    
 g_app = SampleAppEntry()
 
 def main():
+    TrainingUtils.set_seed(42)
     # Load app config set from yaml file
     g_app.load_app_config("./fl_lora_sample/rbla_config.yaml")
     device = ModelUtils.accelerator_device()

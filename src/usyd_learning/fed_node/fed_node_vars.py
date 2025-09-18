@@ -363,6 +363,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             # Raise extractor event
             args = FedNodeEventArgs("lora_inference_model", self.config_dict).with_sender(self)
             self.raise_event("on_prepare_lora_inference_model", args)
+            
         return
 
     # endregion
