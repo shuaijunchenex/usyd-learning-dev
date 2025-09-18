@@ -26,6 +26,7 @@ class NNModelArgs(KeyValueArgs):
 
     rank_ratio: int = 1
     lora_mode: str = "standard"
+    
 
     def __init__(self, config_dict: dict[str, Any]|None = None, is_clone_dict=False):
         """

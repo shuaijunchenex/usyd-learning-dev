@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .. import AbstractNNModel, NNModelArgs, NNModel
-from ...ml_algorithms.lora import MSLoRALinear   # 你保存的微软实现路径
+from ...ml_algorithms.lora import MSLoRALinear
 
 class NNModel_SimpleLoRAMLP(NNModel):
     """
@@ -22,17 +22,18 @@ class NNModel_SimpleLoRAMLP(NNModel):
         rank = getattr(args, "lora_rank", 4)
         scaling = getattr(args, "lora_scaling", 0.5)
         use_bias = getattr(args, "use_bias", True)
+        rank_ratio = getattr(args, "rank_ratio", 1)
 
         self._flatten = nn.Flatten()
-        self._fc1 = MSLoRALinear(784, 200, r=160, lora_alpha=int(rank * scaling),
+        self._fc1 = MSLoRALinear(784, 200, r=int(160*rank_ratio), lora_alpha=int(rank * scaling),
                                  lora_dropout=0.0, fan_in_fan_out=False,
                                  merge_weights=False, bias=use_bias)
         self._relu1 = nn.ReLU()
-        self._fc2 = MSLoRALinear(200, 200, r=160, lora_alpha=int(rank * scaling),
+        self._fc2 = MSLoRALinear(200, 200, r=int(160*rank_ratio), lora_alpha=int(rank * scaling),
                                  lora_dropout=0.0, fan_in_fan_out=False,
                                  merge_weights=False, bias=use_bias)
         self._relu2 = nn.ReLU()
-        self._fc3 = MSLoRALinear(200, 10, r=100, lora_alpha=int(rank * scaling),
+        self._fc3 = MSLoRALinear(200, 10, r=int(100*rank_ratio), lora_alpha=int(rank * scaling),
                                  lora_dropout=0.0, fan_in_fan_out=False,
                                  merge_weights=False, bias=use_bias)
         return self  

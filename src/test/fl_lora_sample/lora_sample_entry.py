@@ -75,6 +75,7 @@ class SampleAppEntry(AppEntry):
         client_var_list = []
         for index, node in enumerate(self.fed_runner.client_node_list):
             client_var = FedNodeVars(self.client_yaml)
+            client_var.config_dict["nn_model"]["rank_ratio"] = self.server_yaml["rank_distribution"]["rank_ratio_list"][index]
             client_var.prepare() #TODO: create client strategy
             client_var.data_loader = allocated_noniid_data[index]
             client_var.data_sample_num = client_var.data_loader.data_sample_num

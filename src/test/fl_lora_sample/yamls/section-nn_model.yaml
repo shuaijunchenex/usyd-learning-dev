@@ -2,7 +2,7 @@
 #define globle NN Model and paras
 #-----------------------------
 nn_model:
-  name: cifar_lora_cnn
+  name: simple_lora_mlp
   input_dim: 0
   hidden_dim: 0
   output_dim: 0
@@ -12,4 +12,4 @@ nn_model:
   rank_ratio: 1
 
   # Share model bentween nodes
-  share_model: True
+  share_model: False

@@ -26,7 +26,7 @@ yaml_section_files:
   - "section-training_logger.yaml" : training_logger
   - "section-aggregation-sp.yaml": aggregation
   - "section-client_selection.yaml": client_selection
-  - "section-dataset_loader.yaml" : dataset_loader
+  - "section-dataset_loader-mnist.yaml" : dataset_loader
   - "section-data_distribution.yaml" : distribution
   - "section-loss_func.yaml" : loss_func
   - "section-lora.yaml" : lora
