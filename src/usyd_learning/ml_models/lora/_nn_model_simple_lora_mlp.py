@@ -36,6 +36,7 @@ class NNModel_SimpleLoRAMLP(NNModel):
         self._fc3 = MSLoRALinear(200, 10, r=int(100*rank_ratio), lora_alpha=int(rank * scaling),
                                  lora_dropout=0.0, fan_in_fan_out=False,
                                  merge_weights=False, bias=use_bias)
+        
         return self  
 
     # override

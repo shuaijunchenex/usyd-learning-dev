@@ -1,4 +1,5 @@
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
 import torch
 import torch.nn as nn
 
@@ -25,6 +26,11 @@ class ModelEvaluator:
         # Default to CrossEntropyLoss if no criterion provided
         self.criterion = criterion if criterion is not None else nn.CrossEntropyLoss()
         self.latest_metrics = {}
+
+    def change_model(self, model, weight=None):
+        if weight is not None:
+            model.load_state_dict(weight, strict=True)
+        self.model = model.to(self.device)
 
     def update_model(self, weight):
         self.model.load_state_dict(weight, strict=True)

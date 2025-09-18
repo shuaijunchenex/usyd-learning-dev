@@ -29,7 +29,7 @@ yaml_section_files:
   - "section-dataset_loader-mnist.yaml" : dataset_loader
   - "section-data_distribution.yaml" : distribution
   - "section-loss_func.yaml" : loss_func
-  - "section-lora.yaml" : lora
+  - "section-lora_inference.yaml" : lora
   - "section-nn_model.yaml" : nn_model
   - "section-fl_nodes.yaml" : fl_nodes
   - "section-optimizer.yaml" : optimizer

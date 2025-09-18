@@ -42,7 +42,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         # Declare event
         self.declare_events("on_prepare_data_loader", "on_prepare_data_distribution", "on_prepare_data_handler", "on_prepare_model",
                             "on_prepare_optimizer", "on_prepare_loss_func", "on_prepare_client_selection", "on_prepare_trainer",
-                            "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger")
+                            "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger", "on_prepare_lora_inference_model")
         return
 
     @property
@@ -350,6 +350,22 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         self.raise_event("on_prepare_training_logger", args)
         return
 
+    def prepare_global_inference_model(self):
+        if "rank_distribution" in self.config_dict:
+            from ..ml_algorithms.lora.lora_utils import LoRAUtils
+
+            config = self.config_dict["nn_model"]
+            config['rank_ratio'] = max(self.config_dict["rank_distribution"]["rank_ratio_list"])
+            args = NNModelFactory.create_args(config)
+            self.inference_model = NNModelFactory.create(args)
+            aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
+            self.model_evaluator.change_model(self.inference_model, aligned_weight)
+
+        # Raise extractor event
+        args = FedNodeEventArgs("lora_inference_model", self.config_dict).with_sender(self)
+        self.raise_event("on_prepare_lora_inference_model", args)
+        return
+
     # endregion
 
     def prepare(self) -> Any:
@@ -403,6 +419,10 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         
         console.info("Prepare trainer...", "")
         self.prepare_trainer()
+        console.ok("OK")
+
+        console.info("check global model for inference", "")
+        self.prepare_global_inference_model()
         console.ok("OK")
 
         console.info("Prepare completed.")

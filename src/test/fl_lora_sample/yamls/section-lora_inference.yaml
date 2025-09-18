@@ -1,7 +1,7 @@
 #-----------------------------
 # LoRA section args
 #-----------------------------
-lora:
+lora_inference:
    device: cpu
    lora_mode: standard     # lora_mode (str): Determines the LoRA inference mode. Options: "standard", "alternate", etc.
    scaling: 0.5            # alpha (float): Scaling factor for the low-rank update.
