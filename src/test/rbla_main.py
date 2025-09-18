@@ -17,7 +17,6 @@ from usyd_learning.ml_utils.training_utils import TrainingUtils
 g_app = SampleAppEntry()
 
 def main():
-    TrainingUtils.set_seed(42)
     # Load app config set from yaml file
     g_app.load_app_config("./fl_lora_sample/rbla_config.yaml")
     device = ModelUtils.accelerator_device()
@@ -30,6 +29,7 @@ def main():
     return
 
 if __name__ == "__main__":
+    TrainingUtils.set_seed(42)
     #Initial console options
     console.set_log_level("all")  # Log level: error > warn > ok > info > out > all
     console.set_debug(True)  # True for display debug info
