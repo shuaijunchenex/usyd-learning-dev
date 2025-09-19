@@ -20,6 +20,7 @@ def main():
     # Load app config set from yaml file
     g_app.load_app_config("./fl_lora_sample/rbla_config.yaml")
     device = ModelUtils.accelerator_device()
+    
     # Get training rounds
     general_yaml = g_app.get_app_object("general")
     training_rounds = general_yaml["general"]["training_rounds"]

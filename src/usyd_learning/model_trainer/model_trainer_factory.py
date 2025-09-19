@@ -23,6 +23,9 @@ class ModelTrainerFactory:
             case "standard":
                 from .trainer._model_trainer_standard import ModelTrainer_Standard
                 return ModelTrainer_Standard(args)
+            case "vit":
+                from .trainer._model_trainer_vit import ModelTrainer_Vit
+                return ModelTrainer_Vit(args)
             case _:
                 raise Exception(f"Undefined trainer type {args.trainer_type}.")
 

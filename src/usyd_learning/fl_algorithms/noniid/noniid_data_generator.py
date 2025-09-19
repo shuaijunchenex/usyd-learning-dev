@@ -108,9 +108,9 @@ class NoniidDataGenerator:
 
         if distribution == "mnist_lt":
             return mnist_data_volum_list_lt
-        if distribution == 'mnist_data_volum_balance':
+        if distribution == 'mnist_feature_shift':
             return mnist_data_volum_balance
-        if distribution == 'mnist_lt_one_label':
+        if distribution == 'mnist_one_label':
             return mnist_data_volum_list_one_label
         if distribution == 'cifar10_one_label':
             return cifar_data_volum_list_one_label 

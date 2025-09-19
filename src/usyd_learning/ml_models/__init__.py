@@ -19,8 +19,7 @@ from .mobilenet._nn_model_thin_mobilenet import NNModel_ModifiedNet, SeparableCo
 from .transformer_encoder._nn_model_multi_head_self_attention import MultiHeadSelfAttention
 from .transformer_encoder._nn_model_transformer_encoder import TransformerEncoder
 
-from .vit._nn_model_simple_vit import SimpleViT
-from .vit._nn_model_vit import ViT
+from .vit._nn_model_cifar10_lora_vit import ViT_MSLoRA_CIFAR10
 
 __all__ = ["NNModelFactory", "AbstractNNModel", "NNModel", "NNModelArgs", "NNModel_SimpleLoRACNN",
            "ModelUtils", "NNModel_MnistNNBrenden", "NNModel_CapstoneMLP", "NNModel_ModifiedNet", "SeparableConv2d",

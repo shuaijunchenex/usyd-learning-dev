@@ -32,8 +32,6 @@ class NNModel_ViT_MSLoRA_CIFAR10(NNModel):
         lora_r = int(max(0, round(rank * rank_ratio)))
         lora_alpha = int(max(1, round(rank * scaling)))
         lora_dropout = float(getattr(args, "lora_dropout", 0.0))
-        lora_merge_weights = bool(getattr(args, "lora_merge_weights", False))
-        fan_in_fan_out = bool(getattr(args, "fan_in_fan_out", False))
 
         self._model = ViT_MSLoRA_CIFAR10(
             img_size=32,
@@ -49,11 +47,9 @@ class NNModel_ViT_MSLoRA_CIFAR10(NNModel):
             attn_drop_rate=0.0,
             lora_r=lora_r,
             lora_alpha=lora_alpha,
-            lora_dropout=lora_dropout,
-            lora_merge_weights=lora_merge_weights,
-            use_bias=use_bias,
-            fan_in_fan_out=fan_in_fan_out,
+            lora_dropout=lora_dropout
         )
+
         return self
 
     # override

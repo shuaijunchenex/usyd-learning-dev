@@ -1,6 +1,6 @@
 from torch import nn
 import torch
-from lora_ms import MSLoRALinear, MSLoRAConv2d
+from .lora_ms import MSLoRALinear, MSLoRAConv2d
 from typing import Optional
 
 class PatchEmbed(nn.Module):
