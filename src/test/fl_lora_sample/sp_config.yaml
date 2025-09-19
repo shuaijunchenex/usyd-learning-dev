@@ -24,7 +24,7 @@ yaml_section_files:
   # <file name> : <name>, if name is empty use file name without extension
   - "section-general.yaml" : general
   - "section-training_logger.yaml" : training_logger
-  - "section-aggregation-rbla.yaml": aggregation
+  - "section-aggregation-sp.yaml": aggregation
   - "section-client_selection.yaml": client_selection
   - "section-dataset_loader-mnist.yaml" : dataset_loader_mnist
   - "section-dataset_loader-cifar10.yaml" : dataset_loader_cifar10
@@ -37,9 +37,9 @@ yaml_section_files:
   - "section-fl_nodes.yaml" : fl_nodes
   - "section-optimizer.yaml" : optimizer
   - "section-training.yaml" : training
-  - "section-client_strategy-rbla.yaml" : client_strategy
-  - "section-server_strategy-rbla.yaml" : server_strategy
-  - "section-runner_strategy-rbla.yaml" : runner_strategy
+  - "section-client_strategy-sp.yaml" : client_strategy
+  - "section-server_strategy-sp.yaml" : server_strategy
+  - "section-runner_strategy-sp.yaml" : runner_strategy
   - "section-trainer-standard.yaml" : trainer_standard
   - "section-trainer-vit.yaml" : trainer_vit
   - "section-rank_distribution.yaml" : rank_distribution
