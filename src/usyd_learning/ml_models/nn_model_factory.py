@@ -37,5 +37,8 @@ class NNModelFactory:
             case "cifar_lora_cnn":
                 from .lora._nn_model_cifar_lora_cnn import NNModel_CifarLoRACNN
                 return NNModel_CifarLoRACNN().create_model(args)
+            case "cifar10_lora_vit":
+                from .vit._nn_model_cifar10_lora_vit import NNModel_ViT_MSLoRA_CIFAR10
+                return NNModel_ViT_MSLoRA_CIFAR10().create_model(args)
 
         raise ValueError(f"Unknown mode type '{args.model_type}'")

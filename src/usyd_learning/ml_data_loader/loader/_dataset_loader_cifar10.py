@@ -18,12 +18,13 @@ class DatasetLoader_Cifar10(DatasetLoader):
     def _create_inner(self, args: DatasetLoaderArgs) -> None:
         if args.transform is None:
             args.transform = transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5),
-                                     (0.5, 0.5, 0.5))
-            ])
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=(0.4914, 0.4822, 0.4465),
+                std=(0.2023, 0.1994, 0.2010)
+            )
+        ])
 
-        # 训练/验证集（按你的写法保留 train=True；若想与 MNIST 一致可改为 train=args.is_train）
         self._dataset = datasets.CIFAR10(
             root=args.root, train=True,
             transform=args.transform, download=args.is_download
@@ -33,7 +34,6 @@ class DatasetLoader_Cifar10(DatasetLoader):
             shuffle=args.shuffle, num_workers=args.num_workers
         )
 
-        # ------ 测试集与测试 loader ------
         test_transform = getattr(args, "test_transform", None) or args.transform
         test_batch_size = getattr(args, "test_batch_size", None) or args.batch_size
 

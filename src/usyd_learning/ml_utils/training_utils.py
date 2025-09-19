@@ -1,8 +1,26 @@
 import random
 import numpy as np
 import torch
+import contextlib
 
 class TrainingUtils:
+
+    @staticmethod
+    def make_autocast(device: torch.device, enabled: bool):
+        if not enabled:
+            return contextlib.nullcontext()
+        if device.type == "cuda":
+            return torch.cuda.amp.autocast(dtype=torch.float16)
+        if device.type == "mps":
+            return torch.autocast(device_type="mps", dtype=torch.float16)
+        
+        return contextlib.nullcontext()
+
+    @staticmethod
+    def make_scaler(device: torch.device, enabled: bool):
+        if enabled and device.type == "cuda":
+            return torch.cuda.amp.GradScaler(enabled=True)
+        return None
 
     @staticmethod
     def set_seed_all(seed_input: int = 42):
