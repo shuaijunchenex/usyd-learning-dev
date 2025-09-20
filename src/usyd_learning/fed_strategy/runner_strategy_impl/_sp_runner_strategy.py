@@ -65,6 +65,7 @@ class SpRunnerStrategy(RunnerStrategy):
             "client_selection": self.server_node.node_var.config_dict['client_selection']
         }
         self.server_node.prepare(header_data, self.client_nodes)
+        #self.server_node.broadcast()
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            
             console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")

@@ -4,6 +4,7 @@ from typing import List, Dict, Tuple, Optional, Any
 
 from ..fed_aggregator_abc import AbstractFedAggregator
 from ..fed_aggregator_args import FedAggregatorArgs
+from ....ml_utils import console
 
 class FedAggregator_SP(AbstractFedAggregator):
     """
@@ -135,6 +136,11 @@ class FedAggregator_SP(AbstractFedAggregator):
 
         sample_keys = list(state_dicts[0].keys())
         aggregated: Dict[str, torch.Tensor] = {}
+
+        console.debug(f"\n[Sum-Product] Aggregating {len(state_dicts)} clients...")
+        total_data_vol = sum(vol for _, vol in self._aggregation_data_dict)
+        for i, (_, vol) in enumerate(self._aggregation_data_dict):
+            console.debug(f"  Client {i}: {vol} samples ({vol / total_data_vol * 100:.1f}%)")
 
         # 1) Weighted sum for all base (non-LoRA) tensor keys.
         #    Align values with the correct client weights (skip missing keys per client).

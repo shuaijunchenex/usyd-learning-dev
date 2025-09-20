@@ -55,7 +55,17 @@ class RblaRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running [RBLA] strategy...")
-        header_data = {"dataset": "mnist", "aggregation" : "rbla"}
+        header_data = {
+            "general": self.server_node.node_var.config_dict['general'],
+            "aggregation": self.server_node.node_var.config_dict['aggregation']['method'],
+            "rank_distribution": str(self.server_node.node_var.config_dict['rank_distribution']['rank_ratio_list']),
+            'epoch': self.server_node.node_var.config_dict['training']['epochs'],
+            "dataset": self.server_node.node_var.config_dict['data_loader']['name'],
+            "batch_size": self.server_node.node_var.config_dict['data_loader']['batch_size'],
+            "model": self.server_node.node_var.config_dict['nn_model']['name'],
+            "loss_function": self.server_node.node_var.config_dict['loss_func']['type'],
+            "client_selection": self.server_node.node_var.config_dict['client_selection']
+        }
         self.server_node.prepare(header_data, self.client_nodes)
         self.server_node.broadcast()
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
@@ -83,33 +93,4 @@ class RblaRunnerStrategy(RunnerStrategy):
             console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
 
         return
-
-    # def run(self) -> None:
-    #     print("Running FedAvg strategy...")
-    #     header_data = {"round": "10", "accuracy" : "20", "precision": "30", "recall" : "40", "f1_score" : "50"}
-    #     self.server_node.node_var.training_logger.begin(header_data)
-    #     for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
-           
-    #         console.out(f"\n{'='*10} Training round {round}/{self.args.key_value_dict.data['training_rounds']}, Total participants: {len(self.client_nodes)} {'='*10}")
-    #         self.participants = self.server_node.node_var.client_selection.select(self.client_nodes, self.server_node.node_var.config_dict["client_selection"]["number"])
-            
-    #         console.info(f"Round: {round}, Select {len(self.participants)} clients: ', '").ok(f"{', '.join(map(str, self.participants))}")
-
-    #         client_updates = list(self.simulate_client_local_training_process(self.participants))         
-
-    #         self.new_aggregated_weight = self.server_node.node_var.aggregation_method.aggregate(client_updates)
-
-    #         self.simulate_server_update_process(self.new_aggregated_weight)
-
-    #         self.simulate_server_broadcast_process()
-
-    #         eval_results = self.server_node.node_var.model_evaluator.evaluate()
-
-    #         self.server_node.node_var.model_evaluator.print_results()
-
-    #         self.server_node.node_var.training_logger.record(eval_results)
-
-    #         console.out(f"{'='*10} Round {round}/{self.args.key_value_dict.data['training_rounds']} End{'='*10}")
-
-    #     return
         
