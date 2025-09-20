@@ -222,7 +222,7 @@ class AppEntry(ABC, ObjectMap):
                             f"Known aliases: {sorted(yaml_map.keys())}"
                         )
 
-                    if alias == "general_round100" or alias == "general_round60" or alias == "general_round30" or alias == "general_round150":
+                    if alias == "general_round100" or alias == "general_round60" or alias == "general_round30" or alias == "general_round150" or alias == "general_round300":
                         self.training_rounds = int(alias.split("general_round")[-1])
 
                     config_dict = ConfigLoader.load(yaml_map[alias])

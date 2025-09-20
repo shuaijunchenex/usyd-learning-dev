@@ -82,7 +82,7 @@ yaml_folder_general_files:
 
 yaml_folder_rank_distribution_files: 
   - "rank001.yaml" : rank_distribution_001_homogeneous
-  - "rank002.yaml" : rank_distribution_002_heterogeneous
+  - "rank002.yaml" : rank_distribution_002_homogeneous
 
 #---------------------------------------
 # Combine yamls, can define any combination name,
@@ -98,7 +98,6 @@ yaml_combination:
 
   # Client
   client_yaml: 
-    - general_round100
     - training_logger
     - dataset_loader_mnist
     - nn_model_mnist_mlp_lora
