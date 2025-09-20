@@ -94,7 +94,7 @@ yaml_combination:
     - general_round100
     - training_logger
     - fl_nodes
-    - sp_runner_strategy
+    - rbla_runner_strategy
 
   # Client
   client_yaml: 
@@ -105,7 +105,7 @@ yaml_combination:
     - sgd
     - training_epoch3
     - mnist_one_label
-    - sp_client_strategy
+    - rbla_client_strategy
     - trainer_standard #, trainer
 
   # Edge
@@ -123,8 +123,8 @@ yaml_combination:
     - mnist_one_label # data_distribution
     - trainer_standard # trainer
     - client_selection_random # client_selection
-    - sp_server_strategy # server_strategy
-    - aggregation_sp # aggregation
+    - rbla_server_strategy # server_strategy
+    - aggregation_rbla # aggregation
     - rank_distribution_001_homogeneous # rank_distribution
     - base_lora_inference_mode # lora_inference
 
