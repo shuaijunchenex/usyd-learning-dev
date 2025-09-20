@@ -79,10 +79,17 @@ yaml_folder_general_files:
   - "general_round30.yaml" : general_round30
   - "general_round60.yaml" : general_round60
   - "general_round100.yaml" : general_round100
+  - "general_round150.yaml" : general_round150
+  - "general_round300.yaml" : general_round300
 
 yaml_folder_rank_distribution_files: 
   - "rank001.yaml" : rank_distribution_001_homogeneous
-  - "rank002.yaml" : rank_distribution_002_heterogeneous
+  - "rank002.yaml" : rank_distribution_002_homogeneous
+  - "rank003.yaml" : rank_distribution_003_homogeneous
+  - "rank004.yaml" : rank_distribution_004_homogeneous
+  - "rank005.yaml" : rank_distribution_005_homogeneous
+  - "rank006.yaml" : rank_distribution_006_homogeneous
+  - "rank007.yaml" : rank_distribution_007_homogeneous
 
 #---------------------------------------
 # Combine yamls, can define any combination name,
