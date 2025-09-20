@@ -32,6 +32,7 @@ class CsvDataRecorder:
         self.__csv_stream = open(self.__filename, "a", newline = "", encoding = "utf-8")
         if head_config is not None:
             self.__csv_stream.write(f"Config,{json.dumps(head_config, ensure_ascii=False)}\n\n")
+            self.__csv_stream.flush()
         return
 
     def end(self):

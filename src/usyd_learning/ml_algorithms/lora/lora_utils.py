@@ -223,64 +223,180 @@ class LoRAUtils:
         overwrite_existing: bool = True,
     ) -> OrderedDict:
         """
-        在 base_state_dict 中补齐与模板相同形状的 LoRA A/B（置零），并移除所有 *.sp_aggregated。
-        - suffix_a/suffix_b: LoRA 后缀（如 'lora_A','lora_B' 或 'lora_down','lora_up'）
-        - remove_key: 需要移除的键名（末段），默认 'sp_aggregated'
-        - overwrite_existing: 如 base 已有同名 A/B，是否用全 0 覆盖
+        Convert a base state_dict for SP-style inference:
+        1) Replace each `{prefix}.weight` with `{prefix}.sp_aggregated` when available.
+        2) Remove all keys whose last dotted component is `remove_key` (default: 'sp_aggregated').
+        3) Ensure LoRA A/B keys (matching the template) exist in the output, initialized to zeros.
+           - A/B zeros are dtype/device-aligned to `{prefix}.weight` if it exists; otherwise aligned to template.
+
+        Args:
+            base_state_dict: The model state_dict containing base weights and possibly `{prefix}.sp_aggregated`.
+            lora_template_state_dict: A state_dict that indicates which LoRA A/B keys (shapes) should exist.
+            suffix_a / suffix_b: LoRA suffixes to detect (e.g., 'lora_A'/'lora_B' or 'lora_down'/'lora_up').
+            remove_key: Keys whose last dotted component equals this will be removed (default: 'sp_aggregated').
+            clone_base: If True, tensors are cloned/detached; otherwise references are kept.
+            overwrite_existing: If True, existing A/B in base will be overwritten with zeros.
+
+        Returns:
+            OrderedDict: The converted state_dict ready for SP inference.
         """
-        def has_remove_key(k: str) -> bool:
-            # 末段或整键包含都移除更稳妥
-            return (k.endswith(remove_key)) or (remove_key in k.split("."))
+
+        # ---------- Helpers ----------
+        def last_component(k: str) -> str:
+            """Return the last dotted component of a key."""
+            return k.rsplit(".", 1)[-1]
+
+        def key_prefix(k: str) -> str:
+            """Return the prefix before the last dot; if no dot, return ''."""
+            return k.rsplit(".", 1)[0] if "." in k else ""
+
+        def is_exact_remove_key(k: str) -> bool:
+            """Remove only if the *last* component equals `remove_key`."""
+            return last_component(k) == remove_key
 
         def is_lora_key(k: str) -> bool:
+            """Check if key ends with LoRA A/B suffix."""
             return k.endswith(suffix_a) or k.endswith(suffix_b)
 
-        def split_prefix(k: str):
-            # '_fc1.lora_A' -> ('_fc1', 'lora_A')
+        def split_lora_prefix(k: str) -> Tuple[Optional[str], Optional[str]]:
+            """Return (prefix, suffix) if `k` is a LoRA A/B key, else (None, None)."""
             if k.endswith(suffix_a):
                 return k[: -len(suffix_a)].rstrip("."), suffix_a
             if k.endswith(suffix_b):
                 return k[: -len(suffix_b)].rstrip("."), suffix_b
             return None, None
 
-        # 1) 先拷贝 base，并且过滤掉所有 *.sp_aggregated
-        if clone_base:
-            new_sd = OrderedDict(
-                (k, (v.clone().detach() if torch.is_tensor(v) else v))
-                for k, v in base_state_dict.items()
-                if not has_remove_key(k)
-            )
-        else:
-            new_sd = OrderedDict((k, v) for k, v in base_state_dict.items() if not has_remove_key(k))
+        # ---------- Stage 0: Index `{prefix}.sp_aggregated` before we drop them ----------
+        # We only use entries whose LAST component equals `remove_key` to map prefixes.
+        sp_map = {}
+        for k, v in base_state_dict.items():
+            if is_exact_remove_key(k) and torch.is_tensor(v):
+                pref = key_prefix(k)  # '{prefix}.sp_aggregated' -> '{prefix}'
+                sp_map[pref] = v
 
-        # 2) 按模板的 LoRA 键补齐零矩阵，dtype/device 优先对齐该层 weight，否则对齐模板张量
+        # ---------- Stage 1: Copy base and simultaneously DROP all '*.sp_aggregated' ----------
+        # We drop any key whose last dotted component == remove_key.
+        new_sd = OrderedDict()
+        for k, v in base_state_dict.items():
+            if is_exact_remove_key(k):
+                continue  # strip SP cache
+            if clone_base and torch.is_tensor(v):
+                new_sd[k] = v.detach().clone()
+            else:
+                new_sd[k] = v
+
+        # ---------- Stage 2: Overwrite `{prefix}.weight` with `{prefix}.sp_aggregated` when present ----------
+        # For each prefix found in sp_map, replace the base weight if possible.
+        for pref, sp_tensor in sp_map.items():
+            weight_key = f"{pref}.weight"
+            if weight_key in new_sd and torch.is_tensor(new_sd[weight_key]):
+                # Align sp tensor to existing weight dtype/device (safer if base dtype differs from template)
+                tgt = new_sd[weight_key]
+                sp_aligned = sp_tensor.to(dtype=tgt.dtype, device=tgt.device)
+                new_sd[weight_key] = sp_aligned.detach().clone() if clone_base else sp_aligned
+            else:
+                # If there is no base weight, still install it (use sp dtype/device as-is).
+                new_sd[weight_key] = sp_tensor.detach().clone() if clone_base else sp_tensor
+
+        # ---------- Stage 3: Ensure LoRA A/B keys exist (zeros), shapes from template ----------
         added = 0
         for k_tmpl, v_tmpl in lora_template_state_dict.items():
             if not is_lora_key(k_tmpl):
                 continue
 
-            prefix, sfx = split_prefix(k_tmpl)
-            if prefix is None:
+            pref, sfx = split_lora_prefix(k_tmpl)
+            if pref is None:
                 continue
 
-            ref_key = f"{prefix}.weight"
-            ref = base_state_dict.get(ref_key, v_tmpl)
+            # Prefer aligning zeros to the now-final `{prefix}.weight` if present,
+            # otherwise align to the template tensor dtype/device.
+            ref = new_sd.get(f"{pref}.weight", v_tmpl)
             if not torch.is_tensor(ref):
                 ref = v_tmpl
 
             zero_like = torch.zeros_like(v_tmpl, dtype=ref.dtype, device=ref.device)
-
             if overwrite_existing or (k_tmpl not in new_sd):
                 new_sd[k_tmpl] = zero_like
                 added += 1
 
         if added == 0:
+            # If the template has no LoRA keys, inform the caller (same behavior as before).
             raise ValueError(
-                f"模板中未发现以 '{suffix_a}' 或 '{suffix_b}' 结尾的 LoRA 参数。"
-                f"（当前 remove_key='{remove_key}'，已移除相应 sp 缓存）"
+                f"No LoRA parameters ending with '{suffix_a}' or '{suffix_b}' were found in the template. "
+                f"(All '{remove_key}' caches have been removed, and weights were updated from them where present.)"
             )
 
         return new_sd
+
+    # @staticmethod
+    # def convert_lora_for_sp_inference(
+    #     base_state_dict: dict,
+    #     lora_template_state_dict: dict,
+    #     suffix_a: str = "lora_A",
+    #     suffix_b: str = "lora_B",
+    #     remove_key: str = "sp_aggregated",
+    #     clone_base: bool = True,
+    #     overwrite_existing: bool = True,
+    # ) -> OrderedDict:
+    #     """
+    #     在 base_state_dict 中补齐与模板相同形状的 LoRA A/B（置零），并移除所有 *.sp_aggregated。
+    #     - suffix_a/suffix_b: LoRA 后缀（如 'lora_A','lora_B' 或 'lora_down','lora_up'）
+    #     - remove_key: 需要移除的键名（末段），默认 'sp_aggregated'
+    #     - overwrite_existing: 如 base 已有同名 A/B，是否用全 0 覆盖
+    #     """
+    #     def has_remove_key(k: str) -> bool:
+    #         # 末段或整键包含都移除更稳妥
+    #         return (k.endswith(remove_key)) or (remove_key in k.split("."))
+
+    #     def is_lora_key(k: str) -> bool:
+    #         return k.endswith(suffix_a) or k.endswith(suffix_b)
+
+    #     def split_prefix(k: str):
+    #         # '_fc1.lora_A' -> ('_fc1', 'lora_A')
+    #         if k.endswith(suffix_a):
+    #             return k[: -len(suffix_a)].rstrip("."), suffix_a
+    #         if k.endswith(suffix_b):
+    #             return k[: -len(suffix_b)].rstrip("."), suffix_b
+    #         return None, None
+
+    #     # 1) 先拷贝 base，并且过滤掉所有 *.sp_aggregated
+    #     if clone_base:
+    #         new_sd = OrderedDict(
+    #             (k, (v.clone().detach() if torch.is_tensor(v) else v))
+    #             for k, v in base_state_dict.items()
+    #             if not has_remove_key(k)
+    #         )
+    #     else:
+    #         new_sd = OrderedDict((k, v) for k, v in base_state_dict.items() if not has_remove_key(k))
+
+    #     # 2) 按模板的 LoRA 键补齐零矩阵，dtype/device 优先对齐该层 weight，否则对齐模板张量
+    #     added = 0
+    #     for k_tmpl, v_tmpl in lora_template_state_dict.items():
+    #         if not is_lora_key(k_tmpl):
+    #             continue
+
+    #         prefix, sfx = split_prefix(k_tmpl)
+    #         if prefix is None:
+    #             continue
+
+    #         ref_key = f"{prefix}.weight"
+    #         ref = base_state_dict.get(ref_key, v_tmpl)
+    #         if not torch.is_tensor(ref):
+    #             ref = v_tmpl
+
+    #         zero_like = torch.zeros_like(v_tmpl, dtype=ref.dtype, device=ref.device)
+
+    #         if overwrite_existing or (k_tmpl not in new_sd):
+    #             new_sd[k_tmpl] = zero_like
+    #             added += 1
+
+    #     if added == 0:
+    #         raise ValueError(
+    #             f"模板中未发现以 '{suffix_a}' 或 '{suffix_b}' 结尾的 LoRA 参数。"
+    #             f"（当前 remove_key='{remove_key}'，已移除相应 sp 缓存）"
+    #         )
+
+    #     return new_sd
 
     @staticmethod
     def _natural_list(s: str):

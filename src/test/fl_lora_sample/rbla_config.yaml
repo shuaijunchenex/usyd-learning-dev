@@ -1,24 +1,6 @@
 # yaml files path
 yaml_section_path: "./yamls/"
 
-#---------------------------------------
-yaml_folder_aggreation_path: "./yamls/aggregation/"
-yaml_folder_client_selection_path: "./yamls/client_selection/"
-yaml_folder_dataset_loader_path: "./yamls/dataset_loader/"
-yaml_folder_distribution_path: "./yamls/data_distribution/"
-yaml_folder_loss_func_path: "./yamls/loss_func/"
-yaml_folder_lora_path: "./yamls/lora/"
-yaml_folder_nn_model_path: "./yamls/nn_model/"
-yaml_folder_fl_nodes_path: "./yamls/fl_nodes/"
-yaml_folder_optimizer_path: "./yamls/optimizer/"
-yaml_folder_training_path: "./yamls/training/"
-yaml_folder_client_strategy_path: "./yamls/client_strategy/"
-yaml_folder_server_strategy_path: "./yamls/server_strategy/"
-yaml_folder_runner_strategy_path: "./yamls/runner_strategy/"
-yaml_folder_trainer_path: "./yamls/trainer/"
-yaml_folder_training_logger_path: "./yamls/training_logger/"
-#---------------------------------------
-
 # yaml files
 yaml_section_files: 
   # <file name> : <name>, if name is empty use file name without extension
@@ -52,13 +34,13 @@ yaml_combination:
   runner: [general, training_logger, fl_nodes, runner_strategy]
 
   # Client
-  client_yaml: [general, training_logger, dataset_loader_mnist, nn_model_mnist_mlp_lora, loss_func, optimizer, training, mnist_distribution, client_strategy, trainer_standard] #, trainer
+  client_yaml: [general, training_logger, dataset_loader_mnist, nn_model_mnist_mlp_lora, loss_func, optimizer, training, cifar10_distribution, client_strategy, trainer_standard] #, trainer
 
   # Edge
   edge_yaml: []  
 
   # Server
   # server_yaml: [general, training_logger, dataset_loader, nn_model, aggregation, client_selection, server_strategy, trainer]
-  server_yaml: [general, training_logger, dataset_loader_mnist, nn_model_mnist_mlp_lora, loss_func, optimizer, training, mnist_distribution, client_strategy, trainer_standard, client_selection, server_strategy, aggregation, rank_distribution, lora]
+  server_yaml: [general, training_logger, dataset_loader_mnist, nn_model_mnist_mlp_lora, loss_func, optimizer, training, cifar10_distribution, client_strategy, trainer_standard, client_selection, server_strategy, aggregation, rank_distribution, lora]
 
   # Other combinations

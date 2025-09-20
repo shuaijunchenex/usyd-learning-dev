@@ -53,7 +53,17 @@ class SpRunnerStrategy(RunnerStrategy):
 
     def run(self) -> None:
         print("Running [Sum-Product] strategy...")
-        header_data = {"dataset": "mnist", "aggregation" : "sp"}
+        header_data = {
+            "general": self.server_node.node_var.config_dict['general'],
+            "aggregation": self.server_node.node_var.config_dict['aggregation']['method'],
+            "rank_distribution": str(self.server_node.node_var.config_dict['rank_distribution']['rank_ratio_list']),
+            'epoch': self.server_node.node_var.config_dict['training']['epochs'],
+            "dataset": self.server_node.node_var.config_dict['data_loader']['name'],
+            "batch_size": self.server_node.node_var.config_dict['data_loader']['batch_size'],
+            "model": self.server_node.node_var.config_dict['nn_model']['name'],
+            "loss_function": self.server_node.node_var.config_dict['loss_func']['type'],
+            "client_selection": self.server_node.node_var.config_dict['client_selection']
+        }
         self.server_node.prepare(header_data, self.client_nodes)
         for round in tqdm(range(self.args.key_value_dict.data['training_rounds'] + 1)):
            

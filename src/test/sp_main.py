@@ -18,12 +18,12 @@ g_app = SampleAppEntry()
 
 def main():
     # Load app config set from yaml file
-    g_app.load_app_config("./fl_lora_sample/sp_config.yaml")
+    g_app.load_app_config("./fl_lora_sample/script_test.yaml")
     device = ModelUtils.accelerator_device()
     
     # Get training rounds
-    general_yaml = g_app.get_app_object("general")
-    training_rounds = general_yaml["general"]["training_rounds"]
+    #general_yaml = g_app.get_app_object("general")
+    training_rounds = g_app.training_rounds#general_yaml["general"]["training_rounds"]
 
     # Run app
     g_app.run(device, training_rounds)

@@ -42,7 +42,7 @@ class SpServerStrategy(ServerStrategy):
     def receive_client_updates(self, client_updates) -> None:
         self._obj.node_var.client_updates = client_updates #{client1: {weight:"", data_vol:""}, client2: {weight:"", data_vol:""}}
     
-    def apply_weight(self, mode = "regular"):
+    def apply_weight(self, mode = "replace_w"):
         if mode == "replace_w":
             inference_weight = LoRAUtils.convert_lora_for_sp_inference(self._obj.node_var.aggregated_weight, self._obj.node_var.model_weight)
             inference_weight = LoRAUtils.sort_state_dict_by_suffix(inference_weight)
