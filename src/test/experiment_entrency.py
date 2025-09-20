@@ -22,7 +22,6 @@ def main(config_path: str = "./fl_lora_sample/script_test-rbla.yaml"):
 
     # Run app
     g_app.run(device, g_app.training_rounds)
-    return
 
 if __name__ == "__main__":
     main()

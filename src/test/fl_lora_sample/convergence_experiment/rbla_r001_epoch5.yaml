@@ -127,7 +127,7 @@ yaml_combination:
     - nn_model_mnist_mlp_lora # nn_model
     - cross_entropy # loss_func
     - sgd # optimizer
-    - training_epoch2 # training
+    - training_epoch5 # training
     - mnist_one_label # data_distribution
     - trainer_standard # trainer
     - client_selection_random # client_selection

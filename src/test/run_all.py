@@ -27,14 +27,49 @@ def list_yaml_files(folder: str, target_path: str) -> List[str]:
 
     return files
 
+# run_all.py
+import subprocess
+import sys
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+def run_all(configs):
+    child_code = (
+        "import sys; "
+        "import experiment_entrency; "
+        "experiment_entrency.main(sys.argv[1])"
+    )
+
+    env = os.environ.copy()
+    sep = ";" if os.name == "nt" else ":"
+    env["PYTHONPATH"] = str(BASE_DIR) + (sep + env.get("PYTHONPATH", ""))
+
+    for idx, cfg in enumerate(configs, 1):
+        cfg_path = str(Path(cfg).resolve())
+        print(f"\n[Batch] ({idx}/{len(configs)}) Running: {cfg_path}")
+        cmd = [sys.executable, "-c", child_code, cfg_path]
+        subprocess.run(cmd, check=True, cwd=str(BASE_DIR), env=env)
+        print(f"[Batch] Finished: {cfg_path}")
+
 if __name__ == "__main__":
-
-    config_list = list_yaml_files("./fl_lora_sample/convergence_experiment/", "./fl_lora_sample/convergence_experiment/")
-
     configs = [
-        ("./fl_lora_sample/script_test-sp.yaml"),
-        ("./fl_lora_sample/script_test-rbla.yaml"),
+        "./fl_lora_sample/script_test-sp.yaml",
+        "./fl_lora_sample/script_test-rbla.yaml",
     ]
+    config_list = list_yaml_files("./fl_lora_sample/convergence_experiment/", "./fl_lora_sample/convergence_experiment/")
+    run_all(config_list)
 
-    for i in config_list:
-        subprocess.run([experiment_entrency.main(i)])
+
+# if __name__ == "__main__":
+
+#     config_list = list_yaml_files("./fl_lora_sample/convergence_experiment/", "./fl_lora_sample/convergence_experiment/")
+
+#     configs = [
+#         ("./fl_lora_sample/script_test-sp.yaml"),
+#         ("./fl_lora_sample/script_test-rbla.yaml"),
+#     ]
+
+#     for i in config_list:
+#         subprocess.run(experiment_entrency.main(i))
