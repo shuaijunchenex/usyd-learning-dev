@@ -75,12 +75,10 @@ class ModelTrainer_Vit(ModelTrainer):
 
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
-        # 准备模型与优化器
         ta.model.to(self.device)
         ta.model.train()
         ta.optimizer.zero_grad(set_to_none=True)
 
-        # 累计器
         grad_accum_steps: int = getattr(ta, "grad_accum_steps", getattr(ta, "accumulation_steps", 1))
         clip_grad_norm: float = float(getattr(ta, "clip_grad_norm", 0.0))
 

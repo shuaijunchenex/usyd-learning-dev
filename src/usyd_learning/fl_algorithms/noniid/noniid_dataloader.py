@@ -17,7 +17,6 @@ class NoniidDataLoader(DatasetLoader):
         """
         Create client dataloaders based on args.
         """
-        # 先准备原始 DataLoader (用已有 DatasetLoaderArgs 的 dataset)
         base_loader = DataLoader(
             args.dataset,
             batch_size=args.batch_size,
@@ -25,7 +24,6 @@ class NoniidDataLoader(DatasetLoader):
             num_workers=args.num_workers
         )
 
-        # 用 NoniidDataGenerator 生成 client dataloaders
         generator = NoniidDataGenerator(base_loader)
         self._client_loaders = generator.generate_noniid_data(
             distribution=args.extra.get("distribution", "mnist_lt"),
@@ -35,8 +33,6 @@ class NoniidDataLoader(DatasetLoader):
             num_workers=args.num_workers
         )
 
-        # 为了兼容 DatasetLoader 接口，给 _data_loader 和 _test_data_loader 一个默认值
-        # 比如把第一个 client 的 loader 作为主 data_loader
         if self._client_loaders:
             self._data_loader = self._client_loaders[0]
         else:

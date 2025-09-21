@@ -1,9 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Optional
-
 from torch.utils.data import DataLoader, Dataset
 from .dataset_loader_args import DatasetLoaderArgs
+import operator
 
 
 class DatasetLoader(ABC):
@@ -57,7 +57,10 @@ class DatasetLoader(ABC):
         if fn is not None:
             self._after_create_fn = fn
             fn(self)
-        self.data_sample_num = self.data_loader.dataset.__len__()
+
+        #self._get_data_length()
+        # if self._data_loader.data_sample_num is not None:
+        #     self.data_sample_num = self._data_loader.data_sample_num#self.data_loader.dataset.__len__()#data_sample_num#dataset.__len__()
         return self
 
     @abstractmethod
@@ -66,3 +69,36 @@ class DatasetLoader(ABC):
         Real create loader
         """
         pass
+
+    def _get_data_length(self):
+        self._try_len()
+        self._try_length_hint()
+        return self._count_via_loader()
+
+    def _try_len(self):
+        try:
+            self.data_sample_num = len(self._data_loader)
+        except Exception:
+            pass
+
+    def _try_length_hint(self):
+        try:
+            n = operator.length_hint(self._data_loader, -1)
+            self.data_sample_num = n if n >= 0 else None
+        except Exception:
+            pass
+        
+    def _count_via_loader(self):
+        total = 0
+        for batch in self._data_loader:
+            if isinstance(batch, (list, tuple)) and len(batch) >= 2:
+                y = batch[1]
+                if hasattr(y, "size"):      # Tensor
+                    total += int(y.size(0))
+                elif hasattr(y, "__len__"): # list 等
+                    total += len(y)
+                else:
+                    total += 1
+            else:
+                total += 1
+        self.data_sample_num = total

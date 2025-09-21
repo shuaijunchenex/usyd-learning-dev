@@ -8,7 +8,7 @@ from .fed_node_event_args import FedNodeEventArgs
 from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap, KeyValueArgs
 from ..ml_models import NNModelFactory
 from ..ml_data_loader import DatasetLoaderArgs, DatasetLoaderFactory, DatasetLoader
-from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder
+from ..ml_algorithms import LossFunctionBuilder, OptimizerBuilder, TokenizerBuilder
 from ..fl_algorithms import FedClientSelectorFactory, FedClientSelector, FedClientSelectorArgs, FedAggregatorArgs, FedAggregatorFactory
 from ..ml_data_process import DataDistribution
 from ..fed_strategy.strategy_factory import StrategyFactory
@@ -42,7 +42,8 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         # Declare event
         self.declare_events("on_prepare_data_loader", "on_prepare_data_distribution", "on_prepare_data_handler", "on_prepare_model",
                             "on_prepare_optimizer", "on_prepare_loss_func", "on_prepare_client_selection", "on_prepare_trainer",
-                            "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger", "on_prepare_lora_inference_model")
+                            "on_prepare_aggregation", "on_prepare_strategy", "on_prepare_extractor", "on_prepare_training_logger", 
+                            "on_prepare_lora_inference_model", "on_prepare_tokenizer")
         return
 
     @property
@@ -247,20 +248,36 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             config = self.config_dict
 
         name = config["name"]
+
         if String.is_none_or_empty(name):
             raise ValueError("Error: Missing model name in yaml.")
+        
+        if self.data_loader.task_type != "nlp":
+            is_share_model = config.get("share_model", True)  # NOTICE: Share model
+            if is_share_model and FedNodeVars.share_model is not None:
+                self.model = FedNodeVars.share_model
+                self.model_weight = self.model.state_dict()  # model weight
+            else:
+                args = NNModelFactory.create_args(config)
+                self.model = NNModelFactory.create(args)
+                self.model_weight = self.model.state_dict()  # model weight
 
-        is_share_model = config.get("share_model", True)  # NOTICE: Share model
-        if is_share_model and FedNodeVars.share_model is not None:
-            self.model = FedNodeVars.share_model
-            self.model_weight = self.model.state_dict()  # model weight
-        else:
-            args = NNModelFactory.create_args(config)
-            self.model = NNModelFactory.create(args)
-            self.model_weight = self.model.state_dict()  # model weight
+            if is_share_model and FedNodeVars.share_model is None:
+                FedNodeVars.share_model = self.model
 
-        if is_share_model and FedNodeVars.share_model is None:
-            FedNodeVars.share_model = self.model
+        elif self.data_loader.task_type == "nlp":
+            is_share_model = config.get("share_model", True)  # NOTICE: Share model
+            if is_share_model and FedNodeVars.share_model is not None:
+                self.model = FedNodeVars.share_model
+                self.model_weight = self.model.state_dict()  # model weight
+            else:
+                args = NNModelFactory.create_args(config)
+                args.vocab_size = len(self.vocab)
+                self.model = NNModelFactory.create(args)
+                self.model_weight = self.model.state_dict()  # model weight
+
+            if is_share_model and FedNodeVars.share_model is None:
+                FedNodeVars.share_model = self.model
 
         # Raise event
         args = FedNodeEventArgs("model", self.config_dict).with_sender(self).with_data(self.model)
@@ -357,13 +374,34 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
             config = self.config_dict["nn_model"]
             config['rank_ratio'] = max(self.config_dict["rank_distribution"]["rank_ratio_list"])
             args = NNModelFactory.create_args(config)
-            self.inference_model = NNModelFactory.create(args)
-            aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
-            self.model_evaluator.change_model(self.inference_model, aligned_weight)
-            # Raise extractor event
+
+            if self.data_loader.task_type != "nlp":
+                self.inference_model = NNModelFactory.create(args)
+                aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
+                self.model_evaluator.change_model(self.inference_model, aligned_weight)
+                # Raise extractor event
+
+            elif self.data_loader.task_type == "nlp":
+                args = NNModelFactory.create_args(config)
+                args.vocab_size = len(self.vocab)
+                self.inference_model = NNModelFactory.create(args)
+                aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
+                self.model_evaluator.change_model(self.inference_model, aligned_weight)
+
             args = FedNodeEventArgs("lora_inference_model", self.config_dict).with_sender(self)
             self.raise_event("on_prepare_lora_inference_model", args)
             
+        return
+
+    def prepare_vocab_tokenizer(self):
+        if "tokenizer" in self.config_dict and self.data_loader.task_type == "nlp":
+            self.tokenizer_builder = TokenizerBuilder(self.config_dict)
+            self.tokenizer = self.tokenizer_builder.build()
+            args = FedNodeEventArgs("tokenizer", self.config_dict).with_sender(self).with_data(self.tokenizer)
+            self.raise_event("on_prepare_tokenizer", args)
+            data_input = self.data_loader.get_dataset()
+            self.vocab = self.tokenizer_builder.build_vocab(data_input, self.tokenizer)
+
         return
 
     # endregion
@@ -382,6 +420,10 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         console.info("Prepare data handler...", "")
         self.prepare_data_handler()
+        console.ok("OK")
+
+        console.info("Prepare vocab tokenizer...", "")
+        self.prepare_vocab_tokenizer()
         console.ok("OK")
 
         console.info("Prepare NN model...", "")

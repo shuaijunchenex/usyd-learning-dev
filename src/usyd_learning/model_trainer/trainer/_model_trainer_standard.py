@@ -90,7 +90,7 @@ class ModelTrainer_Standard(ModelTrainer):
         )
         return avg_loss
 
-    def train(self, epochs, is_return_wbab=False) -> Any:
+    def train(self, epochs) -> Any:
         self.trainer_args.total_epochs = epochs
 
         self._epoch_idx = 0
@@ -107,10 +107,7 @@ class ModelTrainer_Standard(ModelTrainer):
         train_stats["avg_loss"] = train_stats["train_loss_sum"] / epochs
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
 
-        if is_return_wbab:
-            return self.trainer_args.model.state_dict(), train_stats, self.extract_wbab()
-        else:
-            return self.trainer_args.model.state_dict(), train_stats
+        return self.trainer_args.model.state_dict(), train_stats
 
     def observe(self, epochs=5) -> Any:
         self.trainer_args.total_epochs = epochs

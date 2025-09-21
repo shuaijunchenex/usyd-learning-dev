@@ -1,0 +1,7 @@
+# section-tokenizer-basic_english.yaml
+tokenizer:
+  type: basic_english   # 使用 torchtext 的 basic_english 分词器
+  root: "../../../.dataset"
+  min_freq: 2            # 最小词频
+  max_vocab: 30000       # 最大词汇表大小
+  lower: True           # 是否转为小写（true/false）

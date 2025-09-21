@@ -16,11 +16,10 @@ g_app = SampleAppEntry()
 
 def main():
     # Load app config set from yaml file
-    g_app.load_app_config("./fl_lora_sample/sample_app_config.yaml")
+    g_app.load_app_config("./fl_lora_sample/imdb_test.yaml")
 
     # Get training rounds
-    general_yaml = g_app.get_app_object("general")
-    training_rounds = general_yaml["general"]["training_rounds"]
+    training_rounds = g_app.training_rounds
 
     # Run app
     g_app.run(training_rounds)

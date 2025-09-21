@@ -5,7 +5,6 @@ from .nn_model import NNModel
 from .nn_model_abc import AbstractNNModel
 from .nn_model_args import NNModelArgs
 from .nn_model_factory import NNModelFactory
-from .model_utils import ModelUtils
 
 from .models._nn_model_mnist_nn_brenden import NNModel_MnistNNBrenden
 from .models._nn_model_capstone_mlp import NNModel_CapstoneMLP

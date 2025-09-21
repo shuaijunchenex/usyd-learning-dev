@@ -7,7 +7,7 @@ from ...ml_algorithms.lora import MSLoRALinear
 from .. import AbstractNNModel, NNModelArgs, NNModel
 from typing import Any, Optional
 
-class NNModel_ViT_MSLoRA_CIFAR10(NNModel):
+class NNModel_ViTMSLoRACIFAR10(NNModel):
     def __init__(self):
         super().__init__()
         self.lora_mode = "standard"
