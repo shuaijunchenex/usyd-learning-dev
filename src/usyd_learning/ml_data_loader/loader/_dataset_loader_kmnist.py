@@ -28,13 +28,13 @@ class DatasetLoader_Kmnist(DatasetLoader):
         self.data_sample_num = 60000
         self.task_type = "cv"
 
-        # 训练/验证集（由 is_train 控制）
         self._dataset = datasets.KMNIST(
             root=args.root,
             train=args.is_train,
             transform=args.transform,
             download=args.is_download,
         )
+        
         self._data_loader = DataLoader(
             self._dataset,
             batch_size=args.batch_size,

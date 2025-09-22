@@ -22,7 +22,7 @@ def main():
     training_rounds = g_app.training_rounds
 
     # Run app
-    g_app.run("mps",training_rounds)
+    g_app.run("cpu",training_rounds)
     return
 
 if __name__ == "__main__":
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     console.out("======================= PROGRAM BEGIN ==========================")
     main()
     console.out("\n======================= PROGRAM END ============================")
-    console.wait_any_key()
+    #console.wait_any_key()

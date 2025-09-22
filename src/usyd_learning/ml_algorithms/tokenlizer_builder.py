@@ -5,7 +5,7 @@ import torch.optim as optim
 from typing import Callable, Any, Optional, Dict, List
 from ..ml_utils import Handlers
 from torch.nn.utils.rnn import pad_sequence
-from transformers import AutoTokenizer
+#from transformers import AutoTokenizer
 from torchtext.vocab import build_vocab_from_iterator
 
 class TokenizerBuilder(Handlers):

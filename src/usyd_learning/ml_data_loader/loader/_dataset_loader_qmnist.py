@@ -7,7 +7,7 @@ import torch
 
 from ..dataset_loader import DatasetLoader
 from ..dataset_loader_args import DatasetLoaderArgs
-
+from torch.utils.data import DataLoader, ConcatDataset
 '''
 Dataset loader for Qmnist
 '''
@@ -25,43 +25,81 @@ class DatasetLoader_Qmnist(DatasetLoader):
                 transforms.Lambda(torch.flatten),
             ])
 
-        self.data_sample_num = 110000
         self.task_type = "cv"
 
-        # torchvision.datasets.QMNIST 使用 "what" 指定 split（常见取值："train"|"test"|"test10k"|"test50k"|"nist"）
-        # 若调用方没有显式给出 qmnist_what，则根据 is_train 自动选择 "train"/"test"
-        what_train = getattr(args, "qmnist_what", None) or ("train" if args.is_train else "test")
-
-        self._dataset = datasets.QMNIST(
+        # -------- 合并 QMNIST train (60k) + test50k (50k) --------
+        train_set = datasets.QMNIST(
             root=args.root,
-            what=what_train,
+            what="train",
             transform=args.transform,
             download=args.is_download,
-            compat=True,  # 维持与 MNIST 标签的兼容（常见做法）
+            compat=True,  # 与 MNIST 标签兼容
         )
+        extra_set = datasets.QMNIST(
+            root=args.root,
+            what="test50k",
+            transform=args.transform,
+            download=args.is_download,
+            compat=True,
+        )
+
+        # 拼接
+        self._dataset = ConcatDataset([train_set, extra_set])
+        self.data_sample_num = len(self._dataset)  # 应该是 110000
+
+        # DataLoader for train
         self._data_loader = DataLoader(
             self._dataset,
             batch_size=args.batch_size,
             shuffle=args.shuffle,
             num_workers=args.num_workers,
         )
+        # from collections import Counter
 
-        # 测试集 loader：允许单独指定 qmnist_what_test，否则默认 "test"
+        # labels = [label for _, label in self._dataset]
+
+        # counter = Counter(labels)
+
+        # -------- 测试集（默认使用 test 10k） --------
         test_transform = getattr(args, "test_transform", None) or args.transform
         test_batch_size = getattr(args, "test_batch_size", None) or args.batch_size
-        what_test = getattr(args, "qmnist_what_test", None) or "test"
 
-        self._test_dataset = datasets.QMNIST(
+        test10k = datasets.QMNIST(
             root=args.root,
-            what=what_test,
+            what="test10k",
             transform=test_transform,
             download=args.is_download,
             compat=True,
         )
+        test50k = datasets.QMNIST(
+            root=args.root,
+            what="test50k",
+            transform=test_transform,
+            download=args.is_download,
+            compat=True,
+        )
+
+        # 拼接两个测试集
+        self._test_dataset = ConcatDataset([test10k, test50k])
+
         self._test_data_loader = DataLoader(
             self._test_dataset,
             batch_size=test_batch_size,
             shuffle=False,
             num_workers=args.num_workers,
         )
+
+        # self._test_dataset = datasets.QMNIST(
+        #     root=args.root,
+        #     what="test10k",
+        #     transform=test_transform,
+        #     download=args.is_download,
+        #     compat=True,
+        # )
+        # self._test_data_loader = DataLoader(
+        #     self._test_dataset,
+        #     batch_size=test_batch_size,
+        #     shuffle=False,
+        #     num_workers=args.num_workers,
+        # )
         return
