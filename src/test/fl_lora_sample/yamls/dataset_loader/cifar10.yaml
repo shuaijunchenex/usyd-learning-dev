@@ -11,3 +11,4 @@ data_loader:
   is_download: True             # Is download from internet
   is_load_train_set: True
   is_load_test_set: True
+  task_type: cv

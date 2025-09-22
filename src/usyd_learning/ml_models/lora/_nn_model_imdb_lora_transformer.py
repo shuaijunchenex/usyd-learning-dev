@@ -39,7 +39,7 @@ class NNModel_ImdbMSLoRATransformer(NNModel):
 
         # embedding
         self.embed = MSEmbedding(
-            vocab_size, embed_dim, r=lora_r * rank_ratio, lora_alpha=lora_alpha,
+            vocab_size, embed_dim, r=int(lora_r * rank_ratio), lora_alpha=lora_alpha,
             merge_weights=True, padding_idx=None
         )
         self.pos = SinusoidalPositionalEncoding(embed_dim, max_len=max_len)
@@ -48,13 +48,13 @@ class NNModel_ImdbMSLoRATransformer(NNModel):
         # transformer blocks
         self.blocks = nn.ModuleList([
             EncoderBlock(embed_dim, heads, mlp_ratio, qkv_bias, attn_drop, drop_rate,
-                         lora_r * rank_ratio, lora_alpha, lora_dropout) for _ in range(depth)
+                         int(lora_r * rank_ratio), lora_alpha, lora_dropout) for _ in range(depth)
         ])
 
         # normalization + classifier head
         self.norm = nn.LayerNorm(embed_dim)
         self.head = MSLoRALinear(
-            embed_dim, num_classes, r=lora_r * rank_ratio, lora_alpha=lora_alpha,
+            embed_dim, num_classes, r=int(lora_r * rank_ratio), lora_alpha=lora_alpha,
             lora_dropout=lora_dropout, merge_weights=True
         )
 

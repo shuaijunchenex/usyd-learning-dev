@@ -3,9 +3,12 @@ from __future__ import annotations
 
 from ..dataset_loader import DatasetLoader
 from ..dataset_loader_args import DatasetLoaderArgs
+from ..dataset_loader_util import DatasetLoaderUtil
 from torch.utils.data import DataLoader
 from torchtext.datasets import IMDB
 from torch.utils.data import IterableDataset
+from ...ml_algorithms.tokenlizer_builder import TokenizerBuilder
+from functools import partial
 
 import torch
 '''
@@ -38,27 +41,22 @@ class DatasetLoader_Imdb(DatasetLoader):
         test_batch_size = getattr(args, "test_batch_size", None) or batch_size
         shuffle = getattr(args, "shuffle", True)
         num_workers = getattr(args, "num_workers", 0)
-
-        # 必须提供文本的 collate_fn，否则无法保证张量化/对齐长度
-        text_collate_fn = getattr(args, "text_collate_fn", None)
-        if text_collate_fn is None:
-            raise ValueError(
-                "IMDB loader requires `args.text_collate_fn` to tokenize & pad text into tensors.\n"
-                "Ensure it returns: (input_ids: LongTensor[B, L], labels: LongTensor[B])"
-            )
-
-        if is_download:
-                self._warmup_download(root)
-
+        
         self._dataset = IMDB(root=root, split="train")
         self._test_dataset = IMDB(root=root, split="test")
+
+        self.vocab = TokenizerBuilder.build_vocab(self._dataset, args.tokenizer)
+        args.vocab_size = len(self.vocab)
+
+        if is_download:
+            self._warmup_download(root)
 
         self._data_loader = DataLoader(
             self._dataset,
             batch_size=batch_size,
             shuffle= False,
             num_workers=num_workers,
-            collate_fn=text_collate_fn,
+            collate_fn=partial(DatasetLoaderUtil.text_collate_fn, tokenizer=args.tokenizer, vocab=self.vocab),
         )
 
         self.data_sample_num = 25000
@@ -68,7 +66,7 @@ class DatasetLoader_Imdb(DatasetLoader):
             batch_size=test_batch_size,
             shuffle=False,
             num_workers=num_workers,
-            collate_fn=text_collate_fn,
+            collate_fn=partial(DatasetLoaderUtil.text_collate_fn, tokenizer=args.tokenizer, vocab=self.vocab),
         )
         return
 

@@ -41,7 +41,7 @@ class ModelTrainer_Vit(ModelTrainer):
 
         self._epoch_idx: int = 0
         self._scaler = self._make_scaler()         # 仅 CUDA 返回 GradScaler，否则 None
-        self._use_amp = self._should_use_amp()     # CUDA/MPS 可用，CPU 关闭
+        self._use_amp = self._use_amp()     # CUDA/MPS 可用，CPU 关闭
 
         if self.trainer_args.ema_decay!=None and self.trainer_args.ema_decay>0:
             self._ewma = ModelEWMA(self.trainer_args.model, decay=self.trainer_args.ema_decay, device=self.device)
@@ -75,10 +75,12 @@ class ModelTrainer_Vit(ModelTrainer):
 
         total_epochs = getattr(ta, "total_epochs", getattr(ta, "epochs", None))
 
+        # 准备模型与优化器
         ta.model.to(self.device)
         ta.model.train()
         ta.optimizer.zero_grad(set_to_none=True)
 
+        # 累计器
         grad_accum_steps: int = getattr(ta, "grad_accum_steps", getattr(ta, "accumulation_steps", 1))
         clip_grad_norm: float = float(getattr(ta, "clip_grad_norm", 0.0))
 
@@ -183,7 +185,7 @@ class ModelTrainer_Vit(ModelTrainer):
         train_stats["sqrt_train_loss_power_two_sum"] = math.sqrt(train_stats["train_loss_power_two_sum"])
         return self.trainer_args.model.state_dict(), train_stats
 
-    def _should_use_amp(self) -> bool:
+    def _use_amp(self) -> bool:
         """根据设备与配置决定是否启用 AMP（CUDA/MPS 才考虑）。"""
         ta = self.trainer_args
         want_amp: bool = bool(getattr(ta, "use_amp", getattr(ta, "amp", False)))
@@ -204,7 +206,7 @@ class ModelTrainer_Vit(ModelTrainer):
 
     def _make_scaler(self) -> Optional[torch.cuda.amp.GradScaler]:
         """仅在 CUDA + AMP 时使用 GradScaler；MPS/CPU 返回 None。"""
-        if self.device.type == "cuda" and self._should_use_amp():
+        if self.device.type == "cuda" and self._use_amp():
             return torch.cuda.amp.GradScaler(enabled=True)
         return None
 

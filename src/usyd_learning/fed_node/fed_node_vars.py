@@ -3,7 +3,7 @@ from typing import Any
 
 import torch.nn as nn
 import copy
-
+from ..ml_data_loader.dataset_loader_util import DatasetLoaderUtil
 from .fed_node_event_args import FedNodeEventArgs
 from ..ml_utils import TrainingLogger, EventHandler, console, String, ObjectMap, KeyValueArgs
 from ..ml_models import NNModelFactory
@@ -213,14 +213,15 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
     def prepare_data_loader(self):
         if "data_loader" in self.config_dict:
             data_loader_args = DatasetLoaderArgs(self.config_dict["data_loader"])
-            data_loader_args.collate_fn = self.data_loader_collate_fn
             data_loader_args.transform = self.data_loader_transform
+            data_loader_args.tokenizer = self.tokenizer
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
             data_loader_args.is_train = False  # get test data loader
             self.test_data_loader = DatasetLoaderFactory.create(data_loader_args)
             self.data_sample_num = self.data_loader.data_sample_num
-            console.warn("WARN: Missing data loader config in yaml.")
-
+        
+            if data_loader_args.vocab_size != None:
+                self.vocab_size = data_loader_args.vocab_size
         # Raise event
         args = FedNodeEventArgs("data_loader", self.config_dict).with_sender(self).with_data(self.data_loader)
         self.raise_event("on_prepare_data_loader", args)
@@ -272,7 +273,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
                 self.model_weight = self.model.state_dict()  # model weight
             else:
                 args = NNModelFactory.create_args(config)
-                args.vocab_size = len(self.vocab)
+                args.vocab_size = self.vocab_size
                 self.model = NNModelFactory.create(args)
                 self.model_weight = self.model.state_dict()  # model weight
 
@@ -383,7 +384,7 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
             elif self.data_loader.task_type == "nlp":
                 args = NNModelFactory.create_args(config)
-                args.vocab_size = len(self.vocab)
+                args.vocab_size = self.vocab_size
                 self.inference_model = NNModelFactory.create(args)
                 aligned_weight = LoRAUtils.replace_weight_and_bias(self.inference_model.state_dict(), self.model.state_dict())
                 self.model_evaluator.change_model(self.inference_model, aligned_weight)
@@ -394,11 +395,16 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         return
 
     def prepare_vocab_tokenizer(self):
-        if "tokenizer" in self.config_dict and self.data_loader.task_type == "nlp":
+        if "tokenizer" in self.config_dict and self.config_dict["data_loader"]["task_type"] == "nlp":
             self.tokenizer_builder = TokenizerBuilder(self.config_dict)
             self.tokenizer = self.tokenizer_builder.build()
             args = FedNodeEventArgs("tokenizer", self.config_dict).with_sender(self).with_data(self.tokenizer)
             self.raise_event("on_prepare_tokenizer", args)
+
+        return
+
+    def prepare_vocab(self):
+        if "tokenizer" in self.config_dict and self.data_loader.task_type == "nlp":
             data_input = self.data_loader.get_dataset()
             self.vocab = self.tokenizer_builder.build_vocab(data_input, self.tokenizer)
 
@@ -410,8 +416,14 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         """
         Prepare
         """
+        
+        console.info("Prepare vocab tokenizer...", "")
+        self.prepare_vocab_tokenizer()
+        console.ok("OK")
+
         console.info("Prepare data loader...", "")
         self.prepare_data_loader()
+        #self.prepare_vocab()
         console.ok("OK")
 
         console.info("Prepare data_distribution...", "")
@@ -420,10 +432,6 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
 
         console.info("Prepare data handler...", "")
         self.prepare_data_handler()
-        console.ok("OK")
-
-        console.info("Prepare vocab tokenizer...", "")
-        self.prepare_vocab_tokenizer()
         console.ok("OK")
 
         console.info("Prepare NN model...", "")

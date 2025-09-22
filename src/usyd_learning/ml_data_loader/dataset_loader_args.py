@@ -27,8 +27,7 @@ class DatasetLoaderArgs(KeyValueArgs):
     # Collate and tramsform
     collate_fn: Any = None
     transform: Any = None
-    text_collate_fn = DatasetLoaderUtil.text_collate_fn
-
+    text_collate_fn: Any = None
     # For custom dataset
     dataset = None
 
