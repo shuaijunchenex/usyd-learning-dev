@@ -47,12 +47,6 @@ class TokenizerBuilder(Handlers):
 
     @staticmethod
     def build_vocab(data_set, tokenizer, min_freq=2, max_vocab=30000):
-        """
-        兼容 torchtext 0.6:
-        - 用 Counter 构建 Vocab
-        - 通过 min_freq 控制低频过滤
-        - 手动截断到 max_vocab
-        """
         from collections import Counter
         from torchtext.vocab import Vocab
         
@@ -79,6 +73,8 @@ class TokenizerBuilder(Handlers):
             specials=specials,
             max_tokens=max_vocab
         )
+        
+        vocab.set_default_index(vocab[UNK])
 
         return vocab
 

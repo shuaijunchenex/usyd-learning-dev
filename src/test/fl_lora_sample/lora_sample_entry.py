@@ -52,11 +52,11 @@ class SampleAppEntry(AppEntry):
         self.fed_runner.server_node.node_var = server_var
 
         # Load data
-        dataloader_args = DatasetLoaderArgs(self.server_yaml.get("data_loader", None))
-        mnist_train_loader = DatasetLoaderFactory().create(dataloader_args)
+        #dataloader_args = DatasetLoaderArgs(self.server_yaml.get("data_loader", None))
+        train_loader = server_var.data_loader#DatasetLoaderFactory().create(dataloader_args)
 
         # NonIID handler
-        allocated_noniid_data = NoniidDataGenerator(mnist_train_loader.data_loader).generate_noniid_data(distribution=self.server_yaml["data_distribution"]["use"])
+        allocated_noniid_data = NoniidDataGenerator(train_loader.data_loader).generate_noniid_data(distribution=self.server_yaml["data_distribution"]["use"])
 
         for i in range(len(allocated_noniid_data)):
             args = DatasetLoaderArgs({'name': 'custom', 

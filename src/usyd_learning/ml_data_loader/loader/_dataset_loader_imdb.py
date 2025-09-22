@@ -28,13 +28,6 @@ class DatasetLoader_Imdb(DatasetLoader):
 
     # override
     def _create_inner(self, args: DatasetLoaderArgs) -> None:
-        """
-        目标：对齐 MNIST 的接口输出，保证：
-          - self._dataset / self._data_loader：训练集（或用户指定 split）
-          - self._test_dataset / self._test_data_loader：测试集
-          - DataLoader 迭代产出 (Tensor, Tensor)，其中 labels 是 shape [B] 的 long tensor
-          - 文本必须通过 text_collate_fn 做 tokenize + pad，保证 batch 内同长、可被 torch.cat
-        """
         root = getattr(args, "root")
         is_download = getattr(args, "is_download", True)
         batch_size = getattr(args, "batch_size", 32)
