@@ -26,40 +26,40 @@ class NoniidDataGenerator:
         self._load_data()
         self.create_data_pool()
 
-    def _load_data(self):
-        """Load data from DataLoader and store in x_train, y_train"""
-        inputs_list, labels_list = [], []
-
-        for batch in self.dataloader:
-            if isinstance(batch, (list, tuple)) and len(batch) == 2:
-                inputs, labels = batch
-            else:
-                raise ValueError(f"Unexpected batch format: {type(batch)}")
-
-            inputs_list.append(inputs)
-            labels_list.append(labels)
-
-        # 图像任务：inputs 是 [B, C, H, W]；文本任务：inputs 是 [B, L]
-        try:
-            self.x_train = torch.cat(inputs_list, dim=0)
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to concatenate inputs. "
-                f"Check input shapes: {[x.shape for x in inputs_list]}"
-            ) from e
-
-        self.y_train = torch.cat(labels_list, dim=0)
-
-
     # def _load_data(self):
     #     """Load data from DataLoader and store in x_train, y_train"""
-    #     images_list, labels_list = [], []
-    #     for images, labels in self.dataloader:
-    #         images_list.append(images)
+    #     inputs_list, labels_list = [], []
+
+    #     for batch in self.dataloader:
+    #         if isinstance(batch, (list, tuple)) and len(batch) == 2:
+    #             inputs, labels = batch
+    #         else:
+    #             raise ValueError(f"Unexpected batch format: {type(batch)}")
+
+    #         inputs_list.append(inputs)
     #         labels_list.append(labels)
-        
-    #     self.x_train = torch.cat(images_list, dim=0)
+
+    #     # 图像任务：inputs 是 [B, C, H, W]；文本任务：inputs 是 [B, L]
+    #     try:
+    #         self.x_train = torch.cat(inputs_list, dim=0)
+    #     except Exception as e:
+    #         raise RuntimeError(
+    #             f"Failed to concatenate inputs. "
+    #             f"Check input shapes: {[x.shape for x in inputs_list]}"
+    #         ) from e
+
     #     self.y_train = torch.cat(labels_list, dim=0)
+
+
+    def _load_data(self):
+        """Load data from DataLoader and store in x_train, y_train"""
+        images_list, labels_list = [], []
+        for images, labels in self.dataloader:
+            images_list.append(images)
+            labels_list.append(labels)
+        
+        self.x_train = torch.cat(images_list, dim=0)
+        self.y_train = torch.cat(labels_list, dim=0)
 
     def create_data_pool(self):
         """

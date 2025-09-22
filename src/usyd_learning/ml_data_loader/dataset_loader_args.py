@@ -47,4 +47,5 @@ class DatasetLoaderArgs(KeyValueArgs):
         self.shuffle = self.get("shuffle", True)
         self.num_workers = self.get("num_workers", 4)
         self.dataset = self.get("dataset", None)
+        self.task_type = self.get("task_type", None)  # cv|nlp
         return

@@ -16,6 +16,9 @@ class DatasetLoader_Custom(DatasetLoader):
         
         self._dataset = args.dataset
 
+        self.data_sample_num = len(self._dataset) 
+        self.task_type = args.task_type
+
         self._data_loader = DataLoader(
             self._dataset,
             batch_size=args.batch_size,

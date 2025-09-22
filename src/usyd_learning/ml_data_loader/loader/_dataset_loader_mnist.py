@@ -24,6 +24,9 @@ class DatasetLoader_Mnist(DatasetLoader): # class DatasetLoader_Mnist extends Da
                 transforms.Normalize((0.1307,), (0.3081,)),
                 transforms.Lambda(torch.flatten)])
 
+        self.data_sample_num = 60000
+        self.task_type = "cv"
+
         self._dataset = datasets.MNIST(root=args.root, train=args.is_train, transform=args.transform, download=args.is_download)
         self._data_loader = DataLoader(self._dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
 

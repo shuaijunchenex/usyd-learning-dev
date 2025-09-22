@@ -214,13 +214,14 @@ class FedNodeVars(ObjectMap, EventHandler, KeyValueArgs):
         if "data_loader" in self.config_dict:
             data_loader_args = DatasetLoaderArgs(self.config_dict["data_loader"])
             data_loader_args.transform = self.data_loader_transform
-            data_loader_args.tokenizer = self.tokenizer
+            if data_loader_args.task_type == "nlp":
+                data_loader_args.tokenizer = self.tokenizer
             self.data_loader = DatasetLoaderFactory.create(data_loader_args)
             data_loader_args.is_train = False  # get test data loader
             self.test_data_loader = DatasetLoaderFactory.create(data_loader_args)
             self.data_sample_num = self.data_loader.data_sample_num
         
-            if data_loader_args.vocab_size != None:
+            if data_loader_args.task_type == "nlp" and data_loader_args.vocab_size != None:
                 self.vocab_size = data_loader_args.vocab_size
         # Raise event
         args = FedNodeEventArgs("data_loader", self.config_dict).with_sender(self).with_data(self.data_loader)
