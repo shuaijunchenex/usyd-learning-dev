@@ -26,11 +26,16 @@ yaml_folder_client_selection_files:
   - "random.yaml" : client_selection_random  
 
 yaml_folder_dataset_loader_files:
-  - "mnist.yaml" : dataset_loader_mnist  
+  - "mnist.yaml" : dataset_loader_mnist
+  - "fmnist.yaml" : dataset_loader_fmnist
+  - "kmnist.yaml" : dataset_loader_kmnist
+  - "qmnist.yaml" : dataset_loader_qmnist
 
 yaml_folder_data_distribution_files:
   - "mnist_one_label.yaml" : mnist_one_label
   - "cifar10_one_label.yaml" : cifar10_one_label
+  - "fmnist_one_label.yaml" : fmnist_one_label
+  - "qmnist_one_label.yaml" : qmnist_one_label
 
 yaml_folder_loss_func_files:
   - "cross_entropy.yaml" : cross_entropy
@@ -107,12 +112,12 @@ yaml_combination:
   client_yaml: 
     - general_round100
     - training_logger
-    - dataset_loader_mnist
+    - dataset_loader_fmnist
     - nn_model_mnist_mlp_lora
     - cross_entropy
     - sgd
     - training_epoch3
-    - mnist_one_label
+    - fmnist_one_label
     - rbla_client_strategy
     - trainer_standard #, trainer
 
@@ -123,12 +128,12 @@ yaml_combination:
   server_yaml: 
     - general_round100 # general
     - training_logger # training_logger
-    - dataset_loader_mnist # dataset_loader
+    - dataset_loader_fmnist # dataset_loader
     - nn_model_mnist_mlp_lora # nn_model
     - cross_entropy # loss_func
     - sgd # optimizer
     - training_epoch3 # training
-    - mnist_one_label # data_distribution
+    - fmnist_one_label # data_distribution
     - trainer_standard # trainer
     - client_selection_random # client_selection
     - rbla_server_strategy # server_strategy
