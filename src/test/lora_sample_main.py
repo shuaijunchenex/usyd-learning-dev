@@ -16,13 +16,13 @@ g_app = SampleAppEntry()
 
 def main():
     # Load app config set from yaml file
-    g_app.load_app_config("./fl_lora_sample/kmnist_test.yaml")
+    g_app.load_app_config("./fl_lora_sample/convergence_experiment/kmnist/rbla_r001_epoch1.yaml")
 
     # Get training rounds
     training_rounds = g_app.training_rounds
 
     # Run app
-    g_app.run("cpu",training_rounds)
+    g_app.run("mps",training_rounds)
     return
 
 if __name__ == "__main__":

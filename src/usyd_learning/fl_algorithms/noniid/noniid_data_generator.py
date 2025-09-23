@@ -159,6 +159,19 @@ class NoniidDataGenerator:
                                             [0, 0, 0, 0, 0, 0, 0, 0, 6000, 0],
                                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 6000]]
 
+
+        kmnist_data_volum_list_one_label = [[6000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 6000, 0, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 6000, 0, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 6000, 0, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 6000, 0, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 6000, 0, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 6000, 0, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 6000, 0, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 0, 6000, 0],
+                                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 6000]]
+
+
         qmnist_data_volum_list_one_label = [[10895, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                             [0, 12398, 0, 0, 0, 0, 0, 0, 0, 0],
                                             [0, 0, 10952, 0, 0, 0, 0, 0, 0, 0],
@@ -186,6 +199,8 @@ class NoniidDataGenerator:
             return imdb_two_clients_one_label
         if distribution == 'fmnist_one_label':
             return fmnist_data_volum_list_one_label
+        if distribution == 'kmnist_one_label':
+            return kmnist_data_volum_list_one_label
         if distribution == 'qmnist_one_label':
             return qmnist_data_volum_list_one_label
         elif distribution == "custom":
