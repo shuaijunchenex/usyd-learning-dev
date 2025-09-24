@@ -189,9 +189,9 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     return run(
-        root="/Users/chensj/Documents/GitHub/usyd-learning-src/src/test/fl_lora_sample/convergence_experiment/kmnist",
-        from_dataset="fmnist",
-        to_dataset="kmnist",
+        root= r"C:\MyPhD\usyd-learning-src\src\test\fl_lora_sample\convergence_experiment\qmnist",
+        from_dataset="kmnist",
+        to_dataset="qmnist",
         recursive=args.recursive,
         backup=False,
         in_place=args.in_place,
