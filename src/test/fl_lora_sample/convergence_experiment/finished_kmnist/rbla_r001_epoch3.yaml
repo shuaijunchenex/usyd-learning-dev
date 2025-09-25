@@ -79,34 +79,34 @@ yaml_folder_rank_distribution_files:
 - rank007.yaml: rank_distribution_007_homogeneous
 yaml_combination:
   runner:
-  - general_round150
+  - general_round100
   - training_logger
   - fl_nodes
-  - sp_runner_strategy
+  - rbla_runner_strategy
   client_yaml:
-  - general_round150
+  - general_round100
   - training_logger
   - dataset_loader_kmnist
   - nn_model_mnist_mlp_lora
   - cross_entropy
   - sgd
-  - training_epoch2
+  - training_epoch3
   - kmnist_one_label
-  - sp_client_strategy
+  - rbla_client_strategy
   - trainer_standard
   edge_yaml: []
   server_yaml:
-  - general_round150
+  - general_round100
   - training_logger
   - dataset_loader_kmnist
   - nn_model_mnist_mlp_lora
   - cross_entropy
   - sgd
-  - training_epoch2
+  - training_epoch3
   - kmnist_one_label
   - trainer_standard
   - client_selection_random
-  - sp_server_strategy
-  - aggregation_sp
+  - rbla_server_strategy
+  - aggregation_rbla
   - rank_distribution_001_homogeneous
   - base_lora_inference_mode

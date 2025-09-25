@@ -58,8 +58,8 @@ if __name__ == "__main__":
         "./fl_lora_sample/script_test-sp.yaml",
         "./fl_lora_sample/script_test-rbla.yaml",
     ]
-    config_list = list_yaml_files("C:/MyPhD/usyd-learning-src/src/test/fl_lora_sample/convergence_experiment/qmnist", 
-                                  "C:/MyPhD/usyd-learning-src/src/test/fl_lora_sample/convergence_experiment/qmnist")
+    config_list = list_yaml_files("/Users/chensj/Documents/GitHub/usyd-learning-src/src/test/fl_lora_sample/convergence_experiment/additional_kmnist", 
+                                  "/Users/chensj/Documents/GitHub/usyd-learning-src/src/test/fl_lora_sample/convergence_experiment/additional_kmnist")
     run_all(config_list)
 
 
