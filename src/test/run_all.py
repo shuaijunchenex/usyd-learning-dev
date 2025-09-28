@@ -27,13 +27,14 @@ def list_yaml_files(folder: str, target_path: str) -> List[str]:
 
     return files
 
-# run_all.py
+BASE_DIR = Path(__file__).resolve().parent
+
 import subprocess
 import sys
 import os
+import time
 from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
+from datetime import datetime
 
 def run_all(configs):
     child_code = (
@@ -46,12 +47,65 @@ def run_all(configs):
     sep = ";" if os.name == "nt" else ":"
     env["PYTHONPATH"] = str(BASE_DIR) + (sep + env.get("PYTHONPATH", ""))
 
+    successes = []  # [(cfg_path, seconds)]
+    failures = []   # [(cfg_path, returncode or 'exception')]
+
+    total = len(configs)
     for idx, cfg in enumerate(configs, 1):
         cfg_path = str(Path(cfg).resolve())
-        print(f"\n[Batch] ({idx}/{len(configs)}) Running: {cfg_path}")
+        print(f"\n[Batch] ({idx}/{total}) Running: {cfg_path}")
         cmd = [sys.executable, "-c", child_code, cfg_path]
-        subprocess.run(cmd, check=True, cwd=str(BASE_DIR), env=env)
-        print(f"[Batch] Finished: {cfg_path}")
+
+        t0 = time.time()
+        try:
+            subprocess.run(cmd, check=True, cwd=str(BASE_DIR), env=env)
+        except subprocess.CalledProcessError as e:
+            elapsed = time.time() - t0
+            print(f"[Batch][ERROR] {cfg_path} 执行失败，退出码 {e.returncode}，耗时 {elapsed:.2f}s（继续下一个）")
+            failures.append((cfg_path, e.returncode))
+            continue
+        except Exception as e:
+            elapsed = time.time() - t0
+            print(f"[Batch][ERROR] {cfg_path} 运行异常：{e}，耗时 {elapsed:.2f}s（继续下一个）")
+            failures.append((cfg_path, "exception"))
+            continue
+
+        elapsed = time.time() - t0
+        successes.append((cfg_path, elapsed))
+        print(f"[Batch] Finished: {cfg_path} | {elapsed:.2f}s")
+
+    # 汇总
+    ok = len(successes)
+    bad = len(failures)
+    print("\n" + "="*60)
+    print(f"[Batch][Summary] 总计 {total} | 成功 {ok} | 失败 {bad}")
+    if successes:
+        print("[成功样例] 前3条：")
+        for p, s in successes[:3]:
+            print(f"  - {p} ({s:.2f}s)")
+    if failures:
+        print("[失败列表]")
+        for p, code in failures:
+            print(f"  - {p} | 返回：{code}")
+
+    # 写日志文件（在 BASE_DIR 下）
+    try:
+        log_path = Path(BASE_DIR) / "batch_summary.log"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
+                    f"total={total} success={ok} fail={bad}\n")
+            if successes:
+                f.write("  successes:\n")
+                for p, s in successes:
+                    f.write(f"    - {p} ({s:.2f}s)\n")
+            if failures:
+                f.write("  failures:\n")
+                for p, code in failures:
+                    f.write(f"    - {p} (return={code})\n")
+        print(f"[Batch] 结果已写入: {log_path}")
+    except Exception as e:
+        print(f"[Batch][WARN] 写入日志失败：{e}")
+
 
 if __name__ == "__main__":
     configs = [
